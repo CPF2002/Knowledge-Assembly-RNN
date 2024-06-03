@@ -1,4 +1,6 @@
 datasets/
 venv/
 results/
+figures/
+network_analysis/
 __pycache__/
