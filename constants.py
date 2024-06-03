@@ -26,7 +26,7 @@ EEG_DIRECTORY = 'datasets/'
 
 # Total maximum numbers for one-hot coding
 TOTALMAXNUM = 8    # max numerosity
-NCONTEXTS = 3       # max number of contexts for one-hot coding
+NCONTEXTS = 2       # max number of contexts for one-hot coding
 NTYPEBITS = 1       # just need one input bit to flag whether current trial is 'compare' or 'filler'
 
 
