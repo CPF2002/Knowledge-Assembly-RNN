@@ -278,60 +278,60 @@ def create_separate_input_data(filename, args):
                 previousFillerNum = None
                 previousTrialtype = None
 
-                # generate adjacent sequences of inputs, where no two adjacent elements within (or between) a sequence are the same
-                for item in range(args.BPTT_len):
-                    trial_type = type_sequence[item]
-                    trialtypeinput[item] = 1 if trial_type=='compare' else 0    # provide a bit-flip input to say whether its a filler or compare trial
+                # # generate adjacent sequences of inputs, where no two adjacent elements within (or between) a sequence are the same
+                # for item in range(args.BPTT_len):
+                #     trial_type = type_sequence[item]
+                #     trialtypeinput[item] = 1 if trial_type=='compare' else 0    # provide a bit-flip input to say whether its a filler or compare trial
 
-                    if trial_type == 'compare':
-                        if (firstTrialInContext and (item==0)):
-                            randind = random.choice(indexDistribution)
-                            refValue = randNumDistribution[randind]
-                            if trial_type == 'filler':
-                                print('Warning: sequence starting with a filler trial. This should not happen and will cause a bug in sequence generation.')
-                        else:
-                            refValue = copy.deepcopy(judgementValue)  # use the previous number and make sure its a copy not a reference to same piece of memory
+                #     if trial_type == 'compare':
+                #         if (firstTrialInContext and (item==0)):
+                #             randind = random.choice(indexDistribution)
+                #             refValue = randNumDistribution[randind]
+                #             if trial_type == 'filler':
+                #                 print('Warning: sequence starting with a filler trial. This should not happen and will cause a bug in sequence generation.')
+                #         else:
+                #             refValue = copy.deepcopy(judgementValue)  # use the previous number and make sure its a copy not a reference to same piece of memory
 
-                        randind = random.choice(indexDistribution)
-                        judgementValue = randNumDistribution[randind]
+                #         randind = random.choice(indexDistribution)
+                #         judgementValue = randNumDistribution[randind]
 
-                        while refValue==judgementValue:    # make sure we dont do inputA==inputB for two adjacent inputs
-                            randind = random.choice(indexDistribution)
-                            judgementValue = randNumDistribution[randind]
+                #         while refValue==judgementValue:    # make sure we dont do inputA==inputB for two adjacent inputs
+                #             randind = random.choice(indexDistribution)
+                #             judgementValue = randNumDistribution[randind]
 
-                        input2 = turn_one_hot(judgementValue, const.TOTALMAXNUM)
-                        if args.all_fullrange:  # if intermingling contexts, then we need to know which context this number was sampled from
-                            context = turn_index_to_context(randind)
+                #         input2 = turn_one_hot(judgementValue, const.TOTALMAXNUM)
+                #         if args.all_fullrange:  # if intermingling contexts, then we need to know which context this number was sampled from
+                #             context = turn_index_to_context(randind)
 
-                    else:  # filler trial (note fillers are always from uniform 1:15 range)
-                        input2 = turn_one_hot(random.randint(*fillerRange), const.TOTALMAXNUM)
-                        # make sure (like Fabrice) that after a compare trial the subsequent filler isnt the same as the previous filler
-                        if previousFillerNum is not None and previousTrialtype=='compare':
-                            while all(input2 == previousFillerNum):
-                                input2 = turn_one_hot(random.randint(*fillerRange), const.TOTALMAXNUM) # leave the filler numbers unconstrained just spanning the full range
+                #     else:  # filler trial (note fillers are always from uniform 1:15 range)
+                #         input2 = turn_one_hot(random.randint(*fillerRange), const.TOTALMAXNUM)
+                #         # make sure (like Fabrice) that after a compare trial the subsequent filler isnt the same as the previous filler
+                #         if previousFillerNum is not None and previousTrialtype=='compare':
+                #             while all(input2 == previousFillerNum):
+                #                 input2 = turn_one_hot(random.randint(*fillerRange), const.TOTALMAXNUM) # leave the filler numbers unconstrained just spanning the full range
 
-                        previousFillerNum = copy.copy(input2)
-                        # when the trials are interleaved, set filler trials to have random contets
-                        # (NOTE this doesnt actually matter because context is later zeroed on fillers)
-                        if args.all_fullrange:
-                            context = random.randint(1,3)
+                #         previousFillerNum = copy.copy(input2)
+                #         # when the trials are interleaved, set filler trials to have random contets
+                #         # (NOTE this doesnt actually matter because context is later zeroed on fillers)
+                #         if args.all_fullrange:
+                #             context = random.randint(1,3)
 
-                    previousTrialtype = copy.copy(trial_type)
+                #     previousTrialtype = copy.copy(trial_type)
 
-                    # Define the context input to the network
-                    if args.label_context=='true':
-                        contextinput = turn_one_hot(context, const.NCONTEXTS)  # there are 3 different contexts
-                    elif args.label_context=='random':
-                        # Note that NOT changing 'context' means that we should be able to see the correct range label in the RDM
-                        contextinput = turn_one_hot(random.randint(1,3), const.NCONTEXTS)  # randomly assign each example to a context, (shuffling examples across context markers in training)
-                    elif args.label_context=='constant':
-                        # Note that NOT changing 'context' means that we should be able to see the correct range label in the RDM
-                        contextinput = turn_one_hot(1, const.NCONTEXTS) # just keep this constant across all contexts, so the input doesnt contain an explicit context indicator
+                #     # Define the context input to the network
+                #     if args.label_context=='true':
+                #         contextinput = turn_one_hot(context, const.NCONTEXTS)  # there are 3 different contexts
+                #     elif args.label_context=='random':
+                #         # Note that NOT changing 'context' means that we should be able to see the correct range label in the RDM
+                #         contextinput = turn_one_hot(random.randint(1,3), const.NCONTEXTS)  # randomly assign each example to a context, (shuffling examples across context markers in training)
+                #     elif args.label_context=='constant':
+                #         # Note that NOT changing 'context' means that we should be able to see the correct range label in the RDM
+                #         contextinput = turn_one_hot(1, const.NCONTEXTS) # just keep this constant across all contexts, so the input doesnt contain an explicit context indicator
 
-                    # add our new inputs to our sequence
-                    input_sequence.append(input2)
-                    contextsequence.append(context)
-                    contextinputsequence.append(contextinput)
+                #     # add our new inputs to our sequence
+                #     input_sequence.append(input2)
+                #     contextsequence.append(context)
+                #     contextinputsequence.append(contextinput)
 
                 if firstTrialInContext:
                     judgementValue = turn_one_hot_to_integer(input_sequence[-1])  # and then make sure that the next sequence starts where this one left off (bit of a hack)
