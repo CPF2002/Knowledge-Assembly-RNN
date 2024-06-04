@@ -60,18 +60,18 @@ if __name__ == '__main__':
     mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
 
     # Plot the lesion test performance
-    #print('\nPlotting lesion tests...')
-    #mplt.perf_vs_context_distance(args, device)     # Assess performance after a lesion vs context distance (Figure 2 and S1)
-    #mplt.compare_lesion_tests(args, device)      # compare the performance across the different lesion frequencies during training (Figure 2)
+    print('\nPlotting lesion tests...')
+    mplt.perf_vs_context_distance(args, device)     # Assess performance after a lesion vs context distance (Figure 2 and S1)
+    mplt.compare_lesion_tests(args, device)      # compare the performance across the different lesion frequencies during training (Figure 2)
 
     # Statistical tests: is network behaviour better fit by an agent using the local-context or global-context policy
-    #print('\nStatistical tests...')
-    #anh.model_behaviour_vs_theory(args, device)
+    print('\nStatistical tests...')
+    anh.model_behaviour_vs_theory(args, device)
 
     # Load representations and check cross-line big/small generalisation
-    #print('\nCross-line generalisation...')
-    #anh.cross_line_rep_generalisation(args)
-    #anh.cross_line_rep_generalisation_human(args)
+    print('\nCross-line generalisation...')
+    anh.cross_line_rep_generalisation(args)
+    anh.cross_line_rep_generalisation_human(args)
 
     # Load a trained network (no VI), freeze the first layer (recurrent) weights and then retrain the decoder with VI and save it
     #print('\nRetraining decoder...')
