@@ -776,6 +776,12 @@ def perf_vs_context_distance(args, device):
         stds = [full_context_perf_sem, low_context_perf_sem, high_context_perf_sem]
 
         for i in range(len(xnumbers)):
+            print("i: ", i)
+            print("ax[j]: ", ax[j])
+            print("xnumbers: ", xnumbers[i])
+            print("means: ", means[i])
+            print("stds: ", stds[i])
+            print("const.CONTEXT_COLOURS[i]: ", const.CONTEXT_COLOURS[i])
             shadeplot(ax[j], xnumbers[i], means[i], stds[i], const.CONTEXT_COLOURS[i])
             h = ax[j].errorbar(xnumbers[i], means[i], stds[i], color=const.CONTEXT_COLOURS[i], fmt='o', markersize=5, markeredgecolor='black', ecolor='black')
             handles.append(h)
