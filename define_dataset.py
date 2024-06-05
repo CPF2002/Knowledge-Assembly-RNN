@@ -260,10 +260,10 @@ def create_separate_input_data(filename, args):
                 minNumerosity = const.HIGHR_LLIM
                 maxNumerosity = const.HIGHR_ULIM
 
-            if args.all_fullrange:
+            if args.all_fullrange: # args.all_fullrange == True = interleaved
                 tmpDistribution = [[i for i in range(const.FULLR_LLIM, const.FULLR_ULIM+1)],[j for j in range(const.LOWR_LLIM, const.LOWR_ULIM+1)], [k for k in range(const.HIGHR_LLIM, const.HIGHR_ULIM+1)] ]
                 randNumDistribution = [i for sublist in tmpDistribution for i in sublist]  # non-uniform distr. over all 3 context ranges together
-            else:
+            else: # args.all_fullrange == False = blocked
                 randNumDistribution = [i for i in range(minNumerosity, maxNumerosity+1)]  # uniform between min and max
             indexDistribution = [i for i in range(len(randNumDistribution))]  # this is going to allow us to know which context a sample which have been drawn from if intermingled
 

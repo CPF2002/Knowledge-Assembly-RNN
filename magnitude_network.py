@@ -732,8 +732,9 @@ def define_hyperparams():
         parser.add_argument('--network-style', default="recurrent", help='which network we want, "recurrent" or "mlp" (default: "recurrent")')
         parser.add_argument('--new-dataset', dest='create_new_dataset', action='store_true', help='create a new dataset for this condition? (default: False)')   # re-generate the random train/test dataset each time?
         parser.add_argument('--reuse-dataset', dest='create_new_dataset', action='store_false', help='reuse the existing dataset for this condition? (default: True)')
-        parser.add_argument('--remove-fillers', dest='include_fillers', action='store_false', default=True, help='remove fillers from the dataset? (default: False)')     # True: task is like Fabrice's with filler trials; False: solely compare trials
+        parser.add_argument('--remove-fillers', dest='include_fillers', action='store_false', default=False, help='remove fillers from the dataset? (default: False)')     # True: task is like Fabrice's with filler trials; False: solely compare trials
         parser.add_argument('--which_context', type=int, default=0, help='if we want to train on a single context range only: 0=all contexts, 1=full only, 2=low only, 3=high only (default: 0)')
+        # see what happens when set interleave and block to true
         parser.add_argument('--interleave', dest='all_fullrange', action='store_true', help='interleave training (default: False)')
         parser.add_argument('--blockrange', dest='all_fullrange', action='store_false', help='block training by contextual number range (default: True)')
         parser.add_argument('--reset-state', dest='retain_hidden_state', action='store_false', help='reset the hidden state between sequences (default: False)')
@@ -795,10 +796,10 @@ def log_performance(writer, epoch, train_perf, test_perf):
 class argsparser():
     """For holding network training arguments, usually entered via command line"""
     def __init__(self):
-        self.batch_size = 24
+        self.batch_size = 24    # how many trials that are seen at one time
         self.test_batch_size = 24
         self.epochs = 50
-        self.lr = 0.002
+        self.lr = 0.002 # learning rate : bigger means faster learning, but can get stuck
         self.momentum = 0.5
         self.no_cuda = False
         self.seed = 1
@@ -827,6 +828,7 @@ def get_dataset_name(args):
     rangetxt = '_numrangeintermingled' if args.all_fullrange else '_numrangeblocked'
     retraindecodertxt = '_retraineddecoderVI' if args.retrain_decoder else ''
 
+    # ! want to change when we set to 2 contexts
     if args.which_context==0:
         whichcontexttext = ''
     elif args.which_context==1:
