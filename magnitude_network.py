@@ -955,8 +955,10 @@ def train_and_save_network(args, device, multiparams):
     # define the network parameters
     datasetname, trained_modelname, analysis_name, _ = get_dataset_name(args)
     if args.create_new_dataset:
+        print('Creating new dataset...')
         trainset, testset = dset.create_separate_input_data(datasetname, args)
     else:
+        print('Loading existing dataset...')
         trainset, testset, _, _, _, _ = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
 
     # define and train a neural network model, log performance and output trained model
