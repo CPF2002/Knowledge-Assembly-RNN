@@ -670,7 +670,7 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
     counter = np.take_along_axis(counter, context_ind, axis=0)
 
     # within each context, sort according to numerosity of the judgement value
-    for context in range(1,4):
+    for context in range(1,3):
         ind = [i for i in range(contexts.shape[0]) if contexts[i]==context]
         numerosity_ind = np.argsort(labels_judgeValues[ind], axis=0) + ind[0]
         labels_judgeValues[ind] = np.take_along_axis(labels_judgeValues, numerosity_ind, axis=0)
@@ -733,7 +733,7 @@ def define_hyperparams():
         parser.add_argument('--new-dataset', dest='create_new_dataset', action='store_true', help='create a new dataset for this condition? (default: False)')   # re-generate the random train/test dataset each time?
         parser.add_argument('--reuse-dataset', dest='create_new_dataset', action='store_false', help='reuse the existing dataset for this condition? (default: True)')
         parser.add_argument('--remove-fillers', dest='include_fillers', action='store_false', default=False, help='remove fillers from the dataset? (default: False)')     # True: task is like Fabrice's with filler trials; False: solely compare trials
-        parser.add_argument('--which_context', type=int, default=0, help='if we want to train on a single context range only: 0=all contexts, 1=full only, 2=low only, 3=high only (default: 0)')
+        parser.add_argument('--which_context', type=int, default=0, help='if we want to train on a single context range only: 0=all contexts, 1=low only, 2=high only, (default: 0)')
         # see what happens when set interleave and block to true
         parser.add_argument('--interleave', dest='all_fullrange', action='store_true', help='interleave training (default: False)')
         parser.add_argument('--blockrange', dest='all_fullrange', action='store_false', help='block training by contextual number range (default: True)')
@@ -963,8 +963,10 @@ def train_and_save_network(args, device, multiparams):
 
     # define and train a neural network model, log performance and output trained model
     if args.network_style == 'recurrent':
+        print('Training recurrent network...')
         model = train_recurrent_network(args, device, multiparams, trainset, testset)
     else:
+        print('Training MLP network...')
         model = trainMLPNetwork(args, device, multiparams, trainset, testset)
 
     # save the trained weights so we can easily look at them

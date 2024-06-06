@@ -308,10 +308,8 @@ def lesion_perf_by_numerosity(lesiondata):
         for compare_idx in range(lesiondata.shape[1]):
             context = lesiondata[seq][compare_idx]["underlying_context"]
             if context==1:
-                contextmean[seq][compare_idx] = const.CONTEXT_FULL_MEAN
-            elif context==2:
                 contextmean[seq][compare_idx] = const.CONTEXT_LOW_MEAN
-            elif context==3:
+            elif context==2:
                 contextmean[seq][compare_idx] = const.CONTEXT_HIGH_MEAN
 
             # calculate difference between current number and context or global mean
@@ -331,7 +329,7 @@ def lesion_perf_by_numerosity(lesiondata):
     meanperf, uniquediffs = performance_mean(numberdiffs, perf)
     global_meanperf, global_uniquediffs = performance_mean(globalnumberdiffs, perf)
 
-    # assess mean performance under each context
+    # assess mean performance under each context # ! do we have to update this for the new context structure?
     context1_meanperf, context1_uniquediffs = performance_mean(context_numberdiffs[0], context_perf[0])
     context2_meanperf, context2_uniquediffs = performance_mean(context_numberdiffs[1], context_perf[1])
     context3_meanperf, context3_uniquediffs = performance_mean(context_numberdiffs[2], context_perf[2])
@@ -556,7 +554,7 @@ def analyse_network(args):
         trainset, testset, crossvalset, np_trainset, np_testset, np_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
 
         if args.block_int_ttsplit:
-            paired_modelid = anh.get_paired_test_model_id(args)
+            paired_modelid = get_paired_test_model_id(args)
 
             # test on a different (interleaved) dataset
             train_modelid = args.model_id
@@ -721,7 +719,7 @@ def train_line_classifier(activations, contexts, y_labels):
 
     return generalisation, train_scores
 
-
+# ! dont know how to deal with this function
 def setup_classifier_labels(reverse_context_order, randomize_labels=False):
     """Define some arrays of labels for the logistic regression line classifier
     to use in cross-line generalisation train/test.
@@ -1026,8 +1024,8 @@ def plot_postlesion(args, retrain_args, model_list):
     # allocate some space
     global_meanperf = []
     global_uniquediffs = []
-    full_context_numberdiffs, low_context_numberdiffs, high_context_numberdiffs = [[] for i in range(3)]
-    full_context_perf, low_context_perf, high_context_perf = [[] for i in range(3)]
+    low_context_numberdiffs, high_context_numberdiffs = [[] for i in range(2)]
+    low_context_perf, high_context_perf = [[] for i in range(2)]
 
     data = [[] for i in range(len(model_list))]
     context_tests = np.zeros((const.NCONTEXTS, len(model_list)))
@@ -1070,12 +1068,10 @@ def plot_postlesion(args, retrain_args, model_list):
         gp, cp, gd, cd = lesion_perf_by_numerosity(data[ind])
         global_meanperf.append(gp)
         global_uniquediffs.append(gd)
-        full_context_perf.append(cp[0])
-        low_context_perf.append(cp[1])
-        high_context_perf.append(cp[2])
-        full_context_numberdiffs.append(cd[0])
-        low_context_numberdiffs.append(cd[1])
-        high_context_numberdiffs.append(cd[2])
+        low_context_perf.append(cp[0])
+        high_context_perf.append(cp[1])
+        low_context_numberdiffs.append(cd[0])
+        high_context_numberdiffs.append(cd[1])
 
         lesioned_test[ind] = lesiondata["lesioned_testaccuracy"]
         unlesioned_test[ind] = regulartestdata["normal_testaccuracy"]
@@ -1118,7 +1114,7 @@ def plot_postlesion(args, retrain_args, model_list):
     for i in range(2):
         count =0
         for context in range(const.NCONTEXTS):
-            colour = context+1 if context<2 else 0
+            colour = context+1 if context<1 else 0
             tmp = ax[i].errorbar(count, mean_contextlesion_test[colour], sem_contextlesion_test[colour], color=const.CONTEXT_COLOURS[colour], markersize=5, ecolor='black', markeredgecolor='black')
             ax[i].errorbar(count, mean_contextlesion_test[colour], sem_contextlesion_test[colour], color=const.CONTEXT_COLOURS[colour], markersize=5, marker='o', ecolor='black', markeredgecolor='black')
             count +=1
@@ -1136,21 +1132,17 @@ def plot_postlesion(args, retrain_args, model_list):
 
     # mean over models
     global_meanperf = np.array(global_meanperf)
-    full_context_perf = np.array(full_context_perf)
     low_context_perf = np.array(low_context_perf)
     high_context_perf = np.array(high_context_perf)
     global_uniquediffs = np.array(global_uniquediffs)
-    full_context_numberdiffs = np.array(full_context_numberdiffs)
     low_context_numberdiffs = np.array(low_context_numberdiffs)
     high_context_numberdiffs = np.array(high_context_numberdiffs)
 
     global_meanperf_mean, global_meanperf_sem = mplt.get_summarystats(global_meanperf, 0)
-    full_context_perf_mean, full_context_perf_sem = mplt.get_summarystats(full_context_perf, 0)
     low_context_perf_mean, low_context_perf_sem = mplt.get_summarystats(low_context_perf, 0)
     high_context_perf_mean, high_context_perf_sem = mplt.get_summarystats(high_context_perf, 0)
 
     global_uniquediffs = np.mean(global_uniquediffs, axis=0)
-    full_context_numberdiffs = np.mean(full_context_numberdiffs, axis=0)
     low_context_numberdiffs = np.mean(low_context_numberdiffs, axis=0)
     high_context_numberdiffs = np.mean(high_context_numberdiffs, axis=0)
 
@@ -1160,16 +1152,16 @@ def plot_postlesion(args, retrain_args, model_list):
     numberdiffs, globalnumberdiffs, perf = theory.simulate_theoretical_policies()
 
     # context-specific performance i.e. how did performance change with dist. to mean in each context
-    xnumbers =  [full_context_numberdiffs, low_context_numberdiffs, high_context_numberdiffs]
-    means = [full_context_perf_mean, low_context_perf_mean, high_context_perf_mean]
-    stds = [full_context_perf_sem, low_context_perf_sem, high_context_perf_sem]
+    xnumbers =  [low_context_numberdiffs, high_context_numberdiffs]
+    means = [low_context_perf_mean, high_context_perf_mean]
+    stds = [low_context_perf_sem, high_context_perf_sem]
 
     for j in range(2):
         # plot model predictions under local or global predictions
         handles = theory.plot_theoretical_predictions(ax[j], numberdiffs, globalnumberdiffs, perf, j)
 
         for i in range(len(xnumbers)):
-            anh.shadeplot(ax[j], xnumbers[i], means[i], stds[i], const.CONTEXT_COLOURS[i])
+            shadeplot(ax[j], xnumbers[i], means[i], stds[i], const.CONTEXT_COLOURS[i])
             h = ax[j].errorbar(xnumbers[i], means[i], stds[i], color=const.CONTEXT_COLOURS[i], fmt='o', markersize=5, markeredgecolor='black', ecolor='black')
             handles.append(h)
 
@@ -1195,7 +1187,7 @@ def plot_postlesion(args, retrain_args, model_list):
     return SSE_local
 
 
-def analyse_retrained_nets():
+def analyse_retrained_nets(args, retrain_args):
     """ Assess context use on decoder-retrained networks"""
     SSE_local = [[] for i in range(2)]
     for ind, args.all_fullrange in enumerate([False, True]):

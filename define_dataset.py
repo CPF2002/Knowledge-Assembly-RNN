@@ -156,7 +156,7 @@ def generate_trial_sequence(include_fillers=True):
     return type_sequence
 
 
-def turn_index_to_context(randind):
+def turn_index_to_context(randind): # ! confused what this function does
     """Get the context from the randomly sampled index for when contexts are intermingled"""
     if randind < const.FULLR_ULIM:  # 16
         context = 1
@@ -178,11 +178,9 @@ def create_separate_input_data(filename, args):
     if args.which_context==0:
         print('- all contexts included')
     elif args.which_context==1:
-        print('- context range: 1-16')
+        print('- context range: 1-4')
     elif args.which_context==2:
-        print('- context range: 1-11')
-    elif args.which_context==3:
-        print('- context range: 6-16')
+        print('- context range: 5-8')
     if args.label_context=='true':
         print('- network has correct context labelling')
     elif args.label_context=='random':
@@ -233,34 +231,27 @@ def create_separate_input_data(filename, args):
 
             if args.which_context==0:
                 # divide the blocks evenly across the 3 contexts
-                if block < Mblocks/const.NCONTEXTS:        # 0-7     # context A
+                if block < Mblocks/const.NCONTEXTS:        # 0-7     # context A    # now 1-4
                     context = 1
-                    minNumerosity = const.FULLR_LLIM
-                    maxNumerosity = const.FULLR_ULIM
-
-                elif block < 2*(Mblocks/const.NCONTEXTS):  # 8-15    # context B
-                    context = 2
                     minNumerosity = const.LOWR_LLIM
                     maxNumerosity = const.LOWR_ULIM
-                else:                                # 16-23   # context C
-                    context = 3
+
+                elif block < 2*(Mblocks/const.NCONTEXTS):  # 8-15    # context B    # now 5-8
+                    context = 2
                     minNumerosity = const.HIGHR_LLIM
                     maxNumerosity = const.HIGHR_ULIM
             # single context options
             elif args.which_context==1:     # context A
                 context = 1
-                minNumerosity = const.FULLR_LLIM
-                maxNumerosity = const.FULLR_ULIM
-            elif args.which_context==2:     # context B
-                context = 2
                 minNumerosity = const.LOWR_LLIM
                 maxNumerosity = const.LOWR_ULIM
-            elif args.which_context==3:     # context C
-                context = 3
+            elif args.which_context==2:     # context B
+                context = 2
                 minNumerosity = const.HIGHR_LLIM
                 maxNumerosity = const.HIGHR_ULIM
 
-            if args.all_fullrange: # args.all_fullrange == True = interleaved
+
+            if args.all_fullrange: # args.all_fullrange == True = interleaved   # ! do we want it kept this way? not sure how to rewrite this
                 tmpDistribution = [[i for i in range(const.FULLR_LLIM, const.FULLR_ULIM+1)],[j for j in range(const.LOWR_LLIM, const.LOWR_ULIM+1)], [k for k in range(const.HIGHR_LLIM, const.HIGHR_ULIM+1)] ]
                 randNumDistribution = [i for sublist in tmpDistribution for i in sublist]  # non-uniform distr. over all 3 context ranges together
             else: # args.all_fullrange == False = blocked
@@ -314,7 +305,7 @@ def create_separate_input_data(filename, args):
                         # when the trials are interleaved, set filler trials to have random contets
                         # (NOTE this doesnt actually matter because context is later zeroed on fillers)
                         if args.all_fullrange:
-                            context = random.randint(1,3)
+                            context = random.randint(1,2)
 
                     previousTrialtype = copy.copy(trial_type)
 
