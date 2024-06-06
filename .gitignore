@@ -4,3 +4,4 @@ results/
 figures/
 network_analysis/
 __pycache__/
+tests/
