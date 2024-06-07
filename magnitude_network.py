@@ -670,7 +670,7 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
     counter = np.take_along_axis(counter, context_ind, axis=0)
 
     # within each context, sort according to numerosity of the judgement value
-    for context in range(1,3):
+    for context in range(1,2):
         ind = [i for i in range(contexts.shape[0]) if contexts[i]==context]
         numerosity_ind = np.argsort(labels_judgeValues[ind], axis=0) + ind[0]
         labels_judgeValues[ind] = np.take_along_axis(labels_judgeValues, numerosity_ind, axis=0)
