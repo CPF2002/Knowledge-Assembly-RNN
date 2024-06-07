@@ -35,7 +35,7 @@ from datetime import datetime
 def turn_one_hot(integer, maxSize):
     """This function will take as input an interger and output a one hot representation of that integer up to a max of maxSize."""
     oneHot = np.zeros((maxSize,1))
-    oneHot[integer-1] = 1
+    oneHot[integer-2] = 1
     return oneHot
 
 
