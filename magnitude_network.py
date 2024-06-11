@@ -670,16 +670,31 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
     counter = np.take_along_axis(counter, context_ind, axis=0)
 
     # within each context, sort according to numerosity of the judgement value
-    for context in range(1,2):
-        ind = [i for i in range(contexts.shape[0]) if contexts[i]==context]
-        numerosity_ind = np.argsort(labels_judgeValues[ind], axis=0) + ind[0]
-        labels_judgeValues[ind] = np.take_along_axis(labels_judgeValues, numerosity_ind, axis=0)
-        labels_refValues[ind] = np.take_along_axis(labels_refValues, numerosity_ind, axis=0)
-        contexts[ind] = np.take_along_axis(contexts, numerosity_ind, axis=0)
-        MDSlabels[ind] = np.take_along_axis(MDSlabels, numerosity_ind, axis=0)
-        activations[ind] = np.take_along_axis(activations, numerosity_ind, axis=0)
-        time_index[ind] = np.take_along_axis(time_index, numerosity_ind, axis=0)
-        counter[ind] = np.take_along_axis(counter, numerosity_ind, axis=0)
+    
+    for context in range(1,const.NCONTEXTS+1):
+        
+        # Initialize an empty list to store indices
+        ind = []
+        # Iterate over the range of the number of rows in the 'contexts' array
+        for i in range(contexts.shape[0]):
+            # Check if the element at index 'i' in 'contexts' is equal to 'context'
+            if contexts[i] == context:
+                # If the condition is met, append the index 'i' to the list 'ind'
+                ind.append(i)
+
+        # print("ind[0]:", ind[0])
+        # Since the values are exclusive to the context, only have to resort the values within the context
+        # so if ind is empty, the following lines will not have to be done.
+        # ! might have to chnage that only the ind[0] isnt called.
+        if ind != []:
+            numerosity_ind = np.argsort(labels_judgeValues[ind], axis=0) + ind[0]
+            labels_judgeValues[ind] = np.take_along_axis(labels_judgeValues, numerosity_ind, axis=0)
+            labels_refValues[ind] = np.take_along_axis(labels_refValues, numerosity_ind, axis=0)
+            contexts[ind] = np.take_along_axis(contexts, numerosity_ind, axis=0)
+            MDSlabels[ind] = np.take_along_axis(MDSlabels, numerosity_ind, axis=0)
+            activations[ind] = np.take_along_axis(activations, numerosity_ind, axis=0)
+            time_index[ind] = np.take_along_axis(time_index, numerosity_ind, axis=0)
+            counter[ind] = np.take_along_axis(counter, numerosity_ind, axis=0)
 
     drift = {"temporal_activation_drift":temporal_activation_drift, "temporal_context":temporal_context}
     return activations, MDSlabels, labels_refValues, labels_judgeValues, contexts, time_index, counter, drift, temporal_trialtypes
