@@ -578,7 +578,7 @@ def analyse_network(args):
             elif set =='crossval':
                 test_loader = DataLoader(crossvalset, batch_size=1, shuffle=False)
 
-            for whichTrialType in ['compare', 'filler']:
+            for whichTrialType in ['compare']: #['compare', 'fillers']:
                 activations, MDSlabels, labels_refValues, labels_judgeValues, labels_contexts, time_index, counter, drift, temporal_trialtypes = mnet.get_activations(args, np_testset, trained_model, test_loader, whichTrialType)
 
                 dimKeep = 'judgement'                      # representation of the currently presented number, averaging over previous number
@@ -617,7 +617,7 @@ def analyse_network(args):
 
             # save our activation RDMs for easy access
             np.save(const.RDM_DIRECTORY + 'RDM_'+set+'_compare_'+analysis_name[29:]+'.npy', MDS_dict["sl_activations"])  # the RDM matrix only
-            np.save(const.RDM_DIRECTORY + 'RDM_'+set+'_fillers_'+analysis_name[29:]+'.npy', MDS_dict["filler_dict"]["sl_activations"])  # the RDM matrix only
+            #np.save(const.RDM_DIRECTORY + 'RDM_'+set+'_fillers_'+analysis_name[29:]+'.npy', MDS_dict["filler_dict"]["sl_activations"])  # the RDM matrix only
             if set=='test':
                 MDS_dict['testset_assessment'] = MDS_dict
             elif set=='crossval':
@@ -660,16 +660,16 @@ def average_activations_across_models(args):
         sl_activations[ind] = mdict["sl_activations"]
         sl_contextlabel[ind] = mdict["sl_contexts"]
         sl_numberlabel[ind] = mdict["sl_judgeValues"]
-        filler_sl_activations[ind] = mdict["filler_dict"]["sl_activations"]
-        filler_sl_contextlabel[ind] = mdict["filler_dict"]["sl_contexts"]
-        filler_sl_numberlabel[ind] = mdict["filler_dict"]["sl_judgeValues"]
+        # filler_sl_activations[ind] = mdict["filler_dict"]["sl_activations"]
+        # filler_sl_contextlabel[ind] = mdict["filler_dict"]["sl_contexts"]
+        # filler_sl_numberlabel[ind] = mdict["filler_dict"]["sl_judgeValues"]
 
     MDS_meandict["sl_activations"] = np.mean(sl_activations, axis=0)
     MDS_meandict["sl_contexts"] = np.mean(sl_contextlabel, axis=0)
     MDS_meandict["sl_judgeValues"] = np.mean(sl_numberlabel, axis=0)
-    MDS_meandict["filler_dict"]["sl_activations"] = np.mean(filler_sl_activations, axis=0)
-    MDS_meandict["filler_dict"]["sl_contexts"] = np.mean(filler_sl_contextlabel, axis=0)
-    MDS_meandict["filler_dict"]["sl_judgeValues"] = np.mean(filler_sl_numberlabel, axis=0)
+    # MDS_meandict["filler_dict"]["sl_activations"] = np.mean(filler_sl_activations, axis=0)
+    # MDS_meandict["filler_dict"]["sl_contexts"] = np.mean(filler_sl_contextlabel, axis=0)
+    # MDS_meandict["filler_dict"]["sl_judgeValues"] = np.mean(filler_sl_numberlabel, axis=0)
 
     # Perform MDS on averaged activations for the compare trial data
     pairwise_data = pairwise_distances(MDS_meandict["sl_activations"], metric='correlation') # using correlation distance
@@ -677,12 +677,12 @@ def average_activations_across_models(args):
     MDS_act, evals = cmdscale(pairwise_data)
 
     # Perform MDS on averaged activations for the filler trial data
-    pairwise_data = pairwise_distances(MDS_meandict["filler_dict"]["sl_activations"], metric='correlation') # using correlation distance
-    np.fill_diagonal(np.asarray(pairwise_data), 0)
-    MDS_act_filler, evals = cmdscale(pairwise_data)
+    # pairwise_data = pairwise_distances(MDS_meandict["filler_dict"]["sl_activations"], metric='correlation') # using correlation distance
+    # np.fill_diagonal(np.asarray(pairwise_data), 0)
+    # MDS_act_filler, evals = cmdscale(pairwise_data)
 
     MDS_meandict["MDS_slactivations"] = MDS_act
-    MDS_meandict["filler_dict"]["MDS_slactivations"] = MDS_act_filler
+    # MDS_meandict["filler_dict"]["MDS_slactivations"] = MDS_act_filler
     args.model_id = 0
 
     return MDS_meandict, args
