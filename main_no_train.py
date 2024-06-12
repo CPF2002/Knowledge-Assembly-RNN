@@ -56,15 +56,15 @@ if __name__ == '__main__':
     anh.average_perf_across_models(args)
 
     # Visualise the resultant network activations (RDMs and MDS)
-    print('\nGenerating plots...')
-    MDS_dict, args = anh.average_activations_across_models(args)
-    mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
+    # print('\nGenerating plots...')
+    # MDS_dict, args = anh.average_activations_across_models(args)
+    # mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
     
-    if args.all_fullrange:
-      print('\nTraining Curricula: Interleaved')
-    else:
-      print('\nTraining Curricula: Blocked')
-    print('\nWhich Context: ', args.which_context)
+    # if args.all_fullrange:
+    #   print('\nTraining Curricula: Interleaved')
+    # else:
+    #   print('\nTraining Curricula: Blocked')
+    # print('\nWhich Context: ', args.which_context)
       
     # Plot the lesion test performance
     #print('\nPlotting lesion tests...')
