@@ -847,9 +847,11 @@ def get_dataset_name(args):
     if args.which_context==0:
         whichcontexttext = ''
     elif args.which_context==1:
-        whichcontexttext = '_lowrange_1-4_only'
+        # whichcontexttext = '_lowrange_1-4_only'
+        whichcontexttext = '_lowrange_{}-{}_only'.format(const.LOWR_LLIM, const.LOWR_ULIM)
     elif args.which_context==2:
-        whichcontexttext = '_highrange_5-8_only'
+        # whichcontexttext = '_highrange_5-8_only'
+        whichcontexttext = '_highrange_{}-{}_only'.format(const.HIGHR_LLIM, const.HIGHR_ULIM)
 
 
     datasetname = 'dataset'+whichcontexttext+contextlabelledtext+rangetxt + '_bpl' + str(args.BPTT_len) + '_id'+ str(args.model_id)
