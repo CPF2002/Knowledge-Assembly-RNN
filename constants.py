@@ -63,3 +63,11 @@ MODEL_COLOURS = ['darkkhaki', 'olivedrab','darkolivegreen']  # change to show bo
 
 # Single dataset for retraining decoders under blocked, VI conditions
 RETRAINING_DATASET = 'dataset_truecontextlabel_numrangeblocked_bpl120_id9999'#'dataset_truecontextlabel_numrangeblocked_bpl120_id9999'
+
+# Making some more constants found thoughout the code
+# define dataset
+MTESTSETS = 2     # have multiple test sets for cross-validation of activations
+NTRAIN = 2880       # how many examples we want to use (each of these is a sequence on numbers)
+NTEST = 480           # needs to be big enough to almost guarantee that we will get instances of all 460 comparisons (you get 29 comparisons per sequence)
+MBLOCKS = 24        # ! im concerned about this number # same as fabrices experiment - there are 24 blocks across 3 different contexts
+

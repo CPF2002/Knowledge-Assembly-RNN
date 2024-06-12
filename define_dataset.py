@@ -156,7 +156,7 @@ def generate_trial_sequence(include_fillers=True):
     return type_sequence
 
 
-def turn_index_to_context(randind): # ! confused what this function does
+def turn_index_to_context(randind): # ! confused what this function does ; seems wrong for us
     """Get the context from the randomly sampled index for when contexts are intermingled"""
     if randind < const.FULLR_ULIM:  # 16
         context = 1
@@ -194,13 +194,13 @@ def create_separate_input_data(filename, args):
     print('- training is blocked by context')
     print('- training orders A and B relative to each other in trial sequence (B @ trial t+1 == A @ trial t)')
 
-    Mtestsets = 2                          # have multiple test sets for cross-validation of activations
+    Mtestsets = const.MTESTSETS             # have multiple test sets for cross-validation of activations
     print('- {} test sets generated for cross-validation'.format(Mtestsets))
 
-    Ntrain = 2880                          # how many examples we want to use (each of these is a sequence on numbers)
-    Ntest = 480                            # needs to be big enough to almost guarantee that we will get instances of all 460 comparisons (you get 29 comparisons per sequence)
+    Ntrain = const.NTRAIN                          # how many examples we want to use (each of these is a sequence on numbers)
+    Ntest = const.NTEST                            # needs to be big enough to almost guarantee that we will get instances of all 460 comparisons (you get 29 comparisons per sequence)
     totalN = Ntrain + Mtestsets*Ntest        # how many sequences across training and test sets
-    Mblocks = 24          # same as fabrices experiment - there are 24 blocks across 3 different contexts
+    Mblocks = const.MBLOCKS          # ! im concerned about this number # same as fabrices experiment - there are 24 blocks across 3 different contexts
     phases = ['train'  if i==0 else 'test' for i in range(Mtestsets+1)]
     testsets = [[] for i in range(Mtestsets)]
     whichtestset = 0                         # a counter
