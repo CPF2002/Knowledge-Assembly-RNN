@@ -25,18 +25,18 @@ PARAMETER_DIRECTORY = 'linesmodel_parameters/'
 EEG_DIRECTORY = 'datasets/'
 
 # Total maximum numbers for one-hot coding
-TOTALMAXNUM = 8    # max numerosity
+TOTALMAXNUM = 16    # max numerosity
 NCONTEXTS = 2       # max number of contexts for one-hot coding
 NTYPEBITS = 1       # just need one input bit to flag whether current trial is 'compare' or 'filler'
 
 
 # define upper and lower limits for each # range)
 FULLR_LLIM = 1      # full # range, lower limit
-FULLR_ULIM = 8     # full # range, upper limit
+FULLR_ULIM = 16     # full # range, upper limit
 LOWR_LLIM = 1       # low # range, lower limit
-LOWR_ULIM = 4      # low # range, upper limit
-HIGHR_LLIM = 5      # high # range, lower limit
-HIGHR_ULIM = 8     # high # range, upper limit
+LOWR_ULIM = 11      # low # range, upper limit
+HIGHR_LLIM = 6      # high # range, lower limit
+HIGHR_ULIM = 16     # high # range, upper limit
 
 # the resulting range spans
 FULLR_SPAN = FULLR_ULIM - FULLR_LLIM +1
@@ -48,8 +48,8 @@ TRIAL_FILLER  = 0
 TRIAL_COMPARE = 1
 
 # the same as the spans... but used in lines_model
-N_POINTS_LONG = 8
-N_POINTS_SHORT = 4
+N_POINTS_LONG = 16
+N_POINTS_SHORT = 11
 
 # mean values for each context
 CONTEXT_FULL_MEAN = np.mean(range(FULLR_LLIM, FULLR_ULIM+1))  # 8.5
