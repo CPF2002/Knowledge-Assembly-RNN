@@ -52,6 +52,7 @@ N_POINTS_LONG = 8
 N_POINTS_SHORT = 4
 
 # mean values for each context
+# ! not for us; have to adjust for our contexts
 CONTEXT_FULL_MEAN = np.mean(range(FULLR_LLIM, FULLR_ULIM+1))  # 8.5
 CONTEXT_LOW_MEAN = np.mean(range(LOWR_LLIM, LOWR_ULIM+1))     # 6
 CONTEXT_HIGH_MEAN = np.mean(range(HIGHR_LLIM, HIGHR_ULIM+1))  # 11

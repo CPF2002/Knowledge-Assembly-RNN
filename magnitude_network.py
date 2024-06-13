@@ -531,6 +531,7 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
     # preallocate some space...
     labels_refValues = np.empty((len(uniqueind),1))
     labels_judgeValues = np.empty((len(uniqueind),1))
+    print("uniqueind", uniqueind)
     contexts = np.empty((len(uniqueind),1))
     time_index = np.empty((len(uniqueind),1))
     MDSlabels = np.empty((len(uniqueind),1))
@@ -547,6 +548,7 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
 
     #  pass each input through the network and see what happens to the hidden layer activations
     if not ((args.network_style=='recurrent') and args.retain_hidden_state):
+        print("(args.network_style=='recurrent') and args.retain_hidden_state")
         for sample in range(len(uniqueind)):
             sample_input = batch_to_torch(torch.from_numpy(unique_inputs[sample]))
             sample_label = unique_labels[sample]
@@ -658,7 +660,7 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
         activations = np.divide(aggregate_activations, counter)
 
     # Finally, reshape the output activations and labels so that we can easily interpret RSA on the activations
-
+    print("2labels_judgeValues:", labels_judgeValues)
     # sort all variables first by context order
     context_ind = np.argsort(contexts, axis=0)
     contexts = np.take_along_axis(contexts, context_ind, axis=0)
@@ -668,6 +670,7 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
     labels_judgeValues = np.take_along_axis(labels_judgeValues, context_ind, axis=0)
     time_index = np.take_along_axis(time_index, context_ind, axis=0)
     counter = np.take_along_axis(counter, context_ind, axis=0)
+    print("1labels_judgeValues:", labels_judgeValues)
 
     # within each context, sort according to numerosity of the judgement value
     
@@ -681,6 +684,8 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
             if contexts[i] == context:
                 # If the condition is met, append the index 'i' to the list 'ind'
                 ind.append(i)
+        print("context:", context)
+        print("ind:", ind)
 
         # print("ind[0]:", ind[0])
         # Since the values are exclusive to the context, only have to resort the values within the context
