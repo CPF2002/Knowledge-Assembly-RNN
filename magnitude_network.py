@@ -681,6 +681,8 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
             if contexts[i] == context:
                 # If the condition is met, append the index 'i' to the list 'ind'
                 ind.append(i)
+        print("context:", context) 
+        print("ind:", ind)
 
         # print("ind[0]:", ind[0])
         # Since the values are exclusive to the context, only have to resort the values within the context
