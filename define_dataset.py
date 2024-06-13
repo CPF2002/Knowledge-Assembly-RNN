@@ -158,12 +158,17 @@ def generate_trial_sequence(include_fillers=True):
 
 def turn_index_to_context(randind): # ! confused what this function does ; seems wrong for us
     """Get the context from the randomly sampled index for when contexts are intermingled"""
-    if randind < const.FULLR_ULIM:  # 16
+    # if randind < const.FULLR_ULIM:  # randind < 16
+    #     context = 1
+    # elif randind < const.FULLR_ULIM + const.LOWR_ULIM:  # randind < 27 (full 16+ lower 11)
+    #     context = 2
+    # else:
+    #     context = 3
+    
+    if randind <= const.LOWR_ULIM:  # <= 4
         context = 1
-    elif randind < const.FULLR_ULIM + const.LOWR_ULIM:  # 27
+    else:  # || elif randind > const.HIGHR_LLIM  # >= 5
         context = 2
-    else:
-        context = 3
     return context
 
 
