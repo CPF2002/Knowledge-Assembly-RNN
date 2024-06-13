@@ -117,21 +117,29 @@ def average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeV
         flattenValues = labels_refValues
     else:
         flattenValues = labels_judgeValues
+    print("flattenValues: ", flattenValues)
+    print("uniqueValues: ", uniqueValues)
 
     # pick out all the activations that meet this condition for each context and then average over them
     for context in range(const.NCONTEXTS):
         for value in uniqueValues:
+            print('\ncontext: ', context, 'value: ', value)
             for i in range(labels_judgeValues.shape[0]):
-                if labels_contexts[i] == context+1:  # remember to preserve the context structure
+                if labels_contexts[i] == context + 1:  # remember to preserve the context structure
                     if flattenValues[i] == value:
+                        print('labels_contexts[i]: ', labels_contexts[i])
+                        print('context+1: ', context+1)
+                        print('flattenValues[i]: ', flattenValues[i])
+                        print('value: ', value)
                         flat_activations[context, value-1,:] += activations[i]
                         flat_contexts[context,value-1] = context
                         flat_values[context,value-1] = value
                         flat_outcomes[context,value-1] = MDSlabels[i]
                         flat_counter[context,value-1] += counter[i]
-                        divisor[context,value-1] +=1
+                        divisor[context,value-1] += 1
 
             # take the mean i.e. normalise by the number of instances that met that condition
+            print('divisor: ', divisor)
             if int(divisor[context,value-1]) == 0:
                 flat_activations[context, value-1] = np.full_like(flat_activations[context, value-1], np.nan)
             else:
