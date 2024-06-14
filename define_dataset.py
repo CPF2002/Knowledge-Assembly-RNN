@@ -178,7 +178,7 @@ def create_separate_input_data(filename, args):
     if args.which_context==0:
         print('- all contexts included')
     elif args.which_context==1:
-        print('- context range: {}-{}'.format(const.FULLR_LLIM, const.FULLR_ULIM)
+        print('- context range: {}-{}'.format(const.FULLR_LLIM, const.FULLR_ULIM))
     elif args.which_context==2:
         print('- context range: {}-{}'.format(const.LOWR_LLIM, const.LOWR_ULIM))
     elif args.which_context==3:
