@@ -484,6 +484,7 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
     recurrentinputs = []
     sequenceLength = trainset["input"].shape[1]
     TRIAL_TYPE = const.TRIAL_COMPARE if whichType=='compare' else const.TRIAL_FILLER
+    print("TRIAL_TYPE", TRIAL_TYPE)
 
     # determine the unique inputs for the training set (there are repeats)
     # consider activations at all instances, then average these activations to get the mean per unique input.
@@ -516,6 +517,8 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
 
     #trainset_input_n_context = [np.append(trainset["input"][i, j],trainset["contextinput"][i]) for i in range(len(trainset["input"]))]  # ignore the context label, but consider the true underlying context
     unique_inputs_n_context, uniqueind = np.unique(trainset_input_n_context, axis=0, return_index=True)
+    print("unique_inputs_n_context", unique_inputs_n_context.shape)
+    print("uniqueind", uniqueind)
     N_unique = (unique_inputs_n_context.shape)[0]
     sequence_id = [seq_record[uniqueind[i]][0] for i in range(len(uniqueind))]
     seqitem_id = [seq_record[uniqueind[i]][1] for i in range(len(uniqueind))]
@@ -527,6 +530,11 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
     unique_context = np.asarray([trainset["context"][sequence_id[i]][seqitem_id[i]] for i in range(len(sequence_id))])
     unique_refValue = np.asarray([trainset["refValue"][sequence_id[i]][seqitem_id[i]] for i in range(len(sequence_id))])
     unique_judgementValue = np.asarray([trainset["judgementValue"][sequence_id[i]][seqitem_id[i]] for i in range(len(sequence_id))])
+    print("unique_inputs", unique_inputs.shape)
+    print("unique_labels", unique_labels.shape)
+    print("unique_context", unique_context.shape)
+    print("unique_refValue", unique_refValue.shape)
+    print("unique_judgementValue", unique_judgementValue.shape)
 
     # preallocate some space...
     labels_refValues = np.empty((len(uniqueind),1))

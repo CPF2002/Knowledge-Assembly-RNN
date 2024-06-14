@@ -234,7 +234,7 @@ def create_separate_input_data(filename, args):
 
         for block in range(Mblocks):
 
-            if args.which_context==0:
+            if args.which_context==0: # SN which of the below if statements are we entering
                 # divide the blocks evenly across the 3 contexts
                 if block < Mblocks/const.NCONTEXTS:        # 0-7     # context A    # now 1-4
                     context = 1
@@ -259,10 +259,12 @@ def create_separate_input_data(filename, args):
             if args.all_fullrange: # args.all_fullrange == True = interleaved   # ! do we want it kept this way? not sure how to rewrite this
                 tmpDistribution = [[i for i in range(const.FULLR_LLIM, const.FULLR_ULIM+1)],[j for j in range(const.LOWR_LLIM, const.LOWR_ULIM+1)], [k for k in range(const.HIGHR_LLIM, const.HIGHR_ULIM+1)] ]
                 randNumDistribution = [i for sublist in tmpDistribution for i in sublist]  # non-uniform distr. over all 3 context ranges together
+           ## SN are we entering this part?
             else: # args.all_fullrange == False = blocked
                 randNumDistribution = [i for i in range(minNumerosity, maxNumerosity+1)]  # uniform between min and max
             indexDistribution = [i for i in range(len(randNumDistribution))]  # this is going to allow us to know which context a sample which have been drawn from if intermingled
-
+            ## SN are we entering this part 
+            
             # generate some random numerosity data and label whether the random judgement integers are larger than the refValue
             firstTrialInContext = True              # reset the sequentialAB structure for each new context
             for sample in range(int(N/Mblocks)):    # each sequence
@@ -282,6 +284,7 @@ def create_separate_input_data(filename, args):
                     if trial_type == 'compare':
                         if (firstTrialInContext and (item==0)):
                             randind = random.choice(indexDistribution)
+                            # SN print index distribution and randomNumDistribution to screen
                             refValue = randNumDistribution[randind]
                             if trial_type == 'filler':
                                 print('Warning: sequence starting with a filler trial. This should not happen and will cause a bug in sequence generation.')
@@ -290,6 +293,7 @@ def create_separate_input_data(filename, args):
 
                         randind = random.choice(indexDistribution)
                         judgementValue = randNumDistribution[randind]
+                        #SN print judgement value and randNumDistribution to screen to be sure
 
                         while refValue==judgementValue:    # make sure we dont do inputA==inputB for two adjacent inputs
                             randind = random.choice(indexDistribution)
