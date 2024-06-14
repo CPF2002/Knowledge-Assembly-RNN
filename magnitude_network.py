@@ -800,7 +800,7 @@ class argsparser():
         self.batch_size = 12
         self.test_batch_size = 12
         self.epochs = 15
-        self.lr = 0.01
+        self.lr = 0.002
         self.momentum = 0.5
         self.no_cuda = False
         self.seed = 1
