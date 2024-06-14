@@ -36,15 +36,17 @@ if __name__ == '__main__':
     # set up dataset and network hyperparams (optionally via command line)
     args, device, multiparams = mnet.define_hyperparams()
     args.all_fullrange = False      # False = blocked; True = interleaved
+    args.which_context = 0
     args.train_lesion_freq = 0.1    # 0.0 or 0.1  (also 0.2, 0.3, 0.4 for blocked & true context case)
     args.block_int_ttsplit = False  # True: test on a different distribution (block/interleave) than training
     args.retrain_decoder = False
+    args.model_id = 2
     #args.model_id = 9999          # for visualising or analysing a particular trained model
 
     # Train a network from scratch and save it
     print('Training network...')
-    #mnet.train_and_save_network(args, device, multiparams)
-    #print('Training complete and network saved. main')
+    mnet.train_and_save_network(args, device, multiparams)
+    print('Training complete and network saved. main')
 
     # Analyse the trained network (extract and save network activations)
     print('\nAnalysing network...')

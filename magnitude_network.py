@@ -795,10 +795,10 @@ def log_performance(writer, epoch, train_perf, test_perf):
 class argsparser():
     """For holding network training arguments, usually entered via command line"""
     def __init__(self):
-        self.batch_size = 24
-        self.test_batch_size = 24
-        self.epochs = 50
-        self.lr = 0.002
+        self.batch_size = 12
+        self.test_batch_size = 12
+        self.epochs = 15
+        self.lr = 0.01
         self.momentum = 0.5
         self.no_cuda = False
         self.seed = 1
