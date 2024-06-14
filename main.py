@@ -45,8 +45,8 @@ if __name__ == '__main__':
 
     # Train a network from scratch and save it
     print('Training network...')
-    #mnet.train_and_save_network(args, device, multiparams)
-    #print('Training complete and network saved. main')
+    mnet.train_and_save_network(args, device, multiparams)
+    print('Training complete and network saved. main')
 
     # Analyse the trained network (extract and save network activations)
     print('\nAnalysing network...')
