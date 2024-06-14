@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     # set up dataset and network hyperparams (optionally via command line)
     args, device, multiparams = mnet.define_hyperparams()
-    args.all_fullrange = True      # False = blocked; True = interleaved
+    args.all_fullrange = False     # False = blocked; True = interleaved
     args.which_context = 2          # 0 = all contexts; 1 = LOWR (low range context); 2 = HIGHR (high range context)
     args.train_lesion_freq = 0.1    # 0.0 or 0.1  (also 0.2, 0.3, 0.4 for blocked & true context case)
     args.block_int_ttsplit = False  # True: test on a different distribution (block/interleave) than training
