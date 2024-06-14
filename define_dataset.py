@@ -35,7 +35,7 @@ from datetime import datetime
 def turn_one_hot(integer, maxSize):
     """This function will take as input an interger and output a one hot representation of that integer up to a max of maxSize."""
     oneHot = np.zeros((maxSize,1))
-    oneHot[integer-2] = 1
+    oneHot[integer] = 1  # SN old version: oneHot[integer-2] = 1
     return oneHot
 
 
@@ -121,7 +121,7 @@ def load_input_data(fileloc,datasetname):
     return trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset
 
 
-def generate_trial_sequence(include_fillers=True):
+def generate_trial_sequence(include_fillers):
     """
     For generating a sequence of trials combining both the filler task and the compare task, as in Fabrice's experiment
     This will be used in create_separate_input_data()
