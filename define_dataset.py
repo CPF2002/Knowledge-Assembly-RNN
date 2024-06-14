@@ -178,11 +178,11 @@ def create_separate_input_data(filename, args):
     if args.which_context==0:
         print('- all contexts included')
     elif args.which_context==1:
-        print('- context range: 1-16')
+        print('- context range: {}-{}'.format(const.FULLR_LLIM, const.FULLR_ULIM)
     elif args.which_context==2:
-        print('- context range: 1-11')
+        print('- context range: {}-{}'.format(const.LOWR_LLIM, const.LOWR_ULIM))
     elif args.which_context==3:
-        print('- context range: 6-16')
+        print('- context range: {}-{}'.format(const.HIGHR_LLIM, const.HIGHR_ULIM))
     if args.label_context=='true':
         print('- network has correct context labelling')
     elif args.label_context=='random':

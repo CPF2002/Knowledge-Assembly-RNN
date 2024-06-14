@@ -832,11 +832,11 @@ def get_dataset_name(args):
     if args.which_context==0:
         whichcontexttext = ''
     elif args.which_context==1:
-        whichcontexttext = '_fullrange_1-16_only'
+        whichcontexttext = '_fullrange_{}-{}_only'.format(const.FULLR_LLIM, const.FULLR_ULIM)
     elif args.which_context==2:
-        whichcontexttext = '_lowrange_1-11_only'
+        whichcontexttext = '_lowrange_{}-{}_only'.format(const.LOWR_LLIM, const.LOWR_ULIM)
     elif args.which_context==3:
-        whichcontexttext = '_highrange_6-16_only'
+        whichcontexttext = '_highrange_{}-{}_only'.format(const.HIGHR_LLIM, const.HIGHR_ULIM)
 
     datasetname = 'dataset'+whichcontexttext+contextlabelledtext+rangetxt + '_bpl' + str(args.BPTT_len) + '_id'+ str(args.model_id)
     analysis_name = const.NETANALYIS_DIRECTORY +'MDSanalysis_'+networkTxt+whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+'_n'+str(args.noise_std)+str_args + ttsplit + retraindecodertxt
