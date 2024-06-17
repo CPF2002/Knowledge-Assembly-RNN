@@ -41,19 +41,29 @@ if __name__ == '__main__':
     args.block_int_ttsplit = False  # True: test on a different distribution (block/interleave) than training
     args.retrain_decoder = False
     #args.model_id = 9999          # for visualising or analysing a particular trained model
+    
+    # Create dataset
+    datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    if args.create_new_dataset:
+        print('Creating new dataset...')
+        trainset, testset = dset.create_separate_input_data(datasetname, args)
+        data = np.load(const.DATASET_DIRECTORY+datasetname+'.npy', allow_pickle=True)
+        numpy_trainset = data.item().get("trainset")
+        print(numpy_trainset['judgementValue'][4])
+        
 
     # Train a network from scratch and save it
     # print('Training network...')
     # mnet.train_and_save_network(args, device, multiparams)
     # print('Training complete and network saved. main')
 
-    # Analyse the trained network (extract and save network activations)
-    print('\nAnalysing network...')
-    MDS_dict = anh.analyse_network(args)
+    # # Analyse the trained network (extract and save network activations)
+    # print('\nAnalysing network...')
+    # MDS_dict = anh.analyse_network(args)
 
-    # Check the average final performance for trained models matching args
-    print('\nChecking average performance...')
-    anh.average_perf_across_models(args)
+    # # Check the average final performance for trained models matching args
+    # print('\nChecking average performance...')
+    # anh.average_perf_across_models(args)
 
     # Visualise the resultant network activations (RDMs and MDS)
     # print('\nGenerating plots...')

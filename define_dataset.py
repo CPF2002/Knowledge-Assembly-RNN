@@ -35,7 +35,7 @@ from datetime import datetime
 def turn_one_hot(integer, maxSize):
     """This function will take as input an interger and output a one hot representation of that integer up to a max of maxSize."""
     oneHot = np.zeros((maxSize,1))
-    oneHot[integer] = 1  # SN old version: oneHot[integer-2] = 1
+    oneHot[integer-(const.NCONTEXTS-1)] = 1  # SN old version: oneHot[integer-2] = 1 # CF -1 shifts the indexes to the right place
     return oneHot
 
 
@@ -232,8 +232,7 @@ def create_separate_input_data(filename, args):
 
         fillerRange = [const.FULLR_LLIM,const.FULLR_ULIM]        # the range of numbers spanned by all filler trials
 
-        for block in range(Mblocks):
-
+        for block in range(Mblocks): # Chooses context for each block
             if args.which_context==0: # SN which of the below if statements are we entering
                 # divide the blocks evenly across the 3 contexts
                 if block < Mblocks/const.NCONTEXTS:        # 0-7     # context A    # now 1-4
