@@ -296,8 +296,8 @@ def create_separate_input_data(filename, args):
 
                         while refValue==judgementValue:    # make sure we dont do inputA==inputB for two adjacent inputs
                             randind = random.choice(indexDistribution)
-                            judgementValue = randNumDistribution[randind]
-
+                            judgementValue = randNumDistribution[randind] 
+                        
                         input2 = turn_one_hot(judgementValue, const.TOTALMAXNUM)
                         if args.all_fullrange:  # if intermingling contexts, then we need to know which context this number was sampled from
                             context = turn_index_to_context(randind)
@@ -313,7 +313,7 @@ def create_separate_input_data(filename, args):
                         # when the trials are interleaved, set filler trials to have random contets
                         # (NOTE this doesnt actually matter because context is later zeroed on fillers)
                         if args.all_fullrange:
-                            context = random.randint(1,2)
+                            context = random.randint(1, const.NCONTEXTS) # 1 or 2 
 
                     previousTrialtype = copy.copy(trial_type)
 
@@ -341,6 +341,7 @@ def create_separate_input_data(filename, args):
                 judgeValue = None
                 allJValues = np.zeros((args.BPTT_len, const.TOTALMAXNUM))
                 allRValues = np.zeros((args.BPTT_len, const.TOTALMAXNUM))
+                
                 for i in range(args.BPTT_len):
                     trialtype = trialtypeinput[i]
                     if trialtype==1:  # compare

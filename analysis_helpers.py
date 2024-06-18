@@ -123,7 +123,11 @@ def average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeV
     # pick out all the activations that meet this condition for each context and then average over them
     for context in range(const.NCONTEXTS):
         for value in uniqueValues:
-            print('\ncontext: ', context, 'value: ', value)
+            if value >= const.HIGHR_LLIM and value <= const.HIGHR_ULIM: # CF have to shift the values to fit the indexing # ! might not work for indexes that cross over
+                valueindex = value - const.HIGHR_LLIM
+            else:
+                valueindex = value
+            print('\ncontext: ', context, 'value: ', value, 'valueindex: ', valueindex)
             for i in range(labels_judgeValues.shape[0]):
                 if labels_contexts[i] == context + 1:  # remember to preserve the context structure
                     if flattenValues[i] == value:
@@ -131,19 +135,19 @@ def average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeV
                         print('context+1: ', context+1)
                         print('flattenValues[i]: ', flattenValues[i])
                         print('value: ', value)
-                        flat_activations[context, value-1,:] += activations[i]
-                        flat_contexts[context,value-1] = context
-                        flat_values[context,value-1] = value
-                        flat_outcomes[context,value-1] = MDSlabels[i]
-                        flat_counter[context,value-1] += counter[i]
-                        divisor[context,value-1] += 1
+                        flat_activations[context, valueindex-1,:] += activations[i]
+                        flat_contexts[context,valueindex-1] = context
+                        flat_values[context,valueindex-1] = value
+                        flat_outcomes[context,valueindex-1] = MDSlabels[i]
+                        flat_counter[context,valueindex-1] += counter[i]
+                        divisor[context,valueindex-1] += 1
 
             # take the mean i.e. normalise by the number of instances that met that condition
             print('divisor: ', divisor)
-            if int(divisor[context,value-1]) == 0:
-                flat_activations[context, value-1] = np.full_like(flat_activations[context, value-1], np.nan)
+            if int(divisor[context,valueindex-1]) == 0:
+                flat_activations[context, valueindex-1] = np.full_like(flat_activations[context, valueindex-1], np.nan)
             else:
-                flat_activations[context, value-1] = np.divide(flat_activations[context, value-1, :], divisor[context,value-1])
+                flat_activations[context, valueindex-1] = np.divide(flat_activations[context, valueindex-1, :], divisor[context,valueindex-1])
 
     # now cast out all the null instances e.g 1-5, 10-15 in certain contexts
     flat_activations, flat_contexts, flat_values, flat_outcomes, flat_counter = [dset.flatten_first_dim(i) for i in [flat_activations, flat_contexts, flat_values, flat_outcomes, flat_counter]]
