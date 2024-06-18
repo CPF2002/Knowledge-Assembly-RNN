@@ -35,8 +35,8 @@ if __name__ == '__main__':
 
     # set up dataset and network hyperparams (optionally via command line)
     args, device, multiparams = mnet.define_hyperparams()
-    args.all_fullrange = False      # False = blocked; True = interleaved
-    args.which_context = 2          # 0 = all contexts; 1 = LOWR (low range context); 2 = HIGHR (high range context)
+    args.all_fullrange = False     # False = blocked; True = interleaved
+    args.which_context = 1          # 0 = all contexts; 1 = LOWR (low range context); 2 = HIGHR (high range context)
     args.train_lesion_freq = 0.1    # 0.0 or 0.1  (also 0.2, 0.3, 0.4 for blocked & true context case)
     args.block_int_ttsplit = False  # True: test on a different distribution (block/interleave) than training
     args.retrain_decoder = False
@@ -62,13 +62,13 @@ if __name__ == '__main__':
     MDS_dict = anh.analyse_network(args)
 
     # # Check the average final performance for trained models matching args
-    # print('\nChecking average performance...')
-    # anh.average_perf_across_models(args)
+    print('\nChecking average performance...')
+    anh.average_perf_across_models(args)
 
     # Visualise the resultant network activations (RDMs and MDS)
-    # print('\nGenerating plots...')
-    # MDS_dict, args = anh.average_activations_across_models(args)
-    # mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
+    print('\nGenerating plots...')
+    MDS_dict, args = anh.average_activations_across_models(args)
+    mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
     
     # if args.all_fullrange:
     #   print('\nTraining Curricula: Interleaved')
