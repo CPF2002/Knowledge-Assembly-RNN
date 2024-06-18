@@ -64,11 +64,9 @@ def save_figure(basetitle, args, labelNumerosity, plot_diff_code, whichTrialType
     if args.which_context==0:
         whichcontexttext = ''
     elif args.which_context==1:
-        whichcontexttext = '_fullrange_1-16_only'
+        whichcontexttext = '_lowrange_{}-{}_only'.format(const.LOWR_LLIM, const.LOWR_ULIM)   # - context range: 1-4
     elif args.which_context==2:
-        whichcontexttext = '_lowrange_1-11_only'
-    elif args.which_context==3:
-        whichcontexttext = '_highrange_6-16_only'
+        whichcontexttext = '_highrange_{}-{}_only'.format(const.HIGHR_LLIM, const.HIGHR_ULIM) # - context range: 5-8
     diffcodetext = '_diffcode' if plot_diff_code else ''
     retainstatetext = '_retainstate' if args.retain_hidden_state else '_resetstate'
     labeltext = '_number' if labelNumerosity else '_outcomes'
