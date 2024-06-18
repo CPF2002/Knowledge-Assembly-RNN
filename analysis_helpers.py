@@ -95,7 +95,7 @@ def get_id_from_name(modelname):
     return  modelname[id_ind:pth_ind]
 
 
-def average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeValues, labels_contexts, MDSlabels, givenContext, counter):
+def average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeValues, labels_contexts, MDSlabels, givenContext, counter, which_context):
     """This function will average the hidden unit activations over one of the two numbers involved in the representation:
     either the reference or the judgement number. This is so that we can then compare to Fabrice's plots
      which are averaged over the previously presented number (input B).
@@ -123,7 +123,9 @@ def average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeV
     # pick out all the activations that meet this condition for each context and then average over them
     for context in range(const.NCONTEXTS):
         for value in uniqueValues:
-            if value >= const.HIGHR_LLIM and value <= const.HIGHR_ULIM: # CF have to shift the values to fit the indexing # ! might not work for indexes that cross over
+            # might need to be just for args.which_context != 0
+            print('args.which_context: ', which_context)
+            if value >= const.HIGHR_LLIM and value <= const.HIGHR_ULIM and which_context != 0: # CF have to shift the values to fit the indexing # ! might not work for indexes that cross over
                 valueindex = value - const.HIGHR_LLIM
             else:
                 valueindex = value
@@ -595,7 +597,7 @@ def analyse_network(args):
 
                 dimKeep = 'judgement'                      # representation of the currently presented number, averaging over previous number
                 print("labels_judgeValues: ", labels_judgeValues)
-                sl_activations, sl_contexts, sl_MDSlabels, sl_refValues, sl_judgeValues, sl_counter = average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeValues, labels_contexts, MDSlabels, args.label_context, counter)
+                sl_activations, sl_contexts, sl_MDSlabels, sl_refValues, sl_judgeValues, sl_counter = average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeValues, labels_contexts, MDSlabels, args.label_context, counter, args.which_context)
                 diff_sl_activations, diff_sl_contexts, diff_sl_MDSlabels, diff_sl_refValues, diff_sl_judgeValues, diff_sl_counter, sl_diffValues = diff_average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeValues, labels_contexts, MDSlabels, args.label_context, counter)
 
                 # do MDS on the activations for the test set
