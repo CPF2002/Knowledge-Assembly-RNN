@@ -1,2 +1,8 @@
 datasets/
 venv/
+results/
+figures/
+network_analysis/
+__pycache__/
+tests/
+old_records/
