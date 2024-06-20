@@ -250,6 +250,7 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
         MDS_dict = MDS_dict["filler_dict"]
         Ns = [16,16,16]
     else:
+        print('\nplotting compare')
         Ns = [16,11,11]
 
     fig,ax = plt.subplots(1,3, figsize=(18,5))
@@ -259,11 +260,13 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
     diffcolours = get_cmap(20, 'magma')
 
     if plot_diff_code:
+        print('plotting difference code')
         MDS_act = MDS_dict["MDS_diff_slactivations"]
         contextlabel = MDS_dict["diff_sl_contexts"]
         numberlabel = MDS_dict["sl_diffValues"]
         differenceCodeText = 'differencecode_'
     else:
+        print('plotting activations')
         MDS_act = MDS_dict["MDS_slactivations"]
         contextlabel = MDS_dict["sl_contexts"]
         numberlabel = MDS_dict["sl_judgeValues"]
@@ -295,17 +298,29 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
             contextC = range((const.FULLR_SPAN-1)*2 + (const.LOWR_SPAN-1)*2, (const.FULLR_SPAN-1)*2 + (const.LOWR_SPAN-1)*2 + (const.HIGHR_SPAN-1)*2)
         else:
             if whichTrialType=='filler':
+                print('filler')
                 contextA = range(const.FULLR_SPAN)
                 contextB = range(const.FULLR_SPAN,const.FULLR_SPAN*2)
                 contextC = range(const.FULLR_SPAN*2, const.FULLR_SPAN*3)
             else:
-                contextA = range(const.FULLR_SPAN)
+                print('compare')
+                contextA = range(const.FULLR_SPAN-1)
                 contextB = range(const.FULLR_SPAN,const.FULLR_SPAN+const.LOWR_SPAN)
                 contextC = range(const.FULLR_SPAN+const.LOWR_SPAN, const.FULLR_SPAN+const.LOWR_SPAN+const.HIGHR_SPAN)
 
             # Rotate the components on the 2d plot since global orientation doesnt matter (axes are arbitrary)
             rotated_act = copy.deepcopy(MDS_act)
+            print('MDS_act', MDS_act)
+            print('MDS_act.shape', MDS_act.shape)
+            print('rotated_act', rotated_act)
+            print('rotated_act.shape', rotated_act.shape)
 
+            print('contextA:', contextA)
+            print('contextB:', contextB)
+            print('contextC:', contextC)
+            print('dimA:', dimA)
+            print('dimB:', dimB)
+            print('MDS_act[contextA, dimA]:', MDS_act[0, 0])
             rotated_act[contextA, dimA], rotated_act[contextA, dimB] = rotate_axes(MDS_act[contextA, dimA], MDS_act[contextA, dimB], theta)
             rotated_act[contextB, dimA], rotated_act[contextB, dimB] = rotate_axes(MDS_act[contextB, dimA], MDS_act[contextB, dimB], theta)
             rotated_act[contextC, dimA], rotated_act[contextC, dimB] = rotate_axes(MDS_act[contextC, dimA], MDS_act[contextC, dimB], theta)

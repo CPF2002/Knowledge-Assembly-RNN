@@ -167,8 +167,10 @@ def turn_index_to_context(randind): # ! confused what this function does ; seems
     
     if randind <= const.LOWR_ULIM:  # <= 4
         context = 1
+        print(context)
     else:  # || elif randind > const.HIGHR_LLIM  # >= 5
         context = 2
+        print(context)
     return context
 
 
@@ -235,33 +237,44 @@ def create_separate_input_data(filename, args):
         for block in range(Mblocks): # Chooses context for each block
             if args.which_context==0: # SN which of the below if statements are we entering
                 # divide the blocks evenly across the 3 contexts
-                if block < Mblocks/const.NCONTEXTS:        # 0-7     # context A    # now 1-4
+                print('\nall contexts')
+                if block < Mblocks/const.NCONTEXTS:        # 0-7     # context A    # now 1-4 # ! math is just keeping in low range
+                    print('low range context', block, Mblocks, const.NCONTEXTS)
                     context = 1
                     minNumerosity = const.LOWR_LLIM
                     maxNumerosity = const.LOWR_ULIM
+                    print('minNumerosity: ', minNumerosity, 'maxNumerosity', maxNumerosity)
 
                 elif block < 2*(Mblocks/const.NCONTEXTS):  # 8-15    # context B    # now 5-8
+                    print('high range context', block, Mblocks, const.NCONTEXTS)
                     context = 2
                     minNumerosity = const.HIGHR_LLIM
                     maxNumerosity = const.HIGHR_ULIM
+                    print('minNumerosity: ', minNumerosity, 'maxNumerosity: ', maxNumerosity)
             # single context options
             elif args.which_context==1:     # context A
+                print('\nlow range context')
                 context = 1
                 minNumerosity = const.LOWR_LLIM
                 maxNumerosity = const.LOWR_ULIM
             elif args.which_context==2:     # context B
+                print('\nhigh range context')
                 context = 2
                 minNumerosity = const.HIGHR_LLIM
                 maxNumerosity = const.HIGHR_ULIM
 
 
             if args.all_fullrange: # args.all_fullrange == True = interleaved   # ! do we want it kept this way? not sure how to rewrite this
+                print('interleaved')
                 tmpDistribution = [[i for i in range(const.FULLR_LLIM, const.FULLR_ULIM+1)],[j for j in range(const.LOWR_LLIM, const.LOWR_ULIM+1)], [k for k in range(const.HIGHR_LLIM, const.HIGHR_ULIM+1)] ]
                 randNumDistribution = [i for sublist in tmpDistribution for i in sublist]  # non-uniform distr. over all 3 context ranges together
            ## SN are we entering this part?
             else: # args.all_fullrange == False = blocked
+                print('blocked')
                 randNumDistribution = [i for i in range(minNumerosity, maxNumerosity+1)]  # uniform between min and max
             indexDistribution = [i for i in range(len(randNumDistribution))]  # this is going to allow us to know which context a sample which have been drawn from if intermingled
+            print('randNumDistribution: ', randNumDistribution)
+            print('indexDistribution: ', indexDistribution)
             ## SN are we entering this part 
             
             # generate some random numerosity data and label whether the random judgement integers are larger than the refValue
@@ -284,6 +297,7 @@ def create_separate_input_data(filename, args):
                         if (firstTrialInContext and (item==0)):
                             randind = random.choice(indexDistribution)
                             # SN print index distribution and randomNumDistribution to screen
+                            print('randind: ', randind)
                             refValue = randNumDistribution[randind]
                             if trial_type == 'filler':
                                 print('Warning: sequence starting with a filler trial. This should not happen and will cause a bug in sequence generation.')
@@ -291,8 +305,12 @@ def create_separate_input_data(filename, args):
                             refValue = copy.deepcopy(judgementValue)  # use the previous number and make sure its a copy not a reference to same piece of memory
 
                         randind = random.choice(indexDistribution)
+                        
                         judgementValue = randNumDistribution[randind]
+                        
                         #SN print judgement value and randNumDistribution to screen to be sure
+                        #print('judgementValue: ', judgementValue)
+                        #print('randNumDistribution: ', randNumDistribution)
 
                         while refValue==judgementValue:    # make sure we dont do inputA==inputB for two adjacent inputs
                             randind = random.choice(indexDistribution)
@@ -358,6 +376,7 @@ def create_separate_input_data(filename, args):
                             target[block, sample, i] = None  # default dont do anything
 
                     allJValues[i] = np.squeeze(turn_one_hot(turn_one_hot_to_integer(input_sequence[i]), const.TOTALMAXNUM))
+                    #print('allJValues[i]: ', allJValues[i])
                     if rValue is None:
                         allRValues[i] = np.zeros((const.TOTALMAXNUM,))
                     else:
@@ -366,9 +385,9 @@ def create_separate_input_data(filename, args):
                     if trialtype==1:
                         rValue = turn_one_hot_to_integer(input_sequence[i])  # set the previous state to be the current state
 
+                #print('judgeValue: ', judgeValue)
                 if firstTrialInContext:
                     judgementValue = copy.deepcopy(judgeValue)    # and then make sure that the next sequence starts with judgement where this one left off
-
                 contextdigits[block, sample] = contextsequence
                 judgementValues[block, sample] = np.squeeze(np.asarray(allJValues))
                 refValues[block, sample] = np.squeeze(np.asarray(allRValues))
@@ -379,7 +398,7 @@ def create_separate_input_data(filename, args):
                 blocks[block, sample] = block
                 trialTypes[block, sample] = type_sequence
                 trialTypeInputs[block, sample] = trialtypeinput
-
+        
         if phase=='train':
 
             # now shuffle the training block order so that we temporally separate contexts a bit but still blocked
@@ -389,6 +408,7 @@ def create_separate_input_data(filename, args):
             input = flatten_first_dim(input)
             refValues = flatten_first_dim(refValues)
             judgementValues = flatten_first_dim(judgementValues)
+            #print('judgementValues: ', judgementValues)
             target = flatten_first_dim(target)
             contexts = flatten_first_dim(contexts)
             contextdigits = flatten_first_dim(contextdigits)
@@ -407,6 +427,7 @@ def create_separate_input_data(filename, args):
             input = flatten_first_dim(input)
             refValues = flatten_first_dim(refValues)
             judgementValues = flatten_first_dim(judgementValues)
+            #print('judgementValues: ', judgementValues)
             target = flatten_first_dim(target)
             contexts = flatten_first_dim(contexts)
             contextdigits = flatten_first_dim(contextdigits)
