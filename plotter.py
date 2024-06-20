@@ -38,7 +38,7 @@ from sklearn.utils import shuffle
 def get_cmap(n, name='hsv'):
     '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct
     RGB color; the keyword argument name must be a standard mpl colormap name.'''
-    return plt.cm.get_cmap(name, n)
+    return plt.get_cmap(name, n)
 
 
 def rotate_axes(x,y,theta):
@@ -64,11 +64,9 @@ def save_figure(basetitle, args, labelNumerosity, plot_diff_code, whichTrialType
     if args.which_context==0:
         whichcontexttext = ''
     elif args.which_context==1:
-        whichcontexttext = '_fullrange_1-16_only'
+        whichcontexttext = '_lowrange_{}-{}_only'.format(const.LOWR_LLIM, const.LOWR_ULIM)   # - context range: 1-4
     elif args.which_context==2:
-        whichcontexttext = '_lowrange_1-11_only'
-    elif args.which_context==3:
-        whichcontexttext = '_highrange_6-16_only'
+        whichcontexttext = '_highrange_{}-{}_only'.format(const.HIGHR_LLIM, const.HIGHR_ULIM) # - context range: 5-8
     diffcodetext = '_diffcode' if plot_diff_code else ''
     retainstatetext = '_retainstate' if args.retain_hidden_state else '_resetstate'
     labeltext = '_number' if labelNumerosity else '_outcomes'
@@ -776,6 +774,12 @@ def perf_vs_context_distance(args, device):
         stds = [full_context_perf_sem, low_context_perf_sem, high_context_perf_sem]
 
         for i in range(len(xnumbers)):
+            print("i: ", i)
+            print("ax[j]: ", ax[j])
+            print("xnumbers: ", xnumbers[i])
+            print("means: ", means[i])
+            print("stds: ", stds[i])
+            print("const.CONTEXT_COLOURS[i]: ", const.CONTEXT_COLOURS[i])
             shadeplot(ax[j], xnumbers[i], means[i], stds[i], const.CONTEXT_COLOURS[i])
             h = ax[j].errorbar(xnumbers[i], means[i], stds[i], color=const.CONTEXT_COLOURS[i], fmt='o', markersize=5, markeredgecolor='black', ecolor='black')
             handles.append(h)

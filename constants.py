@@ -26,7 +26,7 @@ EEG_DIRECTORY = 'datasets/'
 
 # Total maximum numbers for one-hot coding
 TOTALMAXNUM = 8    # max numerosity
-NCONTEXTS = 3       # max number of contexts for one-hot coding
+NCONTEXTS = 2       # max number of contexts for one-hot coding
 NTYPEBITS = 1       # just need one input bit to flag whether current trial is 'compare' or 'filler'
 
 
@@ -52,10 +52,11 @@ N_POINTS_LONG = 8
 N_POINTS_SHORT = 4
 
 # mean values for each context
+# ! not for us; have to adjust for our contexts
 CONTEXT_FULL_MEAN = np.mean(range(FULLR_LLIM, FULLR_ULIM+1))  # 8.5
 CONTEXT_LOW_MEAN = np.mean(range(LOWR_LLIM, LOWR_ULIM+1))     # 6
 CONTEXT_HIGH_MEAN = np.mean(range(HIGHR_LLIM, HIGHR_ULIM+1))  # 11
-GLOBAL_MEAN = 8.5 #np.mean([list(range(FULLR_LLIM, FULLR_ULIM+1)), list(range(LOWR_LLIM, LOWR_ULIM+1)), list(range(HIGHR_LLIM, HIGHR_ULIM+1))])
+GLOBAL_MEAN = 4.5 #np.mean([list(range(FULLR_LLIM, FULLR_ULIM+1)), list(range(LOWR_LLIM, LOWR_ULIM+1)), list(range(HIGHR_LLIM, HIGHR_ULIM+1))])
 
 # Figure colours
 CONTEXT_COLOURS = [[253/256, 176/256, 4/256], 'dodgerblue', 'orangered', 'black']  # low, high, full
@@ -63,3 +64,11 @@ MODEL_COLOURS = ['darkkhaki', 'olivedrab','darkolivegreen']  # change to show bo
 
 # Single dataset for retraining decoders under blocked, VI conditions
 RETRAINING_DATASET = 'dataset_truecontextlabel_numrangeblocked_bpl120_id9999'#'dataset_truecontextlabel_numrangeblocked_bpl120_id9999'
+
+# Making some more constants found thoughout the code
+# define dataset
+MTESTSETS = 2     # have multiple test sets for cross-validation of activations
+NTRAIN = 2880       # how many examples we want to use (each of these is a sequence on numbers)
+NTEST = 480           # needs to be big enough to almost guarantee that we will get instances of all 460 comparisons (you get 29 comparisons per sequence)
+MBLOCKS = 24        # ! im concerned about this number # same as fabrices experiment - there are 24 blocks across 3 different contexts
+

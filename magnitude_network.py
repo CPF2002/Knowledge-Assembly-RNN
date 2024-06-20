@@ -484,6 +484,7 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
     recurrentinputs = []
     sequenceLength = trainset["input"].shape[1]
     TRIAL_TYPE = const.TRIAL_COMPARE if whichType=='compare' else const.TRIAL_FILLER
+    print("TRIAL_TYPE", TRIAL_TYPE)
 
     # determine the unique inputs for the training set (there are repeats)
     # consider activations at all instances, then average these activations to get the mean per unique input.
@@ -516,6 +517,8 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
 
     #trainset_input_n_context = [np.append(trainset["input"][i, j],trainset["contextinput"][i]) for i in range(len(trainset["input"]))]  # ignore the context label, but consider the true underlying context
     unique_inputs_n_context, uniqueind = np.unique(trainset_input_n_context, axis=0, return_index=True)
+    print("unique_inputs_n_context", unique_inputs_n_context.shape)
+    print("uniqueind", uniqueind)
     N_unique = (unique_inputs_n_context.shape)[0]
     sequence_id = [seq_record[uniqueind[i]][0] for i in range(len(uniqueind))]
     seqitem_id = [seq_record[uniqueind[i]][1] for i in range(len(uniqueind))]
@@ -527,10 +530,16 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
     unique_context = np.asarray([trainset["context"][sequence_id[i]][seqitem_id[i]] for i in range(len(sequence_id))])
     unique_refValue = np.asarray([trainset["refValue"][sequence_id[i]][seqitem_id[i]] for i in range(len(sequence_id))])
     unique_judgementValue = np.asarray([trainset["judgementValue"][sequence_id[i]][seqitem_id[i]] for i in range(len(sequence_id))])
+    print("unique_inputs", unique_inputs.shape)
+    print("unique_labels", unique_labels.shape)
+    print("unique_context", unique_context.shape)
+    print("unique_refValue", unique_refValue.shape)
+    print("unique_judgementValue", unique_judgementValue.shape)
 
     # preallocate some space...
     labels_refValues = np.empty((len(uniqueind),1))
     labels_judgeValues = np.empty((len(uniqueind),1))
+    print("uniqueind", uniqueind)
     contexts = np.empty((len(uniqueind),1))
     time_index = np.empty((len(uniqueind),1))
     MDSlabels = np.empty((len(uniqueind),1))
@@ -547,6 +556,7 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
 
     #  pass each input through the network and see what happens to the hidden layer activations
     if not ((args.network_style=='recurrent') and args.retain_hidden_state):
+        print("(args.network_style=='recurrent') and args.retain_hidden_state")
         for sample in range(len(uniqueind)):
             sample_input = batch_to_torch(torch.from_numpy(unique_inputs[sample]))
             sample_label = unique_labels[sample]
@@ -658,7 +668,7 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
         activations = np.divide(aggregate_activations, counter)
 
     # Finally, reshape the output activations and labels so that we can easily interpret RSA on the activations
-
+    print("2labels_judgeValues:", labels_judgeValues)
     # sort all variables first by context order
     context_ind = np.argsort(contexts, axis=0)
     contexts = np.take_along_axis(contexts, context_ind, axis=0)
@@ -668,18 +678,36 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
     labels_judgeValues = np.take_along_axis(labels_judgeValues, context_ind, axis=0)
     time_index = np.take_along_axis(time_index, context_ind, axis=0)
     counter = np.take_along_axis(counter, context_ind, axis=0)
+    print("1labels_judgeValues:", labels_judgeValues)
 
     # within each context, sort according to numerosity of the judgement value
-    for context in range(1,4):
-        ind = [i for i in range(contexts.shape[0]) if contexts[i]==context]
-        numerosity_ind = np.argsort(labels_judgeValues[ind], axis=0) + ind[0]
-        labels_judgeValues[ind] = np.take_along_axis(labels_judgeValues, numerosity_ind, axis=0)
-        labels_refValues[ind] = np.take_along_axis(labels_refValues, numerosity_ind, axis=0)
-        contexts[ind] = np.take_along_axis(contexts, numerosity_ind, axis=0)
-        MDSlabels[ind] = np.take_along_axis(MDSlabels, numerosity_ind, axis=0)
-        activations[ind] = np.take_along_axis(activations, numerosity_ind, axis=0)
-        time_index[ind] = np.take_along_axis(time_index, numerosity_ind, axis=0)
-        counter[ind] = np.take_along_axis(counter, numerosity_ind, axis=0)
+    
+    for context in range(1,const.NCONTEXTS+1):
+        
+        # Initialize an empty list to store indices
+        ind = []
+        # Iterate over the range of the number of rows in the 'contexts' array
+        for i in range(contexts.shape[0]):
+            # Check if the element at index 'i' in 'contexts' is equal to 'context'
+            if contexts[i] == context:
+                # If the condition is met, append the index 'i' to the list 'ind'
+                ind.append(i)
+        print("context:", context)
+        print("ind:", ind)
+
+        # print("ind[0]:", ind[0])
+        # Since the values are exclusive to the context, only have to resort the values within the context
+        # so if ind is empty, the following lines will not have to be done.
+        # ! might have to chnage that only the ind[0] isnt called.
+        if ind != []:
+            numerosity_ind = np.argsort(labels_judgeValues[ind], axis=0) + ind[0]
+            labels_judgeValues[ind] = np.take_along_axis(labels_judgeValues, numerosity_ind, axis=0)
+            labels_refValues[ind] = np.take_along_axis(labels_refValues, numerosity_ind, axis=0)
+            contexts[ind] = np.take_along_axis(contexts, numerosity_ind, axis=0)
+            MDSlabels[ind] = np.take_along_axis(MDSlabels, numerosity_ind, axis=0)
+            activations[ind] = np.take_along_axis(activations, numerosity_ind, axis=0)
+            time_index[ind] = np.take_along_axis(time_index, numerosity_ind, axis=0)
+            counter[ind] = np.take_along_axis(counter, numerosity_ind, axis=0)
 
     drift = {"temporal_activation_drift":temporal_activation_drift, "temporal_context":temporal_context}
     return activations, MDSlabels, labels_refValues, labels_judgeValues, contexts, time_index, counter, drift, temporal_trialtypes
@@ -732,8 +760,9 @@ def define_hyperparams():
         parser.add_argument('--network-style', default="recurrent", help='which network we want, "recurrent" or "mlp" (default: "recurrent")')
         parser.add_argument('--new-dataset', dest='create_new_dataset', action='store_true', help='create a new dataset for this condition? (default: False)')   # re-generate the random train/test dataset each time?
         parser.add_argument('--reuse-dataset', dest='create_new_dataset', action='store_false', help='reuse the existing dataset for this condition? (default: True)')
-        parser.add_argument('--remove-fillers', dest='include_fillers', action='store_false', default=True, help='remove fillers from the dataset? (default: False)')     # True: task is like Fabrice's with filler trials; False: solely compare trials
-        parser.add_argument('--which_context', type=int, default=0, help='if we want to train on a single context range only: 0=all contexts, 1=full only, 2=low only, 3=high only (default: 0)')
+        parser.add_argument('--remove-fillers', dest='include_fillers', action='store_false', default=False, help='remove fillers from the dataset? (default: False)')     # True: task is like Fabrice's with filler trials; False: solely compare trials
+        parser.add_argument('--which_context', type=int, default=0, help='if we want to train on a single context range only: 0=all contexts, 1=low only, 2=high only, (default: 0)')
+        # see what happens when set interleave and block to true
         parser.add_argument('--interleave', dest='all_fullrange', action='store_true', help='interleave training (default: False)')
         parser.add_argument('--blockrange', dest='all_fullrange', action='store_false', help='block training by contextual number range (default: True)')
         parser.add_argument('--reset-state', dest='retain_hidden_state', action='store_false', help='reset the hidden state between sequences (default: False)')
@@ -795,10 +824,10 @@ def log_performance(writer, epoch, train_perf, test_perf):
 class argsparser():
     """For holding network training arguments, usually entered via command line"""
     def __init__(self):
-        self.batch_size = 24
+        self.batch_size = 24    # how many trials that are seen at one time
         self.test_batch_size = 24
         self.epochs = 50
-        self.lr = 0.002
+        self.lr = 0.002 # learning rate : bigger means faster learning, but can get stuck
         self.momentum = 0.5
         self.no_cuda = False
         self.seed = 1
@@ -827,14 +856,16 @@ def get_dataset_name(args):
     rangetxt = '_numrangeintermingled' if args.all_fullrange else '_numrangeblocked'
     retraindecodertxt = '_retraineddecoderVI' if args.retrain_decoder else ''
 
+    # ! want to change when we set to 2 contexts
     if args.which_context==0:
         whichcontexttext = ''
     elif args.which_context==1:
-        whichcontexttext = '_fullrange_1-16_only'
+        # whichcontexttext = '_lowrange_1-4_only'
+        whichcontexttext = '_lowrange_{}-{}_only'.format(const.LOWR_LLIM, const.LOWR_ULIM)
     elif args.which_context==2:
-        whichcontexttext = '_lowrange_1-11_only'
-    elif args.which_context==3:
-        whichcontexttext = '_highrange_6-16_only'
+        # whichcontexttext = '_highrange_5-8_only'
+        whichcontexttext = '_highrange_{}-{}_only'.format(const.HIGHR_LLIM, const.HIGHR_ULIM)
+
 
     datasetname = 'dataset'+whichcontexttext+contextlabelledtext+rangetxt + '_bpl' + str(args.BPTT_len) + '_id'+ str(args.model_id)
     analysis_name = const.NETANALYIS_DIRECTORY +'MDSanalysis_'+networkTxt+whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+'_n'+str(args.noise_std)+str_args + ttsplit + retraindecodertxt
@@ -953,14 +984,18 @@ def train_and_save_network(args, device, multiparams):
     # define the network parameters
     datasetname, trained_modelname, analysis_name, _ = get_dataset_name(args)
     if args.create_new_dataset:
+        print('Creating new dataset...')
         trainset, testset = dset.create_separate_input_data(datasetname, args)
     else:
+        print('Loading existing dataset...')
         trainset, testset, _, _, _, _ = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
 
     # define and train a neural network model, log performance and output trained model
     if args.network_style == 'recurrent':
+        print('Training recurrent network...')
         model = train_recurrent_network(args, device, multiparams, trainset, testset)
     else:
+        print('Training MLP network...')
         model = trainMLPNetwork(args, device, multiparams, trainset, testset)
 
     # save the trained weights so we can easily look at them

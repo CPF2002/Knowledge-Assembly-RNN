@@ -35,10 +35,12 @@ if __name__ == '__main__':
 
     # set up dataset and network hyperparams (optionally via command line)
     args, device, multiparams = mnet.define_hyperparams()
-    args.all_fullrange = False      # False = blocked; True = interleaved
+    args.all_fullrange = False     # False = blocked; True = interleaved
+    args.which_context = 2          # 0 = all contexts; 1 = LOWR (low range context); 2 = HIGHR (high range context)
     args.train_lesion_freq = 0.1    # 0.0 or 0.1  (also 0.2, 0.3, 0.4 for blocked & true context case)
     args.block_int_ttsplit = False  # True: test on a different distribution (block/interleave) than training
     args.retrain_decoder = False
+    args.model_id = 1          
     #args.model_id = 9999          # for visualising or analysing a particular trained model
 
     # Train a network from scratch and save it
@@ -58,7 +60,13 @@ if __name__ == '__main__':
     print('\nGenerating plots...')
     MDS_dict, args = anh.average_activations_across_models(args)
     mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
-
+    
+    if args.all_fullrange:
+      print('\nTraining Curricula: Interleaved')
+    else:
+      print('\nTraining Curricula: Blocked')
+    print('\nWhich Context: ', args.which_context)
+      
     # Plot the lesion test performance
     #print('\nPlotting lesion tests...')
     #mplt.perf_vs_context_distance(args, device)     # Assess performance after a lesion vs context distance (Figure 2 and S1)

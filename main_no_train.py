@@ -35,22 +35,78 @@ if __name__ == '__main__':
 
     # set up dataset and network hyperparams (optionally via command line)
     args, device, multiparams = mnet.define_hyperparams()
-    args.all_fullrange = False      # False = blocked; True = interleaved
+    args.all_fullrange = False     # False = blocked; True = interleaved
+    args.which_context = 1          # 0 = all contexts; 1 = LOWR (low range context); 2 = HIGHR (high range context)
     args.train_lesion_freq = 0.1    # 0.0 or 0.1  (also 0.2, 0.3, 0.4 for blocked & true context case)
     args.block_int_ttsplit = False  # True: test on a different distribution (block/interleave) than training
     args.retrain_decoder = False
-    #args.model_id = 9999          # for visualising or analysing a particular trained model
+    args.model_id = 1         # for visualising or analysing a particular trained model
+    
+    # Create dataset
+    # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    # if args.create_new_dataset:
+    #     print('Creating new dataset...')
+    #     trainset, testset = dset.create_separate_input_data(datasetname, args)
+    #     data = np.load(const.DATASET_DIRECTORY+datasetname+'.npy', allow_pickle=True)
+    #     numpy_trainset = data.item().get("trainset")
+    #     print(numpy_trainset['judgementValue'][4])
+        
+    # # Check information about the dataset
+    # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    # trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
+    # array_index = -50 # choose an index to check the dataset (check multiple indexes)
+    # print('array_index:',array_index)
+    # # print('judgementValue:',numpy_trainset['judgementValue'][array_index])
+    # # print('refValue:',numpy_trainset['refValue'][array_index])
+    # # print('label:',numpy_trainset['label'][array_index])
+    # for i in range(len(numpy_trainset['judgementValue'][array_index])):
+    #     judgementValue = 0
+    #     refValue = 0
+    #     label = 0
+    #     # turn judgementValarray position to value
+    #     for ind in range(len(numpy_trainset['judgementValue'][array_index][i])):
+    #         if numpy_trainset['judgementValue'][array_index][i][ind] == 1:
+    #             judgementValue = ind + 1
+    #     # turn refValue array position to value  
+    #     for ind in range(len(numpy_trainset['refValue'][array_index][i])):
+    #         if numpy_trainset['refValue'][array_index][i][ind] == 1:
+    #             refValue = ind + 1
+    #     # grab label value
+    #     label = numpy_trainset['label'][array_index][i]
+    #     # check if the judgementValue and refValue logic is correct
+    #     if (judgementValue > refValue and label == 1) or (judgementValue < refValue and label == 0):
+    #         print('judgementValue:\t',judgementValue, '\trefValue:\t',refValue, '\tlabel:\t',label)
+    #     else:
+    #         print('judgementValue:\t',judgementValue, '\trefValue:\t',refValue, '\tlabel:\t',label, '\tWRONG!')
+    
+    
+    # # Graph of the dataset
+    # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    # trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
+    # z = np.sum(numpy_trainset['judgementValue'],1)
+    # im = plt.imshow(z, cmap='hot', aspect='auto')
+    # plt.colorbar(im, orientation='horizontal')
+    # mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_ALL_'), args, True, False, _, True)
+    # im = plt.imshow(z[1:10,:], cmap='hot', aspect='equal')
+    # plt.colorbar(im, orientation='horizontal')
+    # mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_SOME_'), args, True, False, _, True)
+
+
+        
+        
+        
+        
 
     # Train a network from scratch and save it
-    #print('Training network...')
-    #mnet.train_and_save_network(args, device, multiparams)
-    #print('Training complete and network saved. main')
+    # print('Training network...')
+    # mnet.train_and_save_network(args, device, multiparams)
+    # print('Training complete and network saved. main')
 
-    # Analyse the trained network (extract and save network activations)
+    # # Analyse the trained network (extract and save network activations)
     print('\nAnalysing network...')
     MDS_dict = anh.analyse_network(args)
 
-    # Check the average final performance for trained models matching args
+    # # Check the average final performance for trained models matching args
     print('\nChecking average performance...')
     anh.average_perf_across_models(args)
 
@@ -58,20 +114,26 @@ if __name__ == '__main__':
     print('\nGenerating plots...')
     MDS_dict, args = anh.average_activations_across_models(args)
     mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
-
+    
+    # if args.all_fullrange:
+    #   print('\nTraining Curricula: Interleaved')
+    # else:
+    #   print('\nTraining Curricula: Blocked')
+    # print('\nWhich Context: ', args.which_context)
+      
     # Plot the lesion test performance
-    print('\nPlotting lesion tests...')
-    mplt.perf_vs_context_distance(args, device)     # Assess performance after a lesion vs context distance (Figure 2 and S1)
-    mplt.compare_lesion_tests(args, device)      # compare the performance across the different lesion frequencies during training (Figure 2)
+    #print('\nPlotting lesion tests...')
+    #mplt.perf_vs_context_distance(args, device)     # Assess performance after a lesion vs context distance (Figure 2 and S1)
+    #mplt.compare_lesion_tests(args, device)      # compare the performance across the different lesion frequencies during training (Figure 2)
 
     # Statistical tests: is network behaviour better fit by an agent using the local-context or global-context policy
-    print('\nStatistical tests...')
-    anh.model_behaviour_vs_theory(args, device)
+    #print('\nStatistical tests...')
+    #anh.model_behaviour_vs_theory(args, device)
 
     # Load representations and check cross-line big/small generalisation
-    print('\nCross-line generalisation...')
-    anh.cross_line_rep_generalisation(args)
-    anh.cross_line_rep_generalisation_human(args)
+    #print('\nCross-line generalisation...')
+    #anh.cross_line_rep_generalisation(args)
+    #anh.cross_line_rep_generalisation_human(args)
 
     # Load a trained network (no VI), freeze the first layer (recurrent) weights and then retrain the decoder with VI and save it
     #print('\nRetraining decoder...')
@@ -82,3 +144,4 @@ if __name__ == '__main__':
     #retrain_args.retrain_decoder = True
     #anh.retrain_decoder(args, retrain_args, device, multiparams)
     #anh.analyse_retrained_nets()
+

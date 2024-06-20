@@ -95,7 +95,7 @@ def get_id_from_name(modelname):
     return  modelname[id_ind:pth_ind]
 
 
-def average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeValues, labels_contexts, MDSlabels, givenContext, counter):
+def average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeValues, labels_contexts, MDSlabels, givenContext, counter, which_context):
     """This function will average the hidden unit activations over one of the two numbers involved in the representation:
     either the reference or the judgement number. This is so that we can then compare to Fabrice's plots
      which are averaged over the previously presented number (input B).
@@ -117,25 +117,39 @@ def average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeV
         flattenValues = labels_refValues
     else:
         flattenValues = labels_judgeValues
+    print("flattenValues: ", flattenValues)
+    print("uniqueValues: ", uniqueValues)
 
     # pick out all the activations that meet this condition for each context and then average over them
     for context in range(const.NCONTEXTS):
         for value in uniqueValues:
+            # might need to be just for args.which_context != 0
+            print('args.which_context: ', which_context)
+            if value >= const.HIGHR_LLIM and value <= const.HIGHR_ULIM and which_context != 0: # CF have to shift the values to fit the indexing # ! might not work for indexes that cross over
+                valueindex = value - const.HIGHR_LLIM
+            else:
+                valueindex = value
+            print('\ncontext: ', context, 'value: ', value, 'valueindex: ', valueindex)
             for i in range(labels_judgeValues.shape[0]):
-                if labels_contexts[i] == context+1:  # remember to preserve the context structure
+                if labels_contexts[i] == context + 1:  # remember to preserve the context structure
                     if flattenValues[i] == value:
-                        flat_activations[context, value-1,:] += activations[i]
-                        flat_contexts[context,value-1] = context
-                        flat_values[context,value-1] = value
-                        flat_outcomes[context,value-1] = MDSlabels[i]
-                        flat_counter[context,value-1] += counter[i]
-                        divisor[context,value-1] +=1
+                        print('labels_contexts[i]: ', labels_contexts[i])
+                        print('context+1: ', context+1)
+                        print('flattenValues[i]: ', flattenValues[i])
+                        print('value: ', value)
+                        flat_activations[context, valueindex-1,:] += activations[i]
+                        flat_contexts[context,valueindex-1] = context
+                        flat_values[context,valueindex-1] = value
+                        flat_outcomes[context,valueindex-1] = MDSlabels[i]
+                        flat_counter[context,valueindex-1] += counter[i]
+                        divisor[context,valueindex-1] += 1
 
             # take the mean i.e. normalise by the number of instances that met that condition
-            if int(divisor[context,value-1]) == 0:
-                flat_activations[context, value-1] = np.full_like(flat_activations[context, value-1], np.nan)
+            print('divisor: ', divisor)
+            if int(divisor[context,valueindex-1]) == 0:
+                flat_activations[context, valueindex-1] = np.full_like(flat_activations[context, valueindex-1], np.nan)
             else:
-                flat_activations[context, value-1] = np.divide(flat_activations[context, value-1, :], divisor[context,value-1])
+                flat_activations[context, valueindex-1] = np.divide(flat_activations[context, valueindex-1, :], divisor[context,valueindex-1])
 
     # now cast out all the null instances e.g 1-5, 10-15 in certain contexts
     flat_activations, flat_contexts, flat_values, flat_outcomes, flat_counter = [dset.flatten_first_dim(i) for i in [flat_activations, flat_contexts, flat_values, flat_outcomes, flat_counter]]
@@ -308,10 +322,8 @@ def lesion_perf_by_numerosity(lesiondata):
         for compare_idx in range(lesiondata.shape[1]):
             context = lesiondata[seq][compare_idx]["underlying_context"]
             if context==1:
-                contextmean[seq][compare_idx] = const.CONTEXT_FULL_MEAN
-            elif context==2:
                 contextmean[seq][compare_idx] = const.CONTEXT_LOW_MEAN
-            elif context==3:
+            elif context==2:
                 contextmean[seq][compare_idx] = const.CONTEXT_HIGH_MEAN
 
             # calculate difference between current number and context or global mean
@@ -331,7 +343,7 @@ def lesion_perf_by_numerosity(lesiondata):
     meanperf, uniquediffs = performance_mean(numberdiffs, perf)
     global_meanperf, global_uniquediffs = performance_mean(globalnumberdiffs, perf)
 
-    # assess mean performance under each context
+    # assess mean performance under each context # ! do we have to update this for the new context structure?
     context1_meanperf, context1_uniquediffs = performance_mean(context_numberdiffs[0], context_perf[0])
     context2_meanperf, context2_uniquediffs = performance_mean(context_numberdiffs[1], context_perf[1])
     context3_meanperf, context3_uniquediffs = performance_mean(context_numberdiffs[2], context_perf[2])
@@ -556,7 +568,7 @@ def analyse_network(args):
         trainset, testset, crossvalset, np_trainset, np_testset, np_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
 
         if args.block_int_ttsplit:
-            paired_modelid = anh.get_paired_test_model_id(args)
+            paired_modelid = get_paired_test_model_id(args)
 
             # test on a different (interleaved) dataset
             train_modelid = args.model_id
@@ -580,11 +592,12 @@ def analyse_network(args):
             elif set =='crossval':
                 test_loader = DataLoader(crossvalset, batch_size=1, shuffle=False)
 
-            for whichTrialType in ['compare', 'filler']:
+            for whichTrialType in ['compare']: #['compare', 'fillers']:
                 activations, MDSlabels, labels_refValues, labels_judgeValues, labels_contexts, time_index, counter, drift, temporal_trialtypes = mnet.get_activations(args, np_testset, trained_model, test_loader, whichTrialType)
 
                 dimKeep = 'judgement'                      # representation of the currently presented number, averaging over previous number
-                sl_activations, sl_contexts, sl_MDSlabels, sl_refValues, sl_judgeValues, sl_counter = average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeValues, labels_contexts, MDSlabels, args.label_context, counter)
+                print("labels_judgeValues: ", labels_judgeValues)
+                sl_activations, sl_contexts, sl_MDSlabels, sl_refValues, sl_judgeValues, sl_counter = average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeValues, labels_contexts, MDSlabels, args.label_context, counter, args.which_context)
                 diff_sl_activations, diff_sl_contexts, diff_sl_MDSlabels, diff_sl_refValues, diff_sl_judgeValues, diff_sl_counter, sl_diffValues = diff_average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeValues, labels_contexts, MDSlabels, args.label_context, counter)
 
                 # do MDS on the activations for the test set
@@ -619,7 +632,7 @@ def analyse_network(args):
 
             # save our activation RDMs for easy access
             np.save(const.RDM_DIRECTORY + 'RDM_'+set+'_compare_'+analysis_name[29:]+'.npy', MDS_dict["sl_activations"])  # the RDM matrix only
-            np.save(const.RDM_DIRECTORY + 'RDM_'+set+'_fillers_'+analysis_name[29:]+'.npy', MDS_dict["filler_dict"]["sl_activations"])  # the RDM matrix only
+            #np.save(const.RDM_DIRECTORY + 'RDM_'+set+'_fillers_'+analysis_name[29:]+'.npy', MDS_dict["filler_dict"]["sl_activations"])  # the RDM matrix only
             if set=='test':
                 MDS_dict['testset_assessment'] = MDS_dict
             elif set=='crossval':
@@ -662,16 +675,16 @@ def average_activations_across_models(args):
         sl_activations[ind] = mdict["sl_activations"]
         sl_contextlabel[ind] = mdict["sl_contexts"]
         sl_numberlabel[ind] = mdict["sl_judgeValues"]
-        filler_sl_activations[ind] = mdict["filler_dict"]["sl_activations"]
-        filler_sl_contextlabel[ind] = mdict["filler_dict"]["sl_contexts"]
-        filler_sl_numberlabel[ind] = mdict["filler_dict"]["sl_judgeValues"]
+        # filler_sl_activations[ind] = mdict["filler_dict"]["sl_activations"]
+        # filler_sl_contextlabel[ind] = mdict["filler_dict"]["sl_contexts"]
+        # filler_sl_numberlabel[ind] = mdict["filler_dict"]["sl_judgeValues"]
 
     MDS_meandict["sl_activations"] = np.mean(sl_activations, axis=0)
     MDS_meandict["sl_contexts"] = np.mean(sl_contextlabel, axis=0)
     MDS_meandict["sl_judgeValues"] = np.mean(sl_numberlabel, axis=0)
-    MDS_meandict["filler_dict"]["sl_activations"] = np.mean(filler_sl_activations, axis=0)
-    MDS_meandict["filler_dict"]["sl_contexts"] = np.mean(filler_sl_contextlabel, axis=0)
-    MDS_meandict["filler_dict"]["sl_judgeValues"] = np.mean(filler_sl_numberlabel, axis=0)
+    # MDS_meandict["filler_dict"]["sl_activations"] = np.mean(filler_sl_activations, axis=0)
+    # MDS_meandict["filler_dict"]["sl_contexts"] = np.mean(filler_sl_contextlabel, axis=0)
+    # MDS_meandict["filler_dict"]["sl_judgeValues"] = np.mean(filler_sl_numberlabel, axis=0)
 
     # Perform MDS on averaged activations for the compare trial data
     pairwise_data = pairwise_distances(MDS_meandict["sl_activations"], metric='correlation') # using correlation distance
@@ -679,12 +692,12 @@ def average_activations_across_models(args):
     MDS_act, evals = cmdscale(pairwise_data)
 
     # Perform MDS on averaged activations for the filler trial data
-    pairwise_data = pairwise_distances(MDS_meandict["filler_dict"]["sl_activations"], metric='correlation') # using correlation distance
-    np.fill_diagonal(np.asarray(pairwise_data), 0)
-    MDS_act_filler, evals = cmdscale(pairwise_data)
+    # pairwise_data = pairwise_distances(MDS_meandict["filler_dict"]["sl_activations"], metric='correlation') # using correlation distance
+    # np.fill_diagonal(np.asarray(pairwise_data), 0)
+    # MDS_act_filler, evals = cmdscale(pairwise_data)
 
     MDS_meandict["MDS_slactivations"] = MDS_act
-    MDS_meandict["filler_dict"]["MDS_slactivations"] = MDS_act_filler
+    # MDS_meandict["filler_dict"]["MDS_slactivations"] = MDS_act_filler
     args.model_id = 0
 
     return MDS_meandict, args
@@ -721,7 +734,7 @@ def train_line_classifier(activations, contexts, y_labels):
 
     return generalisation, train_scores
 
-
+# ! dont know how to deal with this function
 def setup_classifier_labels(reverse_context_order, randomize_labels=False):
     """Define some arrays of labels for the logistic regression line classifier
     to use in cross-line generalisation train/test.
@@ -1026,8 +1039,8 @@ def plot_postlesion(args, retrain_args, model_list):
     # allocate some space
     global_meanperf = []
     global_uniquediffs = []
-    full_context_numberdiffs, low_context_numberdiffs, high_context_numberdiffs = [[] for i in range(3)]
-    full_context_perf, low_context_perf, high_context_perf = [[] for i in range(3)]
+    low_context_numberdiffs, high_context_numberdiffs = [[] for i in range(2)]
+    low_context_perf, high_context_perf = [[] for i in range(2)]
 
     data = [[] for i in range(len(model_list))]
     context_tests = np.zeros((const.NCONTEXTS, len(model_list)))
@@ -1070,12 +1083,10 @@ def plot_postlesion(args, retrain_args, model_list):
         gp, cp, gd, cd = lesion_perf_by_numerosity(data[ind])
         global_meanperf.append(gp)
         global_uniquediffs.append(gd)
-        full_context_perf.append(cp[0])
-        low_context_perf.append(cp[1])
-        high_context_perf.append(cp[2])
-        full_context_numberdiffs.append(cd[0])
-        low_context_numberdiffs.append(cd[1])
-        high_context_numberdiffs.append(cd[2])
+        low_context_perf.append(cp[0])
+        high_context_perf.append(cp[1])
+        low_context_numberdiffs.append(cd[0])
+        high_context_numberdiffs.append(cd[1])
 
         lesioned_test[ind] = lesiondata["lesioned_testaccuracy"]
         unlesioned_test[ind] = regulartestdata["normal_testaccuracy"]
@@ -1118,7 +1129,7 @@ def plot_postlesion(args, retrain_args, model_list):
     for i in range(2):
         count =0
         for context in range(const.NCONTEXTS):
-            colour = context+1 if context<2 else 0
+            colour = context+1 if context<1 else 0
             tmp = ax[i].errorbar(count, mean_contextlesion_test[colour], sem_contextlesion_test[colour], color=const.CONTEXT_COLOURS[colour], markersize=5, ecolor='black', markeredgecolor='black')
             ax[i].errorbar(count, mean_contextlesion_test[colour], sem_contextlesion_test[colour], color=const.CONTEXT_COLOURS[colour], markersize=5, marker='o', ecolor='black', markeredgecolor='black')
             count +=1
@@ -1136,21 +1147,17 @@ def plot_postlesion(args, retrain_args, model_list):
 
     # mean over models
     global_meanperf = np.array(global_meanperf)
-    full_context_perf = np.array(full_context_perf)
     low_context_perf = np.array(low_context_perf)
     high_context_perf = np.array(high_context_perf)
     global_uniquediffs = np.array(global_uniquediffs)
-    full_context_numberdiffs = np.array(full_context_numberdiffs)
     low_context_numberdiffs = np.array(low_context_numberdiffs)
     high_context_numberdiffs = np.array(high_context_numberdiffs)
 
     global_meanperf_mean, global_meanperf_sem = mplt.get_summarystats(global_meanperf, 0)
-    full_context_perf_mean, full_context_perf_sem = mplt.get_summarystats(full_context_perf, 0)
     low_context_perf_mean, low_context_perf_sem = mplt.get_summarystats(low_context_perf, 0)
     high_context_perf_mean, high_context_perf_sem = mplt.get_summarystats(high_context_perf, 0)
 
     global_uniquediffs = np.mean(global_uniquediffs, axis=0)
-    full_context_numberdiffs = np.mean(full_context_numberdiffs, axis=0)
     low_context_numberdiffs = np.mean(low_context_numberdiffs, axis=0)
     high_context_numberdiffs = np.mean(high_context_numberdiffs, axis=0)
 
@@ -1160,16 +1167,16 @@ def plot_postlesion(args, retrain_args, model_list):
     numberdiffs, globalnumberdiffs, perf = theory.simulate_theoretical_policies()
 
     # context-specific performance i.e. how did performance change with dist. to mean in each context
-    xnumbers =  [full_context_numberdiffs, low_context_numberdiffs, high_context_numberdiffs]
-    means = [full_context_perf_mean, low_context_perf_mean, high_context_perf_mean]
-    stds = [full_context_perf_sem, low_context_perf_sem, high_context_perf_sem]
+    xnumbers =  [low_context_numberdiffs, high_context_numberdiffs]
+    means = [low_context_perf_mean, high_context_perf_mean]
+    stds = [low_context_perf_sem, high_context_perf_sem]
 
     for j in range(2):
         # plot model predictions under local or global predictions
         handles = theory.plot_theoretical_predictions(ax[j], numberdiffs, globalnumberdiffs, perf, j)
 
         for i in range(len(xnumbers)):
-            anh.shadeplot(ax[j], xnumbers[i], means[i], stds[i], const.CONTEXT_COLOURS[i])
+            shadeplot(ax[j], xnumbers[i], means[i], stds[i], const.CONTEXT_COLOURS[i])
             h = ax[j].errorbar(xnumbers[i], means[i], stds[i], color=const.CONTEXT_COLOURS[i], fmt='o', markersize=5, markeredgecolor='black', ecolor='black')
             handles.append(h)
 
@@ -1195,7 +1202,7 @@ def plot_postlesion(args, retrain_args, model_list):
     return SSE_local
 
 
-def analyse_retrained_nets():
+def analyse_retrained_nets(args, retrain_args):
     """ Assess context use on decoder-retrained networks"""
     SSE_local = [[] for i in range(2)]
     for ind, args.all_fullrange in enumerate([False, True]):
