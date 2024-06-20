@@ -51,6 +51,51 @@ if __name__ == '__main__':
     #     numpy_trainset = data.item().get("trainset")
     #     print(numpy_trainset['judgementValue'][4])
         
+    # # Check information about the dataset
+    # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    # trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
+    # array_index = -50 # choose an index to check the dataset (check multiple indexes)
+    # print('array_index:',array_index)
+    # # print('judgementValue:',numpy_trainset['judgementValue'][array_index])
+    # # print('refValue:',numpy_trainset['refValue'][array_index])
+    # # print('label:',numpy_trainset['label'][array_index])
+    # for i in range(len(numpy_trainset['judgementValue'][array_index])):
+    #     judgementValue = 0
+    #     refValue = 0
+    #     label = 0
+    #     # turn judgementValarray position to value
+    #     for ind in range(len(numpy_trainset['judgementValue'][array_index][i])):
+    #         if numpy_trainset['judgementValue'][array_index][i][ind] == 1:
+    #             judgementValue = ind + 1
+    #     # turn refValue array position to value  
+    #     for ind in range(len(numpy_trainset['refValue'][array_index][i])):
+    #         if numpy_trainset['refValue'][array_index][i][ind] == 1:
+    #             refValue = ind + 1
+    #     # grab label value
+    #     label = numpy_trainset['label'][array_index][i]
+    #     # check if the judgementValue and refValue logic is correct
+    #     if (judgementValue > refValue and label == 1) or (judgementValue < refValue and label == 0):
+    #         print('judgementValue:\t',judgementValue, '\trefValue:\t',refValue, '\tlabel:\t',label)
+    #     else:
+    #         print('judgementValue:\t',judgementValue, '\trefValue:\t',refValue, '\tlabel:\t',label, '\tWRONG!')
+    
+    
+    # # Graph of the dataset
+    # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    # trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
+    # z = np.sum(numpy_trainset['judgementValue'],1)
+    # im = plt.imshow(z, cmap='hot', aspect='auto')
+    # plt.colorbar(im, orientation='horizontal')
+    # mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_ALL_'), args, True, False, _, True)
+    # im = plt.imshow(z[1:10,:], cmap='hot', aspect='equal')
+    # plt.colorbar(im, orientation='horizontal')
+    # mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_SOME_'), args, True, False, _, True)
+
+
+        
+        
+        
+        
 
     # Train a network from scratch and save it
     # print('Training network...')
