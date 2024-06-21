@@ -300,7 +300,7 @@ def create_separate_input_data(filename, args):
                         
                         input2 = turn_one_hot(judgementValue, const.TOTALMAXNUM)
                         if args.all_fullrange:  # if intermingling contexts, then we need to know which context this number was sampled from
-                            context = turn_index_to_context(randind) # SNtry feeding in randNumDistribution[randind]
+                            context = turn_index_to_context(randNumDistribution[randind]) # SNtry feeding in randNumDistribution[randind]
 
                     else:  # filler trial (note fillers are always from uniform 1:15 range)
                         input2 = turn_one_hot(random.randint(*fillerRange), const.TOTALMAXNUM)

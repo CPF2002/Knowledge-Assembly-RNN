@@ -43,53 +43,61 @@ if __name__ == '__main__':
     args.model_id = 1         # for visualising or analysing a particular trained model
     
     # Create dataset
-    # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
-    # if args.create_new_dataset:
-    #     print('Creating new dataset...')
-    #     trainset, testset = dset.create_separate_input_data(datasetname, args)
-    #     data = np.load(const.DATASET_DIRECTORY+datasetname+'.npy', allow_pickle=True)
-    #     numpy_trainset = data.item().get("trainset")
-    #     print(numpy_trainset['judgementValue'][4])
+    datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    if args.create_new_dataset:
+        print('Creating new dataset...')
+        trainset, testset = dset.create_separate_input_data(datasetname, args)
+        data = np.load(const.DATASET_DIRECTORY+datasetname+'.npy', allow_pickle=True)
+        numpy_trainset = data.item().get("trainset")
+        print(numpy_trainset['judgementValue'][4])
         
     # # Check information about the dataset
-    # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
-    # trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
-    # array_index = -50 # choose an index to check the dataset (check multiple indexes)
-    # print('array_index:',array_index)
-    # # print('judgementValue:',numpy_trainset['judgementValue'][array_index])
-    # # print('refValue:',numpy_trainset['refValue'][array_index])
-    # # print('label:',numpy_trainset['label'][array_index])
-    # for i in range(len(numpy_trainset['judgementValue'][array_index])):
-    #     judgementValue = 0
-    #     refValue = 0
-    #     label = 0
-    #     # turn judgementValarray position to value
-    #     for ind in range(len(numpy_trainset['judgementValue'][array_index][i])):
-    #         if numpy_trainset['judgementValue'][array_index][i][ind] == 1:
-    #             judgementValue = ind + 1
-    #     # turn refValue array position to value  
-    #     for ind in range(len(numpy_trainset['refValue'][array_index][i])):
-    #         if numpy_trainset['refValue'][array_index][i][ind] == 1:
-    #             refValue = ind + 1
-    #     # grab label value
-    #     label = numpy_trainset['label'][array_index][i]
-    #     # check if the judgementValue and refValue logic is correct
-    #     if (judgementValue > refValue and label == 1) or (judgementValue < refValue and label == 0):
-    #         print('judgementValue:\t',judgementValue, '\trefValue:\t',refValue, '\tlabel:\t',label)
-    #     else:
-    #         print('judgementValue:\t',judgementValue, '\trefValue:\t',refValue, '\tlabel:\t',label, '\tWRONG!')
+    datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
+    array_index = -50 # choose an index to check the dataset (check multiple indexes)
+    print('array_index:',array_index)
+    # print('judgementValue:',numpy_trainset['judgementValue'][array_index])
+    # print('refValue:',numpy_trainset['refValue'][array_index])
+    # print('label:',numpy_trainset['label'][array_index])
+    #print('context:',numpy_trainset['context'][array_index])
+    for i in range(len(numpy_trainset['judgementValue'][array_index])):
+        judgementValue = 0
+        refValue = 0
+        label = 0
+        context = -1
+        # turn judgementValarray position to value
+        for ind in range(len(numpy_trainset['judgementValue'][array_index][i])):
+            if numpy_trainset['judgementValue'][array_index][i][ind] == 1:
+                judgementValue = ind + 1
+        # turn refValue array position to value  
+        for ind in range(len(numpy_trainset['refValue'][array_index][i])):
+            if numpy_trainset['refValue'][array_index][i][ind] == 1:
+                refValue = ind + 1
+        # grab label value
+        label = numpy_trainset['label'][array_index][i]
+        # grab context value
+        for ind in range(len(numpy_trainset['context'][array_index][i])):
+            if numpy_trainset['context'][array_index][i][ind] == 1:
+                context = ind + 1
+        # check if the judgementValue and refValue logic is correct
+        
+        print('judgementValue:',judgementValue, '\trefValue:',refValue, '\tlabel:',label, '\tcontext:',context)
+        if (judgementValue < refValue and label == 1) or (judgementValue > refValue and label == 0):
+          print('\tWRONG label!')
+        elif (judgementValue <= const.LOWR_ULIM and context == 2) or (judgementValue >= const.HIGHR_LLIM and context == 1):
+          print('\tWRONG context!')
     
     
-    # # Graph of the dataset
-    # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
-    # trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
-    # z = np.sum(numpy_trainset['judgementValue'],1)
-    # im = plt.imshow(z, cmap='hot', aspect='auto')
-    # plt.colorbar(im, orientation='horizontal')
-    # mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_ALL_'), args, True, False, _, True)
-    # im = plt.imshow(z[1:10,:], cmap='hot', aspect='equal')
-    # plt.colorbar(im, orientation='horizontal')
-    # mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_SOME_'), args, True, False, _, True)
+    # Graph of the dataset
+    datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
+    z = np.sum(numpy_trainset['judgementValue'],1)
+    im = plt.imshow(z, cmap='hot', aspect='auto')
+    plt.colorbar(im, orientation='horizontal')
+    mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_ALL_'), args, True, False, _, True)
+    im = plt.imshow(z[1:10,:], cmap='hot', aspect='equal')
+    plt.colorbar(im, orientation='horizontal')
+    mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_SOME_'), args, True, False, _, True)
 
 
         
