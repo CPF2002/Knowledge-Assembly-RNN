@@ -151,8 +151,8 @@ def plot_3mds(MDS_dict, args, labelNumerosity=True, whichTrialType='compare', sa
         MDS_dict = MDS_dict["filler_dict"]
 
     # Plot the hidden activations for the 3 MDS dimensions
-    colours = plt.cm.get_cmap('viridis')
-    diffcolours = plt.cm.get_cmap('viridis')
+    colours = plt.get_cmap('viridis')
+    diffcolours = plt.get_cmap('viridis')
     outcomecolours = ['red', 'green']
 
     norm = mplcol.Normalize(vmin=const.FULLR_LLIM, vmax=const.FULLR_ULIM)
@@ -304,7 +304,7 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
                 contextC = range(const.FULLR_SPAN*2, const.FULLR_SPAN*3)
             else:
                 print('compare')
-                contextA = range(const.FULLR_SPAN-1)
+                contextA = range(const.FULLR_SPAN)
                 contextB = range(const.FULLR_SPAN,const.FULLR_SPAN+const.LOWR_SPAN)
                 contextC = range(const.FULLR_SPAN+const.LOWR_SPAN, const.FULLR_SPAN+const.LOWR_SPAN+const.HIGHR_SPAN)
 
