@@ -35,21 +35,21 @@ if __name__ == '__main__':
 
     # set up dataset and network hyperparams (optionally via command line)
     args, device, multiparams = mnet.define_hyperparams()
-    args.all_fullrange = False    # False = blocked; True = interleaved
-    args.which_context = 1          # 0 = all contexts; 1 = LOWR (low range context); 2 = HIGHR (high range context)
+    args.all_fullrange = False       # False = blocked; True = interleaved
+    args.which_context = 0          # 0 = all contexts; 1 = LOWR (low range context); 2 = HIGHR (high range context)
     args.train_lesion_freq = 0.1    # 0.0 or 0.1  (also 0.2, 0.3, 0.4 for blocked & true context case)
     args.block_int_ttsplit = False  # True: test on a different distribution (block/interleave) than training
     args.retrain_decoder = False
-    args.model_id = 1         # for visualising or analysing a particular trained model
+    args.model_id = 2         # for visualising or analysing a particular trained model
     
     # Create dataset
-    datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
-    if args.create_new_dataset:
-        print('Creating new dataset...')
-        trainset, testset = dset.create_separate_input_data(datasetname, args)
-        data = np.load(const.DATASET_DIRECTORY+datasetname+'.npy', allow_pickle=True)
-        numpy_trainset = data.item().get("trainset")
-        print(numpy_trainset['judgementValue'][4])
+    # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    # if args.create_new_dataset:
+    #     print('Creating new dataset...')
+    #     trainset, testset = dset.create_separate_input_data(datasetname, args)
+    #     data = np.load(const.DATASET_DIRECTORY+datasetname+'.npy', allow_pickle=True)
+    #     numpy_trainset = data.item().get("trainset")
+    #     print(numpy_trainset['judgementValue'][4])
         
     # # Check information about the dataset
     datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
@@ -88,16 +88,16 @@ if __name__ == '__main__':
           print('\tWRONG context!')
     
     
-    # Graph of the dataset
-    datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
-    trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
-    z = np.sum(numpy_trainset['judgementValue'],1)
-    im = plt.imshow(z, cmap='hot', aspect='auto')
-    plt.colorbar(im, orientation='horizontal')
-    mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_ALL_'), args, True, False, _, True)
-    im = plt.imshow(z[1:10,:], cmap='hot', aspect='equal')
-    plt.colorbar(im, orientation='horizontal')
-    mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_SOME_'), args, True, False, _, True)
+    # # Graph of the dataset
+    # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    # trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
+    # z = np.sum(numpy_trainset['judgementValue'],1)
+    # im = plt.imshow(z, cmap='hot', aspect='auto')
+    # plt.colorbar(im, orientation='horizontal')
+    # mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_ALL_'), args, True, False, _, True)
+    # im = plt.imshow(z[1:10,:], cmap='hot', aspect='equal')
+    # plt.colorbar(im, orientation='horizontal')
+    # mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_SOME_'), args, True, False, _, True)
 
 
         

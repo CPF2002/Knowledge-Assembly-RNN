@@ -297,6 +297,8 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
             contextB = range((const.FULLR_SPAN-1)*2, (const.FULLR_SPAN-1)*2 + (const.LOWR_SPAN-1)*2)
             contextC = range((const.FULLR_SPAN-1)*2 + (const.LOWR_SPAN-1)*2, (const.FULLR_SPAN-1)*2 + (const.LOWR_SPAN-1)*2 + (const.HIGHR_SPAN-1)*2)
         else:
+            print('MDS_act.shape[0]', MDS_act.shape[0])
+            print('MDS_act.shape[1]', MDS_act.shape[1])
             if whichTrialType=='filler':
                 print('filler')
                 contextA = range(const.FULLR_SPAN)
@@ -304,9 +306,9 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
                 contextC = range(const.FULLR_SPAN*2, const.FULLR_SPAN*3)
             else:
                 print('compare')
-                contextA = range(const.FULLR_SPAN)
-                contextB = range(const.FULLR_SPAN,const.FULLR_SPAN+const.LOWR_SPAN)
-                contextC = range(const.FULLR_SPAN+const.LOWR_SPAN, const.FULLR_SPAN+const.LOWR_SPAN+const.HIGHR_SPAN)
+                contextA = range(MDS_act.shape[0]) #range(const.FULLR_SPAN)
+                contextB = range(MDS_act.shape[1]) #range(const.FULLR_SPAN,const.FULLR_SPAN+const.LOWR_SPAN)
+                contextC = range(MDS_act.shape[1], MDS_act.shape[0]) #range(const.FULLR_SPAN+const.LOWR_SPAN, const.FULLR_SPAN+const.LOWR_SPAN+const.HIGHR_SPAN)
 
             # Rotate the components on the 2d plot since global orientation doesnt matter (axes are arbitrary)
             rotated_act = copy.deepcopy(MDS_act)

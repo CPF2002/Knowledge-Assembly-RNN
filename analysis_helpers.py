@@ -698,7 +698,7 @@ def average_activations_across_models(args):
 
     MDS_meandict["MDS_slactivations"] = MDS_act
     # MDS_meandict["filler_dict"]["MDS_slactivations"] = MDS_act_filler
-    args.model_id = 0
+    # args.model_id = 0 # CF why hard code this number if provided at the beginning in args
 
     return MDS_meandict, args
 
