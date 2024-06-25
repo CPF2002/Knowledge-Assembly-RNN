@@ -271,6 +271,8 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
         contextlabel = MDS_dict["sl_contexts"]
         numberlabel = MDS_dict["sl_judgeValues"]
         differenceCodeText = ''
+    
+    print('MDS_act.shape beg', MDS_act.shape)
 
     for j in range(3):  # 3 MDS dimensions
 
@@ -292,6 +294,7 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
 
         ax[j].set_title('context')
 
+        # contexts draw the lines between the nodes (yellow is A, blue is B, red is C)
         if plot_diff_code:
             contextA = range((const.FULLR_SPAN-1)*2)
             contextB = range((const.FULLR_SPAN-1)*2, (const.FULLR_SPAN-1)*2 + (const.LOWR_SPAN-1)*2)
@@ -306,9 +309,9 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
                 contextC = range(const.FULLR_SPAN*2, const.FULLR_SPAN*3)
             else:
                 print('compare')
-                contextA = range(MDS_act.shape[0]) #range(const.FULLR_SPAN)
-                contextB = range(MDS_act.shape[1]) #range(const.FULLR_SPAN,const.FULLR_SPAN+const.LOWR_SPAN)
-                contextC = range(MDS_act.shape[1], MDS_act.shape[0]) #range(const.FULLR_SPAN+const.LOWR_SPAN, const.FULLR_SPAN+const.LOWR_SPAN+const.HIGHR_SPAN)
+                contextA = range(const.FULLR_LLIM-1,const.FULLR_ULIM)#range(const.FULLR_SPAN)
+                contextB = range(const.LOWR_LLIM-1,const.LOWR_ULIM)#range(const.FULLR_SPAN,const.FULLR_SPAN+const.LOWR_SPAN)
+                contextC = range(const.HIGHR_LLIM-1, const.HIGHR_ULIM)#range(const.FULLR_SPAN+const.LOWR_SPAN, const.FULLR_SPAN+const.LOWR_SPAN+const.HIGHR_SPAN)
 
             # Rotate the components on the 2d plot since global orientation doesnt matter (axes are arbitrary)
             rotated_act = copy.deepcopy(MDS_act)
