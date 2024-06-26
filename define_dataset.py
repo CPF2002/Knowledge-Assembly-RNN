@@ -168,10 +168,10 @@ def turn_index_to_context(randind): # ! confused what this function does ; seems
     
     if randind <= const.LOWR_ULIM:  # <= 4
         context = 1
-        print(context)
+        #print(context)
     else:  # || elif randind > const.HIGHR_LLIM  # >= 5
         context = 2
-        print(context)
+        #print(context)
     return context
 
 
@@ -373,6 +373,9 @@ def create_separate_input_data(filename, args):
                                 target[block, sample, i] = 1
                             else:
                                 target[block, sample, i] = 0
+                                
+                            if (judgeValue <= const.LOWR_ULIM and rValue >= const.HIGHR_LLIM) or (judgeValue >= const.HIGHR_LLIM and rValue <= const.LOWR_ULIM):
+                                target[block, sample, i] = np.nan
                         else:
                             target[block, sample, i] = None  # default dont do anything
 
@@ -492,12 +495,14 @@ def view_dataset_index_info(array_index, args):
           print('\tWRONG label!')
         elif (judgementValue <= const.LOWR_ULIM and context == 2) or (judgementValue >= const.HIGHR_LLIM and context == 1):
           print('\tWRONG context!')
+        elif ((judgementValue <= const.LOWR_ULIM and refValue >= const.HIGHR_LLIM) or (judgementValue >= const.HIGHR_LLIM and refValue <= const.LOWR_ULIM)) and (label == 1 or label == 0):
+          print('\tWRONG label != NaN!')
           
 def create_dataset(args):
     datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
     if args.create_new_dataset:
         print('Creating new dataset...')
-        trainset, testset = create_separate_input_data(datasetname, args)
+        create_separate_input_data(datasetname, args)
         data = np.load(const.DATASET_DIRECTORY+datasetname+'.npy', allow_pickle=True)
-        # numpy_trainset = data.item().get("trainset")
-        #print(numpy_trainset['judgementValue'][4])
+        numpy_trainset = data.item().get("trainset")
+        print(numpy_trainset['judgementValue'][4])
