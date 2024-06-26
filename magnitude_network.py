@@ -943,7 +943,9 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
         testPerformance.append(base_test_accuracy)
         print_progress(0, n_epochs)
 
-        for epoch in range(1, n_epochs + 1):  # loop through the whole dataset this many times
+        standard_train_accuracy = 0.0
+        epoch = 0
+        while standard_train_accuracy < 90.0: # trains until the network is performing well on the training set
 
             # train network
             standard_train_loss, standard_train_accuracy = recurrent_train(args, model, device, trainloader, optimizer, criterion, epoch, printOutput)
@@ -958,8 +960,29 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
             trainingPerformance.append(standard_train_accuracy)
             testPerformance.append(test_accuracy)
             print('Train: {:.2f}%, Test: {:.2f}%'.format(standard_train_accuracy, test_accuracy))
+            epoch += 1
             log_performance(writer, epoch, train_perf, test_perf)
             print_progress(epoch, n_epochs)
+        
+        '''  # this is the trainig loop that trained for a set number of epochs
+        # for epoch in range(1, n_epochs + 1):  # loop through the whole dataset this many times
+
+        #     # train network
+        #     standard_train_loss, standard_train_accuracy = recurrent_train(args, model, device, trainloader, optimizer, criterion, epoch, printOutput)
+
+        #     # assess network
+        #     fair_train_loss, fair_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, printOutput)
+        #     test_loss, test_accuracy = recurrent_test(args, model, device, testloader, criterion, printOutput)
+
+        #     # log performance
+        #     train_perf = [standard_train_loss, standard_train_accuracy, fair_train_loss, fair_train_accuracy]
+        #     test_perf = [test_loss, test_accuracy]
+        #     trainingPerformance.append(standard_train_accuracy)
+        #     testPerformance.append(test_accuracy)
+        #     print('Train: {:.2f}%, Test: {:.2f}%'.format(standard_train_accuracy, test_accuracy))
+        #     log_performance(writer, epoch, train_perf, test_perf)
+        #     print_progress(epoch, n_epochs)
+        '''
 
         print("Training complete.")
         # save this training curve
