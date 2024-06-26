@@ -35,93 +35,47 @@ if __name__ == '__main__':
 
     # set up dataset and network hyperparams (optionally via command line)
     args, device, multiparams = mnet.define_hyperparams()
-    args.all_fullrange = False       # False = blocked; True = interleaved
+    args.all_fullrange = True       # False = blocked; True = interleaved
     args.which_context = 0          # 0 = all contexts; 1 = LOWR (low range context); 2 = HIGHR (high range context)
     args.train_lesion_freq = 0.1    # 0.0 or 0.1  (also 0.2, 0.3, 0.4 for blocked & true context case)
     args.block_int_ttsplit = False  # True: test on a different distribution (block/interleave) than training
     args.retrain_decoder = False
-    args.model_id = 2         # for visualising or analysing a particular trained model
+    args.model_id = 3         # for visualising or analysing a particular trained model
     
     # Create dataset
-    # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
-    # if args.create_new_dataset:
-    #     print('Creating new dataset...')
-    #     trainset, testset = dset.create_separate_input_data(datasetname, args)
-    #     data = np.load(const.DATASET_DIRECTORY+datasetname+'.npy', allow_pickle=True)
-    #     numpy_trainset = data.item().get("trainset")
-    #     print(numpy_trainset['judgementValue'][4])
+    dset.create_dataset(args)
         
-    # # Check information about the dataset
+    # Check information about the dataset
+    dset.view_dataset_index_info(-50, args)
+    
+    # Graph of the dataset
     datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
     trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
-    array_index = -50 # choose an index to check the dataset (check multiple indexes)
-    print('array_index:',array_index)
-    # print('judgementValue:',numpy_trainset['judgementValue'][array_index])
-    # print('refValue:',numpy_trainset['refValue'][array_index])
-    # print('label:',numpy_trainset['label'][array_index])
-    #print('context:',numpy_trainset['context'][array_index])
-    for i in range(len(numpy_trainset['judgementValue'][array_index])):
-        judgementValue = 0
-        refValue = 0
-        label = 0
-        context = -1
-        # turn judgementValarray position to value
-        for ind in range(len(numpy_trainset['judgementValue'][array_index][i])):
-            if numpy_trainset['judgementValue'][array_index][i][ind] == 1:
-                judgementValue = ind + 1
-        # turn refValue array position to value  
-        for ind in range(len(numpy_trainset['refValue'][array_index][i])):
-            if numpy_trainset['refValue'][array_index][i][ind] == 1:
-                refValue = ind + 1
-        # grab label value
-        label = numpy_trainset['label'][array_index][i]
-        # grab context value
-        for ind in range(len(numpy_trainset['context'][array_index][i])):
-            if numpy_trainset['context'][array_index][i][ind] == 1:
-                context = ind + 1
-        # check if the judgementValue and refValue logic is correct
-        
-        print('judgementValue:',judgementValue, '\trefValue:',refValue, '\tlabel:',label, '\tcontext:',context)
-        if (judgementValue < refValue and label == 1) or (judgementValue > refValue and label == 0):
-          print('\tWRONG label!')
-        elif (judgementValue <= const.LOWR_ULIM and context == 2) or (judgementValue >= const.HIGHR_LLIM and context == 1):
-          print('\tWRONG context!')
-    
-    
-    # # Graph of the dataset
-    # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
-    # trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
-    # z = np.sum(numpy_trainset['judgementValue'],1)
-    # im = plt.imshow(z, cmap='hot', aspect='auto')
-    # plt.colorbar(im, orientation='horizontal')
-    # mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_ALL_'), args, True, False, _, True)
-    # im = plt.imshow(z[1:10,:], cmap='hot', aspect='equal')
-    # plt.colorbar(im, orientation='horizontal')
-    # mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_SOME_'), args, True, False, _, True)
+    z = np.sum(numpy_trainset['judgementValue'],1)
+    im = plt.imshow(z, cmap='hot', aspect='auto')
+    plt.colorbar(im, orientation='horizontal')
+    mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_ALL_'), args, True, False, _, True)
+    im = plt.imshow(z[1:10,:], cmap='hot', aspect='equal')
+    plt.colorbar(im, orientation='horizontal')
+    mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_SOME_'), args, True, False, _, True)
 
-
-        
-        
-        
-        
-
-    # Train a network from scratch and save it
+    # # Train a network from scratch and save it
     # print('Training network...')
     # mnet.train_and_save_network(args, device, multiparams)
     # print('Training complete and network saved. main')
 
-    # # Analyse the trained network (extract and save network activations)
-    print('\nAnalysing network...')
-    MDS_dict = anh.analyse_network(args)
+    # # # Analyse the trained network (extract and save network activations)
+    # print('\nAnalysing network...')
+    # MDS_dict = anh.analyse_network(args)
 
-    # # Check the average final performance for trained models matching args
-    print('\nChecking average performance...')
-    anh.average_perf_across_models(args)
+    # # # Check the average final performance for trained models matching args
+    # print('\nChecking average performance...')
+    # anh.average_perf_across_models(args)
 
-    # Visualise the resultant network activations (RDMs and MDS)
-    print('\nGenerating plots...')
-    MDS_dict, args = anh.average_activations_across_models(args)
-    mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
+    # # Visualise the resultant network activations (RDMs and MDS)
+    # print('\nGenerating plots...')
+    # MDS_dict, args = anh.average_activations_across_models(args)
+    # mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
     
     # if args.all_fullrange:
     #   print('\nTraining Curricula: Interleaved')

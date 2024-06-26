@@ -26,6 +26,7 @@ import random
 from sklearn.manifold import MDS
 from sklearn.utils import shuffle
 import copy
+import magnitude_network as mnet
 
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.tensorboard import SummaryWriter
@@ -451,3 +452,52 @@ def create_separate_input_data(filename, args):
     testset = CreateDataset(testset)
 
     return trainset, testset
+
+def view_dataset_index_info(array_index, args):
+    '''
+    This function will print out the information of the dataset at the given index. Used to compare judgementValue, 
+    refValue, label, and context to ensure the dataset is correct.
+    '''
+    datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = load_input_data(const.DATASET_DIRECTORY, datasetname)
+    # array_index = -50 # choose an index to check the dataset (check multiple indexes)
+    print('array_index:',array_index)
+    # print('judgementValue:',numpy_trainset['judgementValue'][array_index])
+    # print('refValue:',numpy_trainset['refValue'][array_index])
+    # print('label:',numpy_trainset['label'][array_index])
+    #print('context:',numpy_trainset['context'][array_index])
+    for i in range(len(numpy_trainset['judgementValue'][array_index])):
+        judgementValue = 0
+        refValue = 0
+        label = 0
+        context = -1
+        # turn judgementValarray position to value
+        for ind in range(len(numpy_trainset['judgementValue'][array_index][i])):
+            if numpy_trainset['judgementValue'][array_index][i][ind] == 1:
+                judgementValue = ind + 1
+        # turn refValue array position to value  
+        for ind in range(len(numpy_trainset['refValue'][array_index][i])):
+            if numpy_trainset['refValue'][array_index][i][ind] == 1:
+                refValue = ind + 1
+        # grab label value
+        label = numpy_trainset['label'][array_index][i]
+        # grab context value
+        for ind in range(len(numpy_trainset['context'][array_index][i])):
+            if numpy_trainset['context'][array_index][i][ind] == 1:
+                context = ind + 1
+        # check if the judgementValue and refValue logic is correct
+        
+        print('judgementValue:',judgementValue, '\trefValue:',refValue, '\tlabel:',label, '\tcontext:',context)
+        if (judgementValue < refValue and label == 1) or (judgementValue > refValue and label == 0):
+          print('\tWRONG label!')
+        elif (judgementValue <= const.LOWR_ULIM and context == 2) or (judgementValue >= const.HIGHR_LLIM and context == 1):
+          print('\tWRONG context!')
+          
+def create_dataset(args):
+    datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    if args.create_new_dataset:
+        print('Creating new dataset...')
+        trainset, testset = create_separate_input_data(datasetname, args)
+        data = np.load(const.DATASET_DIRECTORY+datasetname+'.npy', allow_pickle=True)
+        # numpy_trainset = data.item().get("trainset")
+        #print(numpy_trainset['judgementValue'][4])
