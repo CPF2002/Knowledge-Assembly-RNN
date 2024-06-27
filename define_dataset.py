@@ -168,10 +168,8 @@ def turn_index_to_context(randind): # ! confused what this function does ; seems
     
     if randind <= const.LOWR_ULIM:  # <= 4
         context = 1
-        #print(context)
     else:  # || elif randind > const.HIGHR_LLIM  # >= 5
         context = 2
-        #print(context)
     return context
 
 
