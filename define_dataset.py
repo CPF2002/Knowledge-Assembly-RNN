@@ -168,10 +168,8 @@ def turn_index_to_context(randind): # ! confused what this function does ; seems
     
     if randind <= const.LOWR_ULIM:  # <= 4
         context = 1
-        print(context)
     else:  # || elif randind > const.HIGHR_LLIM  # >= 5
         context = 2
-        print(context)
     return context
 
 
@@ -267,7 +265,7 @@ def create_separate_input_data(filename, args):
 
             if args.all_fullrange: # args.all_fullrange == True = interleaved   # ! do we want it kept this way? not sure how to rewrite this
                 print('interleaved')
-                tmpDistribution = [[i for i in range(const.FULLR_LLIM, const.FULLR_ULIM+1)],[j for j in range(const.LOWR_LLIM, const.LOWR_ULIM+1)], [k for k in range(const.HIGHR_LLIM, const.HIGHR_ULIM+1)] ]
+                tmpDistribution = [[i for i in range(const.FULLR_LLIM, const.FULLR_ULIM+1)]]
                 randNumDistribution = [i for sublist in tmpDistribution for i in sublist]  # non-uniform distr. over all 3 context ranges together
            ## SN are we entering this part?
             else: # args.all_fullrange == False = blocked
@@ -282,6 +280,7 @@ def create_separate_input_data(filename, args):
             firstTrialInContext = True              # reset the sequentialAB structure for each new context
             for sample in range(int(N/Mblocks)):    # each sequence
                 input_sequence = []
+                refValue_input_sequence = []
                 type_sequence  = generate_trial_sequence(args.include_fillers) # the order of filler trial and compare trials
                 trialtypeinput = [0 for i in range(len(type_sequence))]
                 contextsequence = []
@@ -304,7 +303,10 @@ def create_separate_input_data(filename, args):
                                 print('Warning: sequence starting with a filler trial. This should not happen and will cause a bug in sequence generation.')
                         else:
                             refValue = copy.deepcopy(judgementValue)  # use the previous number and make sure its a copy not a reference to same piece of memory
-
+                        
+                        randind = random.choice(indexDistribution)
+                        refValue = randNumDistribution[randind]
+                        
                         randind = random.choice(indexDistribution)
                         
                         judgementValue = randNumDistribution[randind]
@@ -347,9 +349,11 @@ def create_separate_input_data(filename, args):
                         contextinput = turn_one_hot(1, const.NCONTEXTS) # just keep this constant across all contexts, so the input doesnt contain an explicit context indicator
 
                     # add our new inputs to our sequence
-                    input_sequence.append(input2)
+                    input_sequence.append(input2)   # the judgement value inputs
+                    refValue_input_sequence.append(turn_one_hot(refValue, const.TOTALMAXNUM)) # the reference value inputs
                     contextsequence.append(context)
                     contextinputsequence.append(contextinput)
+                    #print('contextinput: ', contextinput)
 
                 if firstTrialInContext:
                     judgementValue = turn_one_hot_to_integer(input_sequence[-1])  # and then make sure that the next sequence starts where this one left off (bit of a hack)
@@ -360,8 +364,8 @@ def create_separate_input_data(filename, args):
                 judgeValue = None
                 allJValues = np.zeros((args.BPTT_len, const.TOTALMAXNUM))
                 allRValues = np.zeros((args.BPTT_len, const.TOTALMAXNUM))
-                
                 for i in range(args.BPTT_len):
+                    rValue = turn_one_hot_to_integer(refValue_input_sequence[i])
                     trialtype = trialtypeinput[i]
                     if trialtype==1:  # compare
                         judgeValue = turn_one_hot_to_integer(input_sequence[i])
