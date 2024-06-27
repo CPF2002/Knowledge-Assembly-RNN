@@ -306,18 +306,20 @@ def create_separate_input_data(filename, args):
                         
                         randind = random.choice(indexDistribution)
                         refValue = randNumDistribution[randind]
+                        ref_context = turn_index_to_context(randNumDistribution[randind])
                         
                         randind = random.choice(indexDistribution)
-                        
                         judgementValue = randNumDistribution[randind]
+                        judge_context = turn_index_to_context(randNumDistribution[randind])
                         
                         #SN print judgement value and randNumDistribution to screen to be sure
                         #print('judgementValue: ', judgementValue)
                         #print('randNumDistribution: ', randNumDistribution)
 
-                        while refValue==judgementValue:    # make sure we dont do inputA==inputB for two adjacent inputs
+                        while refValue==judgementValue or ref_context != judge_context:    # make sure we dont do inputA==inputB for two adjacent inputs
                             randind = random.choice(indexDistribution)
                             judgementValue = randNumDistribution[randind] 
+                            judge_context = turn_index_to_context(randNumDistribution[randind])
                         
                         input2 = turn_one_hot(judgementValue, const.TOTALMAXNUM)
                         if args.all_fullrange:  # if intermingling contexts, then we need to know which context this number was sampled from
