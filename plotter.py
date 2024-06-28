@@ -294,7 +294,7 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
 
         # contexts draw the lines between the nodes (yellow is A, blue is B, red is C)
         if plot_diff_code:
-            contextA = range((const.FULLR_SPAN-1)*2)
+           # contextA = range((const.FULLR_SPAN-1)*2)
             contextB = range((const.FULLR_SPAN-1)*2, (const.FULLR_SPAN-1)*2 + (const.LOWR_SPAN-1)*2)
             contextC = range((const.FULLR_SPAN-1)*2 + (const.LOWR_SPAN-1)*2, (const.FULLR_SPAN-1)*2 + (const.LOWR_SPAN-1)*2 + (const.HIGHR_SPAN-1)*2)
         else:
@@ -302,12 +302,12 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
             # print('MDS_act.shape[1]', MDS_act.shape[1])
             if whichTrialType=='filler':
                 #print('filler')
-                contextA = range(const.FULLR_SPAN)
+            #    contextA = range(const.FULLR_SPAN)
                 contextB = range(const.FULLR_SPAN,const.FULLR_SPAN*2)
                 contextC = range(const.FULLR_SPAN*2, const.FULLR_SPAN*3)
             else:
                 #print('compare')
-                contextA = range(const.FULLR_LLIM-1,const.FULLR_ULIM)#range(const.FULLR_SPAN)
+            #    contextA = range(const.FULLR_LLIM-1,const.FULLR_ULIM)#range(const.FULLR_SPAN)
                 contextB = range(const.LOWR_LLIM-1,const.LOWR_ULIM)#range(const.FULLR_SPAN,const.FULLR_SPAN+const.LOWR_SPAN)
                 contextC = range(const.HIGHR_LLIM-1, const.HIGHR_ULIM)#range(const.FULLR_SPAN+const.LOWR_SPAN, const.FULLR_SPAN+const.LOWR_SPAN+const.HIGHR_SPAN)
 
@@ -324,17 +324,18 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
             # print('dimA:', dimA)
             # print('dimB:', dimB)
             # print('MDS_act[contextA, dimA]:', MDS_act[0, 0])
-            rotated_act[contextA, dimA], rotated_act[contextA, dimB] = rotate_axes(MDS_act[contextA, dimA], MDS_act[contextA, dimB], theta)
+          #  rotated_act[contextA, dimA], rotated_act[contextA, dimB] = rotate_axes(MDS_act[contextA, dimA], MDS_act[contextA, dimB], theta)
             rotated_act[contextB, dimA], rotated_act[contextB, dimB] = rotate_axes(MDS_act[contextB, dimA], MDS_act[contextB, dimB], theta)
             rotated_act[contextC, dimA], rotated_act[contextC, dimB] = rotate_axes(MDS_act[contextC, dimA], MDS_act[contextC, dimB], theta)
 
-            ax[j].plot(rotated_act[contextA, dimA], rotated_act[contextA, dimB], color=const.CONTEXT_COLOURS[0])
+          #  ax[j].plot(rotated_act[contextA, dimA], rotated_act[contextA, dimB], color=const.CONTEXT_COLOURS[0])
             ax[j].plot(rotated_act[contextB, dimA], rotated_act[contextB, dimB], color=const.CONTEXT_COLOURS[1])
             ax[j].plot(rotated_act[contextC, dimA], rotated_act[contextC, dimB], color=const.CONTEXT_COLOURS[2])
 
         if gradedcolour:
             markercount=0
             lastc = -1
+            
             for i in range((MDS_act.shape[0])):
 
                 # create colour gradient within each context to signal numerosity
@@ -356,6 +357,7 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
                     ax[j].text(rotated_act[i, dimA], rotated_act[i, dimB], str(24+int(numberlabel[i])), color=const.CONTEXT_COLOURS[int(contextlabel[i])], size=15, horizontalalignment='center', verticalalignment='center')
         else:
             for i in range((MDS_act.shape[0])):
+                # SN the below line only sets the dots, still need to figure out where the lines are plotted
                 ax[j].scatter(rotated_act[i, dimA], rotated_act[i, dimB], color=const.CONTEXT_COLOURS[int(contextlabel[i])], edgecolor=const.CONTEXT_COLOURS[int(contextlabel[i])], s=80, linewidths=2)
                 ax[j].text(rotated_act[i, dimA], rotated_act[i, dimB], str(24+int(numberlabel[i])), color='white', size=6.5, horizontalalignment='center', verticalalignment='center')
 
@@ -998,6 +1000,7 @@ def generate_plots(MDS_dict, args):
     for whichTrialType in trialTypes:
 
         # Label activations by mean number A numerosity
+        print('Plotting activations for trial type: ', whichTrialType)
         activation_rdms(MDS_dict, args, plot_diff_code, whichTrialType)  # activations RSA
         axislimits = (-0.8, 0.8)
         plot_3mds_mean(MDS_dict, args, labelNumerosity, plot_diff_code, whichTrialType, saveFig, 80, axislimits) # mean MDS of our hidden activations (averaged across number B)
