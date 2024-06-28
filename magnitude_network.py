@@ -161,7 +161,12 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
                 latentstate = hidden.detach()
 
             # for 'compare' trials only, evaluate performance at every comparison between the current input and previous 'compare' input
-            if item_idx>0 and (trialtype[0,item_idx]==1):
+            # if item_idx > 0 and (trialtype[0,item_idx]==1):
+            # SN double check that trialtype is always 1?
+            #     loss = loss + criterion(output, labels[item_idx])   # accumulate the loss (autograd should sort this out for us: https://pytorch.org/tutorials/intermediate/char_rnn_generation_tutorial.html)
+            #     correct = correct + answer_correct(output, labels[item_idx])
+                
+            if np.isnan(labels[item_idx]) ==0  and (trialtype[0,item_idx]==1):
                 loss = loss + criterion(output, labels[item_idx])   # accumulate the loss (autograd should sort this out for us: https://pytorch.org/tutorials/intermediate/char_rnn_generation_tutorial.html)
                 correct = correct + answer_correct(output, labels[item_idx])
         #print("step 1")
