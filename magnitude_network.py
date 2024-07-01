@@ -122,6 +122,7 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
         lesionRecord = np.zeros((sequenceLength,))
         loss = 0
         alternate_lesion_trial = True  # for retraining decoder, lesion alternate trials
+        trials_counter = 0
 
         for i in range(sequenceLength):
             context = contextsequence[:,i]
@@ -169,6 +170,7 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
             if np.isnan(labels[item_idx]) ==0  and (trialtype[0,item_idx]==1):
                 loss = loss + criterion(output, labels[item_idx])   # accumulate the loss (autograd should sort this out for us: https://pytorch.org/tutorials/intermediate/char_rnn_generation_tutorial.html)
                 correct = correct + answer_correct(output, labels[item_idx])
+                trials_counter += 1
         #print("step 1")
 
         loss.backward()
@@ -197,7 +199,7 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
         
     #print("loop ended---------------------------------------------------")
     train_loss /= len(train_loader.dataset)*(n_comparetrials-1)
-    accuracy = 100. * correct / (len(train_loader.dataset)*(n_comparetrials-1))
+    accuracy = 100. * correct / (trials_counter*(n_comparetrials-1))
     return train_loss, accuracy
 
 
@@ -244,7 +246,7 @@ def recurrent_test(args, model, device, test_loader, criterion, printOutput=True
                 if item_idx==(sequenceLength-2):  # extract the hidden state just before the last input in the sequence is presented
                     latentstate = hidden.detach()
 
-                if item_idx>0 and (trialtype[0,item_idx]==1):
+                if np.isnan(labels[item_idx]) ==0  and (trialtype[0,item_idx]==1):
                     test_loss += criterion(output, labels[item_idx]).item()
                     correct += answer_correct(output, labels[item_idx])
 
