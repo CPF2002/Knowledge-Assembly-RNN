@@ -109,6 +109,7 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
     # On the very first trial on training, reset the hidden weights to zeros
     hidden = torch.zeros(args.batch_size, model.recurrent_size)
     latentstate = torch.zeros(args.batch_size, model.recurrent_size)
+    trials_counter = 0
 
     for batch_idx, data in enumerate(train_loader):
         optimizer.zero_grad()   # zero the parameter gradients
@@ -122,8 +123,7 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
         lesionRecord = np.zeros((sequenceLength,))
         loss = 0
         alternate_lesion_trial = True  # for retraining decoder, lesion alternate trials
-        trials_counter = 0
-
+        
         for i in range(sequenceLength):
             context = contextsequence[:,i]
             lesionedinput = inputs[:,i]
@@ -194,12 +194,17 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
         if batch_idx % args.log_interval == 0:
             if printOutput:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(epoch, batch_idx * len(inputs), len(train_loader.dataset),
-                    100. * batch_idx / len(train_loader), loss.item()))
+                    100. * batch_idx / len(train_loader.dataset), loss.item()))
         #print("step 4")
         
     #print("loop ended---------------------------------------------------")
     train_loss /= len(train_loader.dataset)*(n_comparetrials-1)
-    accuracy = 100. * correct / (trials_counter*(n_comparetrials-1))
+    print('Trials counter: {}'.format(trials_counter))
+    print('train_loader.dataset',train_loader.dataset)
+    print('len(train_loader.dataset)',len(train_loader.dataset))
+    print('n_comparetrials-1',n_comparetrials-1)
+    print('correct',correct)
+    accuracy = 100. * correct / (len(train_loader.dataset)*(n_comparetrials-1))
     return train_loss, accuracy
 
 
@@ -1020,6 +1025,8 @@ def train_and_save_network(args, device, multiparams):
     else:
         print('Loading existing dataset...')
         trainset, testset, _, _, _, _ = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
+        
+    dset.view_dataset_index_info(-50, args)
 
     # define and train a neural network model, log performance and output trained model
     if args.network_style == 'recurrent':
