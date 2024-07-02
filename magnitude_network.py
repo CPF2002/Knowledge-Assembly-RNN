@@ -110,6 +110,7 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
     hidden = torch.zeros(args.batch_size, model.recurrent_size)
     latentstate = torch.zeros(args.batch_size, model.recurrent_size)
     trials_counter = 0
+    all_trials_counter = 0
 
     for batch_idx, data in enumerate(train_loader):
         optimizer.zero_grad()   # zero the parameter gradients
@@ -171,6 +172,7 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
                 loss = loss + criterion(output, labels[item_idx])   # accumulate the loss (autograd should sort this out for us: https://pytorch.org/tutorials/intermediate/char_rnn_generation_tutorial.html)
                 correct = correct + answer_correct(output, labels[item_idx])
                 trials_counter += 1
+            all_trials_counter += 1
         #print("step 1")
 
         loss.backward()
@@ -200,11 +202,12 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
     #print("loop ended---------------------------------------------------")
     train_loss /= len(train_loader.dataset)*(n_comparetrials-1)
     print('Trials counter: {}'.format(trials_counter))
+    print('All trials counter: {}'.format(all_trials_counter))
     print('train_loader.dataset',train_loader.dataset)
     print('len(train_loader.dataset)',len(train_loader.dataset))
     print('n_comparetrials-1',n_comparetrials-1)
     print('correct',correct)
-    accuracy = 100. * correct / (len(train_loader.dataset)*(n_comparetrials-1))
+    accuracy = 100. * correct / trials_counter #(len(train_loader.dataset)*(n_comparetrials-1))
     return train_loss, accuracy
 
 
