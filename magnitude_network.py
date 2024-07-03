@@ -105,12 +105,12 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
     model.train()
     train_loss = 0
     correct = 0
+    trials_counter = 0
+    all_trials_counter = 0
 
     # On the very first trial on training, reset the hidden weights to zeros
     hidden = torch.zeros(args.batch_size, model.recurrent_size)
     latentstate = torch.zeros(args.batch_size, model.recurrent_size)
-    trials_counter = 0
-    all_trials_counter = 0
 
     for batch_idx, data in enumerate(train_loader):
         optimizer.zero_grad()   # zero the parameter gradients
@@ -200,7 +200,7 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
         #print("step 4")
         
     #print("loop ended---------------------------------------------------")
-    train_loss /= len(train_loader.dataset)*(n_comparetrials-1)
+    train_loss /= trials_counter
     print('Trials counter: {}'.format(trials_counter))
     print('All trials counter: {}'.format(all_trials_counter))
     print('train_loader.dataset',train_loader.dataset)
@@ -216,6 +216,7 @@ def recurrent_test(args, model, device, test_loader, criterion, printOutput=True
     model.eval()
     test_loss = 0
     correct = 0
+    trials_counter = 0
 
     # reset hidden recurrent weights on the very first trial
     hidden = torch.zeros(args.batch_size, model.recurrent_size)
@@ -257,9 +258,10 @@ def recurrent_test(args, model, device, test_loader, criterion, printOutput=True
                 if np.isnan(labels[item_idx]) ==0  and (trialtype[0,item_idx]==1):
                     test_loss += criterion(output, labels[item_idx]).item()
                     correct += answer_correct(output, labels[item_idx])
+                    trials_counter += 1
 
-    test_loss /= len(test_loader.dataset)*(n_comparetrials-1)  # there are n_comparetrials-1 instances of feedback per sequence
-    accuracy = 100. * correct / (len(test_loader.dataset)*(n_comparetrials-1))
+    test_loss /= trials_counter  # there are n_comparetrials-1 instances of feedback per sequence
+    accuracy = 100. * correct / trials_counter
     if printOutput:
         print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(test_loss, correct, len(test_loader.dataset)*(n_comparetrials-1), accuracy))
     return test_loss, accuracy
@@ -532,8 +534,8 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
 
     #trainset_input_n_context = [np.append(trainset["input"][i, j],trainset["contextinput"][i]) for i in range(len(trainset["input"]))]  # ignore the context label, but consider the true underlying context
     unique_inputs_n_context, uniqueind = np.unique(trainset_input_n_context, axis=0, return_index=True)
-    print("unique_inputs_n_context", unique_inputs_n_context.shape)
-    print("uniqueind", uniqueind)
+    # print("unique_inputs_n_context", unique_inputs_n_context.shape)
+    # print("uniqueind", uniqueind)
     N_unique = (unique_inputs_n_context.shape)[0]
     sequence_id = [seq_record[uniqueind[i]][0] for i in range(len(uniqueind))]
     seqitem_id = [seq_record[uniqueind[i]][1] for i in range(len(uniqueind))]
@@ -545,16 +547,16 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
     unique_context = np.asarray([trainset["context"][sequence_id[i]][seqitem_id[i]] for i in range(len(sequence_id))])
     unique_refValue = np.asarray([trainset["refValue"][sequence_id[i]][seqitem_id[i]] for i in range(len(sequence_id))])
     unique_judgementValue = np.asarray([trainset["judgementValue"][sequence_id[i]][seqitem_id[i]] for i in range(len(sequence_id))])
-    print("unique_inputs", unique_inputs.shape)
-    print("unique_labels", unique_labels.shape)
-    print("unique_context", unique_context.shape)
-    print("unique_refValue", unique_refValue.shape)
-    print("unique_judgementValue", unique_judgementValue.shape)
+    # print("unique_inputs", unique_inputs.shape)
+    # print("unique_labels", unique_labels.shape)
+    # print("unique_context", unique_context.shape)
+    # print("unique_refValue", unique_refValue.shape)
+    # print("unique_judgementValue", unique_judgementValue.shape)
 
     # preallocate some space...
     labels_refValues = np.empty((len(uniqueind),1))
     labels_judgeValues = np.empty((len(uniqueind),1))
-    print("uniqueind", uniqueind)
+    # print("uniqueind", uniqueind)
     contexts = np.empty((len(uniqueind),1))
     time_index = np.empty((len(uniqueind),1))
     MDSlabels = np.empty((len(uniqueind),1))
@@ -683,7 +685,7 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
         activations = np.divide(aggregate_activations, counter)
 
     # Finally, reshape the output activations and labels so that we can easily interpret RSA on the activations
-    print("2labels_judgeValues:", labels_judgeValues)
+    # print("2labels_judgeValues:", labels_judgeValues)
     # sort all variables first by context order
     context_ind = np.argsort(contexts, axis=0)
     contexts = np.take_along_axis(contexts, context_ind, axis=0)
@@ -693,7 +695,7 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
     labels_judgeValues = np.take_along_axis(labels_judgeValues, context_ind, axis=0)
     time_index = np.take_along_axis(time_index, context_ind, axis=0)
     counter = np.take_along_axis(counter, context_ind, axis=0)
-    print("1labels_judgeValues:", labels_judgeValues)
+    # print("1labels_judgeValues:", labels_judgeValues)
 
     # within each context, sort according to numerosity of the judgement value
     
@@ -707,8 +709,8 @@ def get_activations(args, trainset,trained_model, train_loader, whichType='compa
             if contexts[i] == context:
                 # If the condition is met, append the index 'i' to the list 'ind'
                 ind.append(i)
-        print("context:", context)
-        print("ind:", ind)
+        # print("context:", context)
+        # print("ind:", ind)
 
         # print("ind[0]:", ind[0])
         # Since the values are exclusive to the context, only have to resort the values within the context

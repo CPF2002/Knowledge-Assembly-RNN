@@ -117,26 +117,26 @@ def average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeV
         flattenValues = labels_refValues
     else:
         flattenValues = labels_judgeValues
-    print("flattenValues: ", flattenValues)
-    print("uniqueValues: ", uniqueValues)
+    # print("flattenValues: ", flattenValues)
+    # print("uniqueValues: ", uniqueValues)
 
     # pick out all the activations that meet this condition for each context and then average over them
     for context in range(const.NCONTEXTS):
         for value in uniqueValues:
             # might need to be just for args.which_context != 0
-            print('args.which_context: ', which_context)
+            #print('args.which_context: ', which_context)
             if value >= const.HIGHR_LLIM and value <= const.HIGHR_ULIM and which_context != 0: # CF have to shift the values to fit the indexing # ! might not work for indexes that cross over
                 valueindex = value - const.HIGHR_LLIM
             else:
                 valueindex = value
-            print('\ncontext: ', context, 'value: ', value, 'valueindex: ', valueindex)
+            #print('\ncontext: ', context, 'value: ', value, 'valueindex: ', valueindex)
             for i in range(labels_judgeValues.shape[0]):
                 if labels_contexts[i] == context + 1:  # remember to preserve the context structure
                     if flattenValues[i] == value:
-                        print('labels_contexts[i]: ', labels_contexts[i])
-                        print('context+1: ', context+1)
-                        print('flattenValues[i]: ', flattenValues[i])
-                        print('value: ', value)
+                        # print('labels_contexts[i]: ', labels_contexts[i])
+                        # print('context+1: ', context+1)
+                        # print('flattenValues[i]: ', flattenValues[i])
+                        # print('value: ', value)
                         flat_activations[context, valueindex-1,:] += activations[i]
                         flat_contexts[context,valueindex-1] = context
                         flat_values[context,valueindex-1] = value
@@ -145,7 +145,7 @@ def average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeV
                         divisor[context,valueindex-1] += 1
 
             # take the mean i.e. normalise by the number of instances that met that condition
-            print('divisor: ', divisor)
+            # print('divisor: ', divisor)
             if int(divisor[context,valueindex-1]) == 0:
                 flat_activations[context, valueindex-1] = np.full_like(flat_activations[context, valueindex-1], np.nan)
             else:
