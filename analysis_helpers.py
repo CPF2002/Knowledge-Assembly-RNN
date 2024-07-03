@@ -422,8 +422,12 @@ def average_perf_across_models(args):
     print('Final training performance across {} models: {:.3f} +- {:.3f}'.format(n_models, mean_train_performance[-1], std_train_performance[-1]))  # mean +- std
     print('Final test performance across {} models: {:.3f} +- {:.3f}'.format(n_models, mean_test_performance[-1], std_test_performance[-1]))  # mean +- std
     plt.figure()
-    h1 = plt.errorbar(range(11), mean_train_performance, std_train_performance, color='dodgerblue')
-    h2 = plt.errorbar(range(11), mean_test_performance, std_test_performance, color='green')
+    print('mean_train_performance: ', mean_train_performance)
+    print('std_train_performance: ', std_train_performance)
+    print('mean_test_performance: ', mean_test_performance)
+    print('std_test_performance: ', std_test_performance)
+    h1 = plt.errorbar(range(len(mean_train_performance)), mean_train_performance, std_train_performance, color='dodgerblue')
+    h2 = plt.errorbar(range(len(mean_test_performance)), mean_test_performance, std_test_performance, color='green')
     plt.legend((h1,h2), ['train','test'])
 
     plt.savefig(os.path.join(const.FIGURE_DIRECTORY, record_name + '.pdf'), bbox_inches='tight')
