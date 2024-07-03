@@ -59,7 +59,7 @@ CONTEXT_HIGH_MEAN = np.mean(range(HIGHR_LLIM, HIGHR_ULIM+1))  # 11
 GLOBAL_MEAN = 4.5 #np.mean([list(range(FULLR_LLIM, FULLR_ULIM+1)), list(range(LOWR_LLIM, LOWR_ULIM+1)), list(range(HIGHR_LLIM, HIGHR_ULIM+1))])
 
 # Figure colours
-CONTEXT_COLOURS = [[253/256, 176/256, 4/256], 'dodgerblue', 'orangered', 'black']  # low, high, full
+CONTEXT_COLOURS = ['dodgerblue', 'orangered', 'gold', 'black']  # low, high, full
 MODEL_COLOURS = ['darkkhaki', 'olivedrab','darkolivegreen']  # change to show both local and global on same plot easily and keep main colours for data
 
 # Single dataset for retraining decoders under blocked, VI conditions

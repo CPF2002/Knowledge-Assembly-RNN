@@ -42,11 +42,8 @@ if __name__ == '__main__':
     args.retrain_decoder = False
     args.model_id = 11         # for visualising or analysing a particular trained model
     
-    # Create dataset
-    if args.create_new_dataset:
-      dset.create_dataset(args)
-    else:
-      print('Using existing dataset...')
+    # # Create dataset
+    # dset.create_dataset(args)
         
     # Check information about the dataset
     dset.view_dataset_index_info(-50, args)
