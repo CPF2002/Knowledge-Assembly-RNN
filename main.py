@@ -51,7 +51,7 @@ if __name__ == '__main__':
     print('Training complete and network saved. main')
     
     # Check information about the dataset
-    dset.view_dataset_index_info(-50, args)
+    dset.view_dataset_index_info(10, args)
 
     # Analyse the trained network (extract and save network activations)
     print('\nAnalysing network...')
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     print('Training complete and network saved. main')
     
     # Check information about the dataset
-    dset.view_dataset_index_info(-50, args)
+    dset.view_dataset_index_info(10, args)
 
     # Analyse the trained network (extract and save network activations)
     print('\nAnalysing network...')

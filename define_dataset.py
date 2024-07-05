@@ -505,7 +505,7 @@ def view_dataset_index_info(array_index, args):
         print('judgementValue:',judgementValue, '\trefValue:',refValue, '\tlabel:',label, '\tcontext:',context)
         if (judgementValue < refValue and label == 1) or (judgementValue > refValue and label == 0):
           print('\tWRONG label!')
-        elif (judgementValue <= const.LOWR_ULIM and context == 2) or (judgementValue >= const.HIGHR_LLIM and context == 1):
+        elif ((judgementValue <= const.LOWR_ULIM and context == 2) or (judgementValue >= const.HIGHR_LLIM and context == 1)) and args.train_long == False:
           print('\tWRONG context!')
         elif ((judgementValue <= const.LOWR_ULIM and refValue >= const.HIGHR_LLIM) or (judgementValue >= const.HIGHR_LLIM and refValue <= const.LOWR_ULIM)) and (label == 1 or label == 0):
           if args.train_long == False:
