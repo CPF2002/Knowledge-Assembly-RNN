@@ -187,6 +187,10 @@ def create_separate_input_data(filename, args):
         print('- context range: {}-{}'.format(const.LOWR_LLIM, const.LOWR_ULIM))   # - context range: 1-4
     elif args.which_context==2:
         print('- context range: {}-{}'.format(const.HIGHR_LLIM, const.HIGHR_ULIM)) # - context range: 5-8
+    if args.train_long:
+        print('- training on long sequence')
+    else:
+        print('- training on short sequence')
     if args.label_context=='true':
         print('- network has correct context labelling')
     elif args.label_context=='random':
@@ -200,13 +204,20 @@ def create_separate_input_data(filename, args):
     print('- training is blocked by context')
     print('- training orders A and B relative to each other in trial sequence (B @ trial t+1 == A @ trial t)')
 
+    # set up the dataset parameters (Train and Test short have different parameters than Train and Test long)
     Mtestsets = const.MTESTSETS             # have multiple test sets for cross-validation of activations
-    print('- {} test sets generated for cross-validation'.format(Mtestsets))
-
-    Ntrain = const.NTRAIN                          # how many examples we want to use (each of these is a sequence on numbers)
-    Ntest = const.NTEST                            # needs to be big enough to almost guarantee that we will get instances of all 460 comparisons (you get 29 comparisons per sequence)
-    totalN = Ntrain + Mtestsets*Ntest           # how many sequences across training and test sets
-    Mblocks = const.MBLOCKS                     # same as fabrices experiment - there are 24 blocks across 3 different contexts
+    if args.train_long == False:
+        print('- {} test sets generated for cross-validation'.format(Mtestsets))
+        Ntrain = const.NTRAIN                          # how many examples we want to use (each of these is a sequence on numbers)
+        Ntest = const.NTEST                            # needs to be big enough to almost guarantee that we will get instances of all 460 comparisons (you get 29 comparisons per sequence)
+        Mblocks = const.MBLOCKS                     # same as fabrices experiment - there are 24 blocks across 3 different contexts
+    else:
+        Ntrain = const.NTRAIN_LONG
+        Ntest = const.NTEST_LONG
+        Mblocks = const.MBLOCKS_LONG
+          
+    totalN = Ntrain + Mtestsets * Ntest           # how many sequences across training and test sets
+    
     phases = ['train'  if i==0 else 'test' for i in range(Mtestsets+1)]
     testsets = [[] for i in range(Mtestsets)]
     whichtestset = 0                         # a counter
@@ -262,14 +273,18 @@ def create_separate_input_data(filename, args):
                 minNumerosity = const.HIGHR_LLIM
                 maxNumerosity = const.HIGHR_ULIM
 
-
-            if args.all_fullrange: # args.all_fullrange == True = interleaved   # ! do we want it kept this way? not sure how to rewrite this
-                print('interleaved')
-                tmpDistribution = [[i for i in range(const.FULLR_LLIM, const.FULLR_ULIM+1)],[j for j in range(const.LOWR_LLIM, const.LOWR_ULIM+1)], [k for k in range(const.HIGHR_LLIM, const.HIGHR_ULIM+1)] ]
-                randNumDistribution = [i for sublist in tmpDistribution for i in sublist]  # non-uniform distr. over all 3 context ranges together
-            else: # args.all_fullrange == False = blocked
-                print('blocked')
-                randNumDistribution = [i for i in range(minNumerosity, maxNumerosity+1)]  # uniform between min and max
+            # set the range of numerosities for the context
+            if args.train_long == True: # Train long should only be on the linking pair between contexts
+                randNumDistribution = Mtestsets = [i for i in range(const.LOWR_ULIM, const.HIGHR_LLIM+1)]
+            else: # The whole range (information for linking pair is filtered out later)
+                if args.all_fullrange: # args.all_fullrange == True = interleaved 
+                    print('interleaved')
+                    tmpDistribution = [[i for i in range(const.FULLR_LLIM, const.FULLR_ULIM+1)],[j for j in range(const.LOWR_LLIM, const.LOWR_ULIM+1)], [k for k in range(const.HIGHR_LLIM, const.HIGHR_ULIM+1)]]
+                    randNumDistribution = [i for sublist in tmpDistribution for i in sublist]  # non-uniform distr. over all 3 context ranges together
+                else: # args.all_fullrange == False = blocked
+                    print('blocked')
+                    randNumDistribution = [i for i in range(minNumerosity, maxNumerosity+1)]  # uniform between min and max
+            
             indexDistribution = [i for i in range(len(randNumDistribution))]  # this is going to allow us to know which context a sample which have been drawn from if intermingled
             print('randNumDistribution: ', randNumDistribution)
             print('indexDistribution: ', indexDistribution)
@@ -370,8 +385,9 @@ def create_separate_input_data(filename, args):
                             else:
                                 target[block, sample, i] = 0
                                 #SN don't want to do below for test long. could also add args.all_fullrange == True into statement
-                            if (judgeValue <= const.LOWR_ULIM and rValue >= const.HIGHR_LLIM) or (judgeValue >= const.HIGHR_LLIM and rValue <= const.LOWR_ULIM):
-                                target[block, sample, i] = np.nan
+                            if args.train_long == False:
+                                if (judgeValue <= const.LOWR_ULIM and rValue >= const.HIGHR_LLIM) or (judgeValue >= const.HIGHR_LLIM and rValue <= const.LOWR_ULIM):
+                                    target[block, sample, i] = np.nan
                         else:
                             target[block, sample, i] = None  # default dont do anything
 
@@ -492,7 +508,8 @@ def view_dataset_index_info(array_index, args):
         elif (judgementValue <= const.LOWR_ULIM and context == 2) or (judgementValue >= const.HIGHR_LLIM and context == 1):
           print('\tWRONG context!')
         elif ((judgementValue <= const.LOWR_ULIM and refValue >= const.HIGHR_LLIM) or (judgementValue >= const.HIGHR_LLIM and refValue <= const.LOWR_ULIM)) and (label == 1 or label == 0):
-          print('\tWRONG label != NaN!')
+          if args.train_long == False:
+            print('\tWRONG label != NaN!')
           
 def create_dataset(args):
     datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)

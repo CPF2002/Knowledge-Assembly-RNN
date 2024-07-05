@@ -35,22 +35,41 @@ if __name__ == '__main__':
 
     # set up dataset and network hyperparams (optionally via command line)
     args, device, multiparams = mnet.define_hyperparams()
-    args.all_fullrange = False       # False = blocked; True = interleaved
+    args.all_fullrange = True       # False = blocked; True = interleaved
     args.which_context = 0          # 0 = all contexts; 1 = LOWR (low range context); 2 = HIGHR (high range context)
     args.train_lesion_freq = 0.1    # 0.0 or 0.1  (also 0.2, 0.3, 0.4 for blocked & true context case)
     args.block_int_ttsplit = False  # True: test on a different distribution (block/interleave) than training
     args.retrain_decoder = False
     args.model_id = 11         # for visualising or analysing a particular trained model
     
-    print('args.train_long = ', args.train_long)
-    args.train_long = True
-    print('args.train_long = ', args.train_long)
     
-    # # # Create dataset
-    # # dset.create_dataset(args)
+    
+    # Create dataset
+    dset.create_dataset(args)
         
-    # # Check information about the dataset
-    # dset.view_dataset_index_info(-50, args)
+    # Check information about the dataset
+    dset.view_dataset_index_info(-10, args)
+    
+    # # Analyse the trained network (extract and save network activations)
+    print('\nAnalysing network...')
+    MDS_dict = anh.analyse_network(args)
+
+    # # Check the average final performance for trained models matching args
+    print('\nChecking average performance...')
+    anh.average_perf_across_models(args)
+
+    # Visualise the resultant network activations (RDMs and MDS)
+    print('\nGenerating plots...')
+    MDS_dict, args = anh.average_activations_across_models(args)
+    mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
+    
+    args.train_long = True
+    
+    # Create dataset
+    dset.create_dataset(args)
+        
+    # Check information about the dataset
+    dset.view_dataset_index_info(-10, args)
     
     # # Graph of the dataset
     # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
@@ -63,23 +82,23 @@ if __name__ == '__main__':
     # plt.colorbar(im, orientation='horizontal')
     # mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_SOME_'), args, True, False, _, True)
 
-    # # # Train a network from scratch and save it
-    # # print('Training network...')
-    # # mnet.train_and_save_network(args, device, multiparams)
-    # # print('Training complete and network saved. main')
+    # # Train a network from scratch and save it
+    # print('Training network...')
+    # mnet.train_and_save_network(args, device, multiparams)
+    # print('Training complete and network saved. main')
 
-    # # # Analyse the trained network (extract and save network activations)
-    # print('\nAnalysing network...')
-    # MDS_dict = anh.analyse_network(args)
+    # # Analyse the trained network (extract and save network activations)
+    print('\nAnalysing network...')
+    MDS_dict = anh.analyse_network(args)
 
-    # # # Check the average final performance for trained models matching args
-    # print('\nChecking average performance...')
-    # anh.average_perf_across_models(args)
+    # # Check the average final performance for trained models matching args
+    print('\nChecking average performance...')
+    anh.average_perf_across_models(args)
 
-    # # Visualise the resultant network activations (RDMs and MDS)
-    # print('\nGenerating plots...')
-    # MDS_dict, args = anh.average_activations_across_models(args)
-    # mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
+    # Visualise the resultant network activations (RDMs and MDS)
+    print('\nGenerating plots...')
+    MDS_dict, args = anh.average_activations_across_models(args)
+    mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
     
     # if args.all_fullrange:
     #   print('\nTraining Curricula: Interleaved')

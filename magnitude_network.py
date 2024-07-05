@@ -873,7 +873,6 @@ def get_dataset_name(args):
     rangetxt = '_numrangeintermingled' if args.all_fullrange else '_numrangeblocked'
     retraindecodertxt = '_retraineddecoderVI' if args.retrain_decoder else ''
 
-    # ! want to change when we set to 2 contexts
     if args.which_context==0:
         whichcontexttext = ''
     elif args.which_context==1:
@@ -882,15 +881,19 @@ def get_dataset_name(args):
     elif args.which_context==2:
         # whichcontexttext = '_highrange_5-8_only'
         whichcontexttext = '_highrange_{}-{}_only'.format(const.HIGHR_LLIM, const.HIGHR_ULIM)
-
-
-    datasetname = 'dataset'+whichcontexttext+contextlabelledtext+rangetxt + '_bpl' + str(args.BPTT_len) + '_id'+ str(args.model_id)
-    analysis_name = const.NETANALYIS_DIRECTORY +'MDSanalysis_'+networkTxt+whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+'_n'+str(args.noise_std)+str_args + ttsplit + retraindecodertxt
-    trainingrecord_name = '_trainingrecord_'+ networkTxt + whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+'_n'+str(args.noise_std)+str_args+retraindecodertxt
-    if args.network_style=='recurrent':
-        trained_modelname = const.MODEL_DIRECTORY + networkTxt+'_trainedmodel'+whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+'_n'+str(args.noise_std)+str_args+retraindecodertxt+'.pth'
+        
+    if args.train_long:
+        train_state = '_trainlong'
     else:
-        trained_modelname = const.MODEL_DIRECTORY + networkTxt+'_trainedmodel'+whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+str_args+retraindecodertxt+'.pth'
+        train_state = '_trainshort'
+
+    datasetname = 'dataset'+train_state+whichcontexttext+contextlabelledtext+rangetxt + '_bpl' + str(args.BPTT_len) + '_id'+ str(args.model_id)
+    analysis_name = const.NETANALYIS_DIRECTORY +'MDSanalysis_'+networkTxt+train_state+whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+'_n'+str(args.noise_std)+str_args + ttsplit + retraindecodertxt
+    trainingrecord_name = '_trainingrecord_'+ networkTxt + train_state+whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+'_n'+str(args.noise_std)+str_args+retraindecodertxt
+    if args.network_style=='recurrent':
+        trained_modelname = const.MODEL_DIRECTORY + networkTxt+'_trainedmodel'+train_state+whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+'_n'+str(args.noise_std)+str_args+retraindecodertxt+'.pth'
+    else:
+        trained_modelname = const.MODEL_DIRECTORY + networkTxt+'_trainedmodel'+train_state+whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+str_args+retraindecodertxt+'.pth'
 
     return datasetname, trained_modelname, analysis_name, trainingrecord_name
 

@@ -65,18 +65,12 @@ if __name__ == '__main__':
     print('\nGenerating plots...')
     MDS_dict, args = anh.average_activations_across_models(args)
     mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
-    
-    if args.all_fullrange:
-      print('\nTraining Curricula: Interleaved')
-    else:
-      print('\nTraining Curricula: Blocked')
-    print('\nWhich Context: ', args.which_context)
       
       
-      ## ADD HERE mnet.train_and_save_network with args for test long.
+    ## ADD HERE mnet.train_and_save_network with args for test long.
     # Train Long section
     args.train_long = True
-    print('args.train_long = ', args.train_long)
+    print('\n\n\nargs.train_long = ', args.train_long)
     # Train a network from scratch and save it
     print('Training network...')
     mnet.train_and_save_network(args, device, multiparams)
