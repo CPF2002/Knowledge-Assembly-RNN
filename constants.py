@@ -72,3 +72,9 @@ NTRAIN = 2880       # how many examples we want to use (each of these is a seque
 NTEST = 480           # needs to be big enough to almost guarantee that we will get instances of all 460 comparisons (you get 29 comparisons per sequence)
 MBLOCKS = 24        # ! im concerned about this number # same as fabrices experiment - there are 24 blocks across 3 different contexts
 
+# SN Below info for test long
+NTRAIN_LONG = 20
+MBLOCKS_LONG = 1
+# define upper and lower limits for each # range)
+#FULLR_LLIM = 4      # full # range, lower limit
+#FULLR_ULIM = 5     # full # range, upper limit

@@ -779,7 +779,6 @@ def define_hyperparams():
         parser.add_argument('--reuse-dataset', dest='create_new_dataset', action='store_false', help='reuse the existing dataset for this condition? (default: True)')
         parser.add_argument('--remove-fillers', dest='include_fillers', action='store_false', default=False, help='remove fillers from the dataset? (default: False)')     # True: task is like Fabrice's with filler trials; False: solely compare trials
         parser.add_argument('--which_context', type=int, default=0, help='if we want to train on a single context range only: 0=all contexts, 1=low only, 2=high only, (default: 0)')
-        # see what happens when set interleave and block to true
         parser.add_argument('--interleave', dest='all_fullrange', action='store_true', help='interleave training (default: False)')
         parser.add_argument('--blockrange', dest='all_fullrange', action='store_false', help='block training by contextual number range (default: True)')
         parser.add_argument('--reset-state', dest='retain_hidden_state', action='store_false', help='reset the hidden state between sequences (default: False)')
@@ -787,6 +786,7 @@ def define_hyperparams():
         parser.add_argument('--label-context', default="true", help='label the context explicitly in the input stream? (default: "true", other options: "constant (1)", "random (1-3)")')
         parser.add_argument('--block_int_ttsplit', default="false", help='test on a different blocking/interleaving structure than training? (default: "false", train/test on same e.g. train block, test block")')
         parser.add_argument('--retrain_decoder', default="false", help='whether to retrain the final layer of a trained network, this time using VI. default: "false"')
+        parser.add_argument('--train_long', default="false", help='determines if on train_short (no linking pair) or train_long (just linking pair) dataset (default: "false")')
         parser.add_argument('--original_model_name', default="", help='do not adjust manually: to be used for specifying the name of old trained networks to be retrained under new conditions.')
 
         # network training hyperparameters
@@ -810,7 +810,7 @@ def define_hyperparams():
         parser.add_argument('--noise_std', type=float, default=0.0, metavar='N', help='standard deviation of iid noise injected into the recurrent hiden state between numerical inputs (default: 0.0).')
         parser.add_argument('--model-id', type=int, default=0, metavar='N', help='for distinguishing many iterations of training same model (default: 0).')
 
-        parser.set_defaults(create_new_dataset=True, all_fullrange=False, retain_hidden_state=True, retrain_decoder=False)
+        parser.set_defaults(create_new_dataset=True, all_fullrange=False, retain_hidden_state=True, retrain_decoder=False, train_long=False)
         args = parser.parse_args()
 
     if args.which_context>0:
@@ -913,17 +913,18 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
 
         # Define a model for training
         #torch.manual_seed(1)         # if we want the same default weight initialisation every time
-        if args.retrain_decoder:
+        if args.retrain_decoder: # SN: Change this to args.train_long
+            print('retraining the decoder layer only')
             model = torch.load(args.original_model_name)
             for name, param in model.named_parameters():
-                if 'fc1tooutput' not in name:
-                    param.requires_grad = False  # (if retraining model) freeze all weights/biases except for decoder
-                    print('freeze these params: {}, {}'.format(name, param.shape))
-                else:
-                    print('re-initialise and keep training these params: {}, {}'.format(name, param.shape))
+               # if 'fc1tooutput' not in name:
+                param.requires_grad = True  # (if retraining model) freeze all weights/biases except for decoder
+                    # print('freeze these params: {}, {}'.format(name, param.shape))
+               # else:
+                 #   print('re-initialise and keep training these params: {}, {}'.format(name, param.shape))
                     # reinitialize these weights
-                    stdv = 1. / math.sqrt(model.fc1tooutput.weight.size(1))
-                    param.data.uniform_(-stdv, stdv)
+                 #   stdv = 1. / math.sqrt(model.fc1tooutput.weight.size(1))
+                 #   param.data.uniform_(-stdv, stdv)
 
 
         else:
@@ -962,6 +963,7 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
 
         standard_train_accuracy = 0.0
         epoch = 0
+        #SN:  if statement here with args.train_long. 20 trials of train long
         while standard_train_accuracy < 90.0: # trains until the network is performing well on the training set
 
             # train network
@@ -1009,6 +1011,7 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
         dat = json.dumps(record)
         f = open(const.TRAININGRECORDS_DIRECTORY+randnum + trainingrecord_name+".json","w")
         f.write(dat)
+        
         f.close()
 
     writer.close()
@@ -1024,6 +1027,8 @@ def train_and_save_network(args, device, multiparams):
 
     # define the network parameters
     datasetname, trained_modelname, analysis_name, _ = get_dataset_name(args)
+    #SN: add args.train_long if statement here
+    
     if args.create_new_dataset:
         print('Creating new dataset...')
         trainset, testset = dset.create_separate_input_data(datasetname, args)

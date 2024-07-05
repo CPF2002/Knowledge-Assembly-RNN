@@ -205,8 +205,8 @@ def create_separate_input_data(filename, args):
 
     Ntrain = const.NTRAIN                          # how many examples we want to use (each of these is a sequence on numbers)
     Ntest = const.NTEST                            # needs to be big enough to almost guarantee that we will get instances of all 460 comparisons (you get 29 comparisons per sequence)
-    totalN = Ntrain + Mtestsets*Ntest        # how many sequences across training and test sets
-    Mblocks = const.MBLOCKS          # ! im concerned about this number # same as fabrices experiment - there are 24 blocks across 3 different contexts
+    totalN = Ntrain + Mtestsets*Ntest           # how many sequences across training and test sets
+    Mblocks = const.MBLOCKS                     # same as fabrices experiment - there are 24 blocks across 3 different contexts
     phases = ['train'  if i==0 else 'test' for i in range(Mtestsets+1)]
     testsets = [[] for i in range(Mtestsets)]
     whichtestset = 0                         # a counter
@@ -234,17 +234,17 @@ def create_separate_input_data(filename, args):
         fillerRange = [const.FULLR_LLIM,const.FULLR_ULIM]        # the range of numbers spanned by all filler trials
 
         for block in range(Mblocks): # Chooses context for each block
-            if args.which_context==0: # SN which of the below if statements are we entering
+            if args.which_context==0: 
                 # divide the blocks evenly across the 3 contexts
                 print('\nall contexts')
-                if block < Mblocks/const.NCONTEXTS:        # 0-7     # context A    # now 1-4 # ! math is just keeping in low range
+                if block < Mblocks/const.NCONTEXTS:             # context A    # now 1-4 # ! math is just keeping in low range
                     print('low range context', block, Mblocks, const.NCONTEXTS)
                     context = 1
                     minNumerosity = const.LOWR_LLIM
                     maxNumerosity = const.LOWR_ULIM
                     print('minNumerosity: ', minNumerosity, 'maxNumerosity', maxNumerosity)
 
-                elif block < 2*(Mblocks/const.NCONTEXTS):  # 8-15    # context B    # now 5-8
+                elif block < 2*(Mblocks/const.NCONTEXTS):     # context B    # now 5-8
                     print('high range context', block, Mblocks, const.NCONTEXTS)
                     context = 2
                     minNumerosity = const.HIGHR_LLIM
@@ -267,14 +267,12 @@ def create_separate_input_data(filename, args):
                 print('interleaved')
                 tmpDistribution = [[i for i in range(const.FULLR_LLIM, const.FULLR_ULIM+1)],[j for j in range(const.LOWR_LLIM, const.LOWR_ULIM+1)], [k for k in range(const.HIGHR_LLIM, const.HIGHR_ULIM+1)] ]
                 randNumDistribution = [i for sublist in tmpDistribution for i in sublist]  # non-uniform distr. over all 3 context ranges together
-           ## SN are we entering this part?
             else: # args.all_fullrange == False = blocked
                 print('blocked')
                 randNumDistribution = [i for i in range(minNumerosity, maxNumerosity+1)]  # uniform between min and max
             indexDistribution = [i for i in range(len(randNumDistribution))]  # this is going to allow us to know which context a sample which have been drawn from if intermingled
             print('randNumDistribution: ', randNumDistribution)
             print('indexDistribution: ', indexDistribution)
-            ## SN are we entering this part 
             
             # generate some random numerosity data and label whether the random judgement integers are larger than the refValue
             firstTrialInContext = True              # reset the sequentialAB structure for each new context
@@ -371,7 +369,7 @@ def create_separate_input_data(filename, args):
                                 target[block, sample, i] = 1
                             else:
                                 target[block, sample, i] = 0
-                                
+                                #SN don't want to do below for test long. could also add args.all_fullrange == True into statement
                             if (judgeValue <= const.LOWR_ULIM and rValue >= const.HIGHR_LLIM) or (judgeValue >= const.HIGHR_LLIM and rValue <= const.LOWR_ULIM):
                                 target[block, sample, i] = np.nan
                         else:

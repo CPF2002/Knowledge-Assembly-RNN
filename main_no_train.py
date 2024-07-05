@@ -42,40 +42,44 @@ if __name__ == '__main__':
     args.retrain_decoder = False
     args.model_id = 11         # for visualising or analysing a particular trained model
     
-    # # Create dataset
-    # dset.create_dataset(args)
-        
-    # Check information about the dataset
-    dset.view_dataset_index_info(-50, args)
+    print('args.train_long = ', args.train_long)
+    args.train_long = True
+    print('args.train_long = ', args.train_long)
     
-    # Graph of the dataset
-    datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
-    trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
-    z = np.sum(numpy_trainset['judgementValue'],1)
-    im = plt.imshow(z, cmap='hot', aspect='auto')
-    plt.colorbar(im, orientation='horizontal')
-    mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_ALL_'), args, True, False, _, True)
-    im = plt.imshow(z[1:10,:], cmap='hot', aspect='equal')
-    plt.colorbar(im, orientation='horizontal')
-    mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_SOME_'), args, True, False, _, True)
+    # # # Create dataset
+    # # dset.create_dataset(args)
+        
+    # # Check information about the dataset
+    # dset.view_dataset_index_info(-50, args)
+    
+    # # Graph of the dataset
+    # datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)
+    # trainset, testset, crossvalset, numpy_trainset, numpy_testset, numpy_crossvalset = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
+    # z = np.sum(numpy_trainset['judgementValue'],1)
+    # im = plt.imshow(z, cmap='hot', aspect='auto')
+    # plt.colorbar(im, orientation='horizontal')
+    # mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_ALL_'), args, True, False, _, True)
+    # im = plt.imshow(z[1:10,:], cmap='hot', aspect='equal')
+    # plt.colorbar(im, orientation='horizontal')
+    # mplt.save_figure(os.path.join(const.FIGURE_DIRECTORY,'HEATMAP_SOME_'), args, True, False, _, True)
 
-    # # Train a network from scratch and save it
-    # print('Training network...')
-    # mnet.train_and_save_network(args, device, multiparams)
-    # print('Training complete and network saved. main')
+    # # # Train a network from scratch and save it
+    # # print('Training network...')
+    # # mnet.train_and_save_network(args, device, multiparams)
+    # # print('Training complete and network saved. main')
 
-    # # Analyse the trained network (extract and save network activations)
-    print('\nAnalysing network...')
-    MDS_dict = anh.analyse_network(args)
+    # # # Analyse the trained network (extract and save network activations)
+    # print('\nAnalysing network...')
+    # MDS_dict = anh.analyse_network(args)
 
-    # # Check the average final performance for trained models matching args
-    print('\nChecking average performance...')
-    anh.average_perf_across_models(args)
+    # # # Check the average final performance for trained models matching args
+    # print('\nChecking average performance...')
+    # anh.average_perf_across_models(args)
 
-    # Visualise the resultant network activations (RDMs and MDS)
-    print('\nGenerating plots...')
-    MDS_dict, args = anh.average_activations_across_models(args)
-    mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
+    # # Visualise the resultant network activations (RDMs and MDS)
+    # print('\nGenerating plots...')
+    # MDS_dict, args = anh.average_activations_across_models(args)
+    # mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
     
     # if args.all_fullrange:
     #   print('\nTraining Curricula: Interleaved')
