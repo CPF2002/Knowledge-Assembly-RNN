@@ -140,8 +140,13 @@ def activation_rdms(MDS_dict, args, plot_diff_code, whichTrialType='compare', sa
     ax.set_xticklabels(labelticks)
     ax.set_yticks(ticks)
     ax.set_yticklabels(labelticks)
+    
+    if args.train_long:
+        train_set = 'trainlong_'
+    else:
+        train_set = 'trainshort_'
 
-    n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'RDM_'+differenceCodeText), args, False, plot_diff_code, whichTrialType, saveFig)
+    n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'RDM_'+train_set+differenceCodeText), args, False, plot_diff_code, whichTrialType, saveFig)
 
 
 def plot_3mds(MDS_dict, args, labelNumerosity=True, whichTrialType='compare', saveFig=True):
@@ -367,8 +372,13 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
             ax[j].set(xlim=axislimits, ylim=axislimits)
         else:
             ax[j].set(xlim=axislimits, ylim=axislimits)
+            
+    if args.train_long:
+        train_set = 'trainlong_'
+    else:
+        train_set = 'trainshort_'
 
-    n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'3MDS60_'+differenceCodeText+'meanJudgement_'), args, labelNumerosity, plot_diff_code, whichTrialType, saveFig)
+    n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'3MDS60_'+train_set+differenceCodeText+'meanJudgement_'), args, labelNumerosity, plot_diff_code, whichTrialType, saveFig)
 
 
 def animate_3d_mds(MDS_dict, args, plot_diff_code=False, whichTrialType='compare', saveFig=True):
@@ -433,9 +443,13 @@ def animate_3d_mds(MDS_dict, args, plot_diff_code=False, whichTrialType='compare
 
     # save the animation as an mp4.
     if saveFig:
+        if args.train_long:
+            train_set = 'trainlong_'
+        else:
+            train_set = 'trainshort_'
         Writer = animation.writers['ffmpeg']
         writer = Writer(fps=30, metadata=dict(artist='Me'), bitrate=1800)
-        strng = save_figure(const.ANIMATION_DIRECTORY + 'MDS_3Danimation_'+ differenceCodeText, args, True,  plot_diff_code, whichTrialType, False)
+        strng = save_figure(const.ANIMATION_DIRECTORY + 'MDS_3Danimation_'+ train_set+differenceCodeText, args, True,  plot_diff_code, whichTrialType, False)
         anim.save(strng+'.mp4', writer=writer)
 
 
