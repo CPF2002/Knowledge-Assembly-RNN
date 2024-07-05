@@ -916,8 +916,8 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
 
         # Define a model for training
         #torch.manual_seed(1)         # if we want the same default weight initialisation every time
-        if args.retrain_decoder: # SN: Change this to args.train_long
-            print('retraining the decoder layer only')
+        if args.train_long: # SN: Change this to args.train_long
+            print('retraining for train_long')
             model = torch.load(args.original_model_name)
             for name, param in model.named_parameters():
                # if 'fc1tooutput' not in name:
@@ -931,6 +931,7 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
 
 
         else:
+            print('training a new model')
             model = OneStepRNN(const.TOTALMAXNUM + const.NCONTEXTS + const.NTYPEBITS, 1, args.noise_std, args.recurrent_size, args.hidden_size).to(device)
 
 
@@ -967,25 +968,42 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
         standard_train_accuracy = 0.0
         epoch = 0
         #SN:  if statement here with args.train_long. 20 trials of train long
-        while standard_train_accuracy < 90.0: # trains until the network is performing well on the training set
+        if args.train_long == False: # train short up to 90 percent accuracy
+            while standard_train_accuracy < 90.0: # trains until the network is performing well on the training set
 
-            # train network
-            standard_train_loss, standard_train_accuracy = recurrent_train(args, model, device, trainloader, optimizer, criterion, epoch, printOutput)
+                # train network
+                standard_train_loss, standard_train_accuracy = recurrent_train(args, model, device, trainloader, optimizer, criterion, epoch, printOutput)
 
-            # assess network
-            fair_train_loss, fair_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, printOutput)
-            test_loss, test_accuracy = recurrent_test(args, model, device, testloader, criterion, printOutput)
+                # assess network
+                fair_train_loss, fair_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, printOutput)
+                test_loss, test_accuracy = recurrent_test(args, model, device, testloader, criterion, printOutput)
 
-            # log performance
-            train_perf = [standard_train_loss, standard_train_accuracy, fair_train_loss, fair_train_accuracy]
-            test_perf = [test_loss, test_accuracy]
-            trainingPerformance.append(standard_train_accuracy)
-            testPerformance.append(test_accuracy)
-            print('standard_train_accuracy:', standard_train_accuracy)
-            print('Train: {:.2f}%, Test: {:.2f}%'.format(standard_train_accuracy, test_accuracy))
-            epoch += 1
-            log_performance(writer, epoch, train_perf, test_perf)
-            print_progress(epoch, n_epochs)
+                # log performance
+                train_perf = [standard_train_loss, standard_train_accuracy, fair_train_loss, fair_train_accuracy]
+                test_perf = [test_loss, test_accuracy]
+                trainingPerformance.append(standard_train_accuracy)
+                testPerformance.append(test_accuracy)
+                print('Train: {:.2f}%, Test: {:.2f}%'.format(standard_train_accuracy, test_accuracy))
+                epoch += 1
+                log_performance(writer, epoch, train_perf, test_perf)
+                print_progress(epoch, n_epochs)
+        else: # train long for n epochs
+            for epoch in range(1, 3):# for epoch in range(1, n_epochs + 1):
+                # train network
+                standard_train_loss, standard_train_accuracy = recurrent_train(args, model, device, trainloader, optimizer, criterion, epoch, printOutput)
+
+                # assess network
+                fair_train_loss, fair_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, printOutput)
+                test_loss, test_accuracy = recurrent_test(args, model, device, testloader, criterion, printOutput)
+
+                # log performance
+                train_perf = [standard_train_loss, standard_train_accuracy, fair_train_loss, fair_train_accuracy]
+                test_perf = [test_loss, test_accuracy]
+                trainingPerformance.append(standard_train_accuracy)
+                testPerformance.append(test_accuracy)
+                print('Train: {:.2f}%, Test: {:.2f}%'.format(standard_train_accuracy, test_accuracy))
+                log_performance(writer, epoch, train_perf, test_perf)
+                print_progress(epoch, n_epochs)
         
         '''  # this is the trainig loop that trained for a set number of epochs
         # for epoch in range(1, n_epochs + 1):  # loop through the whole dataset this many times
