@@ -1057,7 +1057,7 @@ def train_and_save_network(args, device, multiparams):
         print('Loading existing dataset...')
         trainset, testset, _, _, _, _ = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
         
-    dset.view_dataset_index_info(-50, args)
+    dset.view_dataset_index_info(10, args)
 
     # define and train a neural network model, log performance and output trained model
     if args.network_style == 'recurrent':
