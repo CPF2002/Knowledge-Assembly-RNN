@@ -44,11 +44,18 @@ if __name__ == '__main__':
     args.model_id = 12          
     #args.model_id = 9999          # for visualising or analysing a particular trained model
 
+    # Grab the future/current model names for short and long
+    datasetname_short, trained_modelname_short, analysis_name_short, _ = mnet.get_dataset_name(args)
+    args.train_long = True
+    datasetname_long, trained_modelname_long, analysis_name_long, _ = mnet.get_dataset_name(args)
+    args.original_model_name = trained_modelname_short
+    args.train_long = False
+
     # Train a network from scratch and save it
     print('args.train_long = ', args.train_long)
     print('Training network...')
-    mnet.train_and_save_network(args, device, multiparams)
-    print('Training complete and network saved. main')
+    # mnet.train_and_save_network(args, device, multiparams)
+    # print('Training complete and network saved. main')
     
     # Check information about the dataset
     dset.view_dataset_index_info(10, args)
