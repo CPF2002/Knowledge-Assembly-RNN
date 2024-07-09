@@ -201,12 +201,12 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
         
     #print("loop ended---------------------------------------------------")
     train_loss /= trials_counter
-    print('Trials counter: {}'.format(trials_counter))
-    print('All trials counter: {}'.format(all_trials_counter))
-    print('train_loader.dataset',train_loader.dataset)
-    print('len(train_loader.dataset)',len(train_loader.dataset))
-    print('n_comparetrials-1',n_comparetrials-1)
-    print('correct',correct)
+    # print('Trials counter: {}'.format(trials_counter))
+    # print('All trials counter: {}'.format(all_trials_counter))
+    # print('train_loader.dataset',train_loader.dataset)
+    # print('len(train_loader.dataset)',len(train_loader.dataset))
+    # print('n_comparetrials-1',n_comparetrials-1)
+    # print('correct',correct)
     accuracy = 100. * correct / trials_counter #(len(train_loader.dataset)*(n_comparetrials-1))
     return train_loss, accuracy
 
@@ -918,6 +918,9 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
         #torch.manual_seed(1)         # if we want the same default weight initialisation every time
         if args.train_long: # SN: Change this to args.train_long
             print('retraining for train_long')
+            print('args.original_model_name: ', args.original_model_name)
+            # TODO: get original model name was trained on and use that to retrain
+            
             model = torch.load(args.original_model_name)
             for name, param in model.named_parameters():
                # if 'fc1tooutput' not in name:
@@ -934,7 +937,9 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
             print('training a new model')
             model = OneStepRNN(const.TOTALMAXNUM + const.NCONTEXTS + const.NTYPEBITS, 1, args.noise_std, args.recurrent_size, args.hidden_size).to(device)
 
-
+        print('Model: ',model)
+        print('model.state_dict(): ',model.state_dict())
+        
         criterion = nn.BCELoss() #nn.CrossEntropyLoss()   # binary cross entropy loss
         optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
 
@@ -988,7 +993,7 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
                 log_performance(writer, epoch, train_perf, test_perf)
                 print_progress(epoch, n_epochs)
         else: # train long for n epochs
-            for epoch in range(1, 3):# for epoch in range(1, n_epochs + 1):
+            for epoch in range(1, 5):# for epoch in range(1, n_epochs + 1):
                 # train network
                 standard_train_loss, standard_train_accuracy = recurrent_train(args, model, device, trainloader, optimizer, criterion, epoch, printOutput)
 
@@ -1057,7 +1062,7 @@ def train_and_save_network(args, device, multiparams):
         print('Loading existing dataset...')
         trainset, testset, _, _, _, _ = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
         
-    dset.view_dataset_index_info(10, args)
+    dset.view_dataset_index_info(1, args)
 
     # define and train a neural network model, log performance and output trained model
     if args.network_style == 'recurrent':
