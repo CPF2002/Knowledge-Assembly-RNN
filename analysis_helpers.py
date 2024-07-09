@@ -401,13 +401,15 @@ def average_perf_across_models(args):
         for training_record in all_training_records:
             if ('_id'+str(args.model_id)+'.' in training_record):
                 if  ('trlf'+str(args.train_lesion_freq) in training_record) and (args.label_context in training_record):
-                    print('Found matching model: id{}'.format(args.model_id))
-                    # we've found the training record for a model we care about
-                    with open(os.path.join(const.TRAININGRECORDS_DIRECTORY, training_record)) as record_file:
-                        record = json.load(record_file)
-                        train_performance.append(record["trainingPerformance"])
-                        test_performance.append(record["testPerformance"])
-                        record_name = training_record[:-5]
+                    # want to only grab short records for short and long for long
+                    if (args.train_long and 'long' in training_record) or (not args.train_long and 'short' in training_record):
+                        print('Found matching model: id{}'.format(args.model_id))
+                        # we've found the training record for a model we care about
+                        with open(os.path.join(const.TRAININGRECORDS_DIRECTORY, training_record)) as record_file:
+                            record = json.load(record_file)
+                            train_performance.append(record["trainingPerformance"])
+                            test_performance.append(record["testPerformance"])
+                            record_name = training_record[:-5]
 
     train_performance = np.asarray(train_performance)
     test_performance = np.asarray(test_performance)
