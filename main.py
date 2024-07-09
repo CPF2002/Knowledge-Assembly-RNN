@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     # Analyse the trained network (extract and save network activations)
     print('\nAnalysing network...')
-    MDS_dict = anh.analyse_network(args)
+    MDS_dict_short = anh.analyse_network(args)
 
     # Check the average final performance for trained models matching args
     print('\nChecking average performance...')
@@ -70,8 +70,8 @@ if __name__ == '__main__':
 
     # Visualise the resultant network activations (RDMs and MDS)
     print('\nGenerating plots...')
-    MDS_dict, args = anh.average_activations_across_models(args)
-    mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
+    MDS_dict_short, args = anh.average_activations_across_models(args)
+    mplt.generate_plots(MDS_dict_short, args)  # (Figure 3 + extras)
       
       
     ## ADD HERE mnet.train_and_save_network with args for test long.
@@ -88,7 +88,7 @@ if __name__ == '__main__':
 
     # Analyse the trained network (extract and save network activations)
     print('\nAnalysing network...')
-    MDS_dict = anh.analyse_network(args)
+    MDS_dict_long = anh.analyse_network(args)
 
     # Check the average final performance for trained models matching args
     print('\nChecking average performance...')
@@ -96,8 +96,8 @@ if __name__ == '__main__':
 
     # Visualise the resultant network activations (RDMs and MDS)
     print('\nGenerating plots...')
-    MDS_dict, args = anh.average_activations_across_models(args)
-    mplt.generate_plots(MDS_dict, args)  # (Figure 3 + extras)
+    MDS_dict_long, args = anh.average_activations_across_models(args)
+    mplt.generate_plots(MDS_dict_short, args, MDS_dict_long=MDS_dict_long)  # (Figure 3 + extras)
       
       
       

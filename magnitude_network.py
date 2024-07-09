@@ -201,12 +201,12 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
         
     #print("loop ended---------------------------------------------------")
     train_loss /= trials_counter
-    print('Trials counter: {}'.format(trials_counter))
-    print('All trials counter: {}'.format(all_trials_counter))
-    print('train_loader.dataset',train_loader.dataset)
-    print('len(train_loader.dataset)',len(train_loader.dataset))
-    print('n_comparetrials-1',n_comparetrials-1)
-    print('correct',correct)
+    # print('Trials counter: {}'.format(trials_counter))
+    # print('All trials counter: {}'.format(all_trials_counter))
+    # print('train_loader.dataset',train_loader.dataset)
+    # print('len(train_loader.dataset)',len(train_loader.dataset))
+    # print('n_comparetrials-1',n_comparetrials-1)
+    # print('correct',correct)
     accuracy = 100. * correct / trials_counter #(len(train_loader.dataset)*(n_comparetrials-1))
     return train_loss, accuracy
 
@@ -1057,7 +1057,7 @@ def train_and_save_network(args, device, multiparams):
         print('Loading existing dataset...')
         trainset, testset, _, _, _, _ = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
         
-    dset.view_dataset_index_info(10, args)
+    # dset.view_dataset_index_info(10, args)
 
     # define and train a neural network model, log performance and output trained model
     if args.network_style == 'recurrent':

@@ -244,7 +244,7 @@ def plot_3mds(MDS_dict, args, labelNumerosity=True, whichTrialType='compare', sa
         n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'3MDS60_' + tx), args, labelNumerosity, False, whichTrialType, saveFig)
 
 
-def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, whichTrialType='compare', saveFig=True, theta=0, axislimits = (-0.8,0.8), gradedcolour=False):
+def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, whichTrialType='compare', saveFig=True, theta=0, axislimits = (-0.8,0.8), gradedcolour=False, MDS_dict_long=None):
     """This function is just like plot_3mds and plot_3mdsContexts but for the formatting of the data which has been averaged across one of the two numerosity values.
     Because there are fewer datapoints I also label the numerosity inside each context, like Fabrice does.
      - use the flag 'plot_diff_code' to plot the difference signal (A-B) rather than the A activations
@@ -265,7 +265,7 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
     diffcolours = get_cmap(20, 'magma')
 
     if plot_diff_code:
-        #print('plotting difference code')
+        print('plotting difference code')
         MDS_act = MDS_dict["MDS_diff_slactivations"]
         contextlabel = MDS_dict["diff_sl_contexts"]
         numberlabel = MDS_dict["sl_diffValues"]
@@ -318,17 +318,23 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
 
             # Rotate the components on the 2d plot since global orientation doesnt matter (axes are arbitrary)
             rotated_act = copy.deepcopy(MDS_act)
-            # print('MDS_act', MDS_act)
-            # print('MDS_act.shape', MDS_act.shape)
-            # print('rotated_act', rotated_act)
-            # print('rotated_act.shape', rotated_act.shape)
+            print('MDS_act', MDS_act)
+            print('MDS_act.shape', MDS_act.shape)
+            print('rotated_act', rotated_act)
+            print('rotated_act.shape', rotated_act.shape)
 
             # print('contextA:', contextA)
-            # print('contextB:', contextB)
-            # print('contextC:', contextC)
-            # print('dimA:', dimA)
-            # print('dimB:', dimB)
-            # print('MDS_act[contextA, dimA]:', MDS_act[0, 0])
+            print('contextB:', contextB)
+            print('contextC:', contextC)
+            print('dimA:', dimA)
+            print('dimB:', dimB)
+            print('MDS_act[0,0]:', MDS_act[0, 0])
+            if MDS_dict_long != None and args.train_long:
+                MDS_act_long = MDS_dict_long["MDS_slactivations"]
+                print('MDS_act_long:', MDS_act_long)
+                print('MDS_act_long.shape:', MDS_act_long.shape)
+                print('inside if statement')
+                
           #  rotated_act[contextA, dimA], rotated_act[contextA, dimB] = rotate_axes(MDS_act[contextA, dimA], MDS_act[contextA, dimB], theta)
             rotated_act[contextB, dimA], rotated_act[contextB, dimB] = rotate_axes(MDS_act[contextB, dimA], MDS_act[contextB, dimB], theta)
             rotated_act[contextC, dimA], rotated_act[contextC, dimB] = rotate_axes(MDS_act[contextC, dimA], MDS_act[contextC, dimB], theta)
@@ -1004,7 +1010,7 @@ def view_postlesion(args, device):
     n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'MDS_postlesion_'), args, True, False, 'compare', True)
 
 
-def generate_plots(MDS_dict, args):
+def generate_plots(MDS_dict, args, MDS_dict_long=None):
     """ This function just plots stuff and saves the generated figures."""
     saveFig = True
     plot_diff_code = False    # do we want to plot the difference code or the average A activations
@@ -1017,7 +1023,7 @@ def generate_plots(MDS_dict, args):
         print('Plotting activations for trial type: ', whichTrialType)
         activation_rdms(MDS_dict, args, plot_diff_code, whichTrialType)  # activations RSA
         axislimits = (-0.8, 0.8)
-        plot_3mds_mean(MDS_dict, args, labelNumerosity, plot_diff_code, whichTrialType, saveFig, 80, axislimits) # mean MDS of our hidden activations (averaged across number B)
+        plot_3mds_mean(MDS_dict, args, labelNumerosity, plot_diff_code, whichTrialType, saveFig, 80, axislimits, MDS_dict_long=MDS_dict_long) # mean MDS of our hidden activations (averaged across number B)
 
         #plot_3mds(MDS_dict, args, whichTrialType)      # the full MDS cloud, coloured by different labels
 

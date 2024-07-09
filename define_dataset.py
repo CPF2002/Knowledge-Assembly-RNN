@@ -247,29 +247,29 @@ def create_separate_input_data(filename, args):
         for block in range(Mblocks): # Chooses context for each block
             if args.which_context==0: 
                 # divide the blocks evenly across the 3 contexts
-                print('\nall contexts')
+                # print('\nall contexts')
                 if block < Mblocks/const.NCONTEXTS:             # context A    # now 1-4 # ! math is just keeping in low range
-                    print('low range context', block, Mblocks, const.NCONTEXTS)
+                    # print('low range context', block, Mblocks, const.NCONTEXTS)
                     context = 1
                     minNumerosity = const.LOWR_LLIM
                     maxNumerosity = const.LOWR_ULIM
-                    print('minNumerosity: ', minNumerosity, 'maxNumerosity', maxNumerosity)
+                    # print('minNumerosity: ', minNumerosity, 'maxNumerosity', maxNumerosity)
 
                 elif block < 2*(Mblocks/const.NCONTEXTS):     # context B    # now 5-8
-                    print('high range context', block, Mblocks, const.NCONTEXTS)
+                    # print('high range context', block, Mblocks, const.NCONTEXTS)
                     context = 2
                     minNumerosity = const.HIGHR_LLIM
                     maxNumerosity = const.HIGHR_ULIM
-                    print('minNumerosity: ', minNumerosity, 'maxNumerosity: ', maxNumerosity)
+                    # print('minNumerosity: ', minNumerosity, 'maxNumerosity: ', maxNumerosity)
             # single context options
             elif args.which_context==1:     # context A
-                print('\nlow range context')
+                # print('\nlow range context')
                 context = 1
                 minNumerosity = const.LOWR_LLIM
                 maxNumerosity = const.LOWR_ULIM
             elif args.which_context==2:     # context B
                 print('\nhigh range context')
-                context = 2
+                # context = 2
                 minNumerosity = const.HIGHR_LLIM
                 maxNumerosity = const.HIGHR_ULIM
 
@@ -278,16 +278,16 @@ def create_separate_input_data(filename, args):
                 randNumDistribution = Mtestsets = [i for i in range(const.LOWR_ULIM, const.HIGHR_LLIM+1)]
             else: # The whole range (information for linking pair is filtered out later)
                 if args.all_fullrange: # args.all_fullrange == True = interleaved 
-                    print('interleaved')
+                    # print('interleaved')
                     tmpDistribution = [[i for i in range(const.FULLR_LLIM, const.FULLR_ULIM+1)],[j for j in range(const.LOWR_LLIM, const.LOWR_ULIM+1)], [k for k in range(const.HIGHR_LLIM, const.HIGHR_ULIM+1)]]
                     randNumDistribution = [i for sublist in tmpDistribution for i in sublist]  # non-uniform distr. over all 3 context ranges together
                 else: # args.all_fullrange == False = blocked
-                    print('blocked')
+                    # print('blocked')
                     randNumDistribution = [i for i in range(minNumerosity, maxNumerosity+1)]  # uniform between min and max
             
             indexDistribution = [i for i in range(len(randNumDistribution))]  # this is going to allow us to know which context a sample which have been drawn from if intermingled
-            print('randNumDistribution: ', randNumDistribution)
-            print('indexDistribution: ', indexDistribution)
+            # print('randNumDistribution: ', randNumDistribution)
+            # print('indexDistribution: ', indexDistribution)
             
             # generate some random numerosity data and label whether the random judgement integers are larger than the refValue
             firstTrialInContext = True              # reset the sequentialAB structure for each new context
@@ -309,7 +309,7 @@ def create_separate_input_data(filename, args):
                         if (firstTrialInContext and (item==0)):
                             randind = random.choice(indexDistribution)
                             # SN print index distribution and randomNumDistribution to screen
-                            print('randind: ', randind)
+                            # print('randind: ', randind)
                             refValue = randNumDistribution[randind]
                             if trial_type == 'filler':
                                 print('Warning: sequence starting with a filler trial. This should not happen and will cause a bug in sequence generation.')
