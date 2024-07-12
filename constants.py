@@ -74,8 +74,8 @@ MBLOCKS = 24        # ! im concerned about this number # same as fabrices experi
 
 # SN Below info for test long
 NTRAIN_LONG = 20
-NTEST_LONG = 20
-MBLOCKS_LONG = 1
+NTEST_LONG = 480
+MBLOCKS_LONG = 1 # want to use this for train long only. SN
 # define upper and lower limits for each # range)
 #FULLR_LLIM = 4      # full # range, lower limit
 #FULLR_ULIM = 5     # full # range, upper limit

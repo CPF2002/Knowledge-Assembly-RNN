@@ -201,12 +201,12 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
         
     #print("loop ended---------------------------------------------------")
     train_loss /= trials_counter
-    print('Trials counter: {}'.format(trials_counter))
-    print('All trials counter: {}'.format(all_trials_counter))
-    print('train_loader.dataset',train_loader.dataset)
-    print('len(train_loader.dataset)',len(train_loader.dataset))
-    print('n_comparetrials-1',n_comparetrials-1)
-    print('correct',correct)
+    # print('Trials counter: {}'.format(trials_counter))
+    # print('All trials counter: {}'.format(all_trials_counter))
+    # print('train_loader.dataset',train_loader.dataset)
+    # print('len(train_loader.dataset)',len(train_loader.dataset))
+    # print('n_comparetrials-1',n_comparetrials-1)
+    # print('correct',correct)
     accuracy = 100. * correct / trials_counter #(len(train_loader.dataset)*(n_comparetrials-1))
     return train_loss, accuracy
 
@@ -918,6 +918,10 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
         #torch.manual_seed(1)         # if we want the same default weight initialisation every time
         if args.train_long: # SN: Change this to args.train_long
             print('retraining for train_long')
+            # model = OneStepRNN(const.TOTALMAXNUM + const.NCONTEXTS + const.NTYPEBITS, 1, args.noise_std, args.recurrent_size, args.hidden_size).to(device)
+            # for name, param in model.named_parameters():
+            #     print(f"Parameter: {name}\nShape: {param.shape}\nValues:\n{param.data}\n")
+            print('loading model from: {}'.format(args.original_model_name))
             model = torch.load(args.original_model_name)
             for name, param in model.named_parameters():
                # if 'fc1tooutput' not in name:
@@ -934,7 +938,9 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
             print('training a new model')
             model = OneStepRNN(const.TOTALMAXNUM + const.NCONTEXTS + const.NTYPEBITS, 1, args.noise_std, args.recurrent_size, args.hidden_size).to(device)
 
-
+        for name, param in model.named_parameters():
+            print(f"Parameter: {name}\nShape: {param.shape}\nValues:\n{param.data}\n")
+        
         criterion = nn.BCELoss() #nn.CrossEntropyLoss()   # binary cross entropy loss
         optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
 

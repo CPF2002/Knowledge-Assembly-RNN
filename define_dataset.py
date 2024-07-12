@@ -214,7 +214,10 @@ def create_separate_input_data(filename, args):
     else:
         Ntrain = const.NTRAIN_LONG
         Ntest = const.NTEST_LONG
-        Mblocks = const.MBLOCKS_LONG
+        if phase == 'train':
+            Mblocks = const.MBLOCKS_LONG
+        else:
+            Mblocks = const.MBLOCKS
           
     totalN = Ntrain + Mtestsets * Ntest           # how many sequences across training and test sets
     
@@ -245,34 +248,38 @@ def create_separate_input_data(filename, args):
         fillerRange = [const.FULLR_LLIM,const.FULLR_ULIM]        # the range of numbers spanned by all filler trials
 
         for block in range(Mblocks): # Chooses context for each block
-            if args.which_context==0: 
+            if phase == 'train':
+                if args.which_context==0: 
                 # divide the blocks evenly across the 3 contexts
-                print('\nall contexts')
-                if block < Mblocks/const.NCONTEXTS:             # context A    # now 1-4 # ! math is just keeping in low range
-                    print('low range context', block, Mblocks, const.NCONTEXTS)
-                    context = 1
-                    minNumerosity = const.LOWR_LLIM
-                    maxNumerosity = const.LOWR_ULIM
-                    print('minNumerosity: ', minNumerosity, 'maxNumerosity', maxNumerosity)
+                    print('\nall contexts')
+                    if block < Mblocks/const.NCONTEXTS:             # context A    # now 1-4 # ! math is just keeping in low range
+                        print('low range context', block, Mblocks, const.NCONTEXTS)
+                        context = 1
+                        minNumerosity = const.LOWR_LLIM
+                        maxNumerosity = const.LOWR_ULIM
+                        print('minNumerosity: ', minNumerosity, 'maxNumerosity', maxNumerosity)
 
-                elif block < 2*(Mblocks/const.NCONTEXTS):     # context B    # now 5-8
-                    print('high range context', block, Mblocks, const.NCONTEXTS)
-                    context = 2
-                    minNumerosity = const.HIGHR_LLIM
-                    maxNumerosity = const.HIGHR_ULIM
-                    print('minNumerosity: ', minNumerosity, 'maxNumerosity: ', maxNumerosity)
+                    elif block < 2*(Mblocks/const.NCONTEXTS):     # context B    # now 5-8
+                        print('high range context', block, Mblocks, const.NCONTEXTS)
+                        context = 2
+                        minNumerosity = const.HIGHR_LLIM
+                        maxNumerosity = const.HIGHR_ULIM
+                        print('minNumerosity: ', minNumerosity, 'maxNumerosity: ', maxNumerosity)
             # single context options
-            elif args.which_context==1:     # context A
-                print('\nlow range context')
-                context = 1
-                minNumerosity = const.LOWR_LLIM
-                maxNumerosity = const.LOWR_ULIM
-            elif args.which_context==2:     # context B
-                print('\nhigh range context')
-                context = 2
-                minNumerosity = const.HIGHR_LLIM
-                maxNumerosity = const.HIGHR_ULIM
-
+                    elif args.which_context==1:     # context A
+                        print('\nlow range context')
+                        context = 1
+                        minNumerosity = const.LOWR_LLIM
+                        maxNumerosity = const.LOWR_ULIM
+                    elif args.which_context==2:     # context B
+                        print('\nhigh range context')
+                        context = 2
+                        minNumerosity = const.HIGHR_LLIM
+                        maxNumerosity = const.HIGHR_ULIM
+            else:
+                minNumerosity = const.FULLR_LLIM
+                maxNumerosity = const.FULLR_ULIM
+    
             # set the range of numerosities for the context
             if args.train_long == True: # Train long should only be on the linking pair between contexts
                 randNumDistribution = Mtestsets = [i for i in range(const.LOWR_ULIM, const.HIGHR_LLIM+1)]
@@ -510,6 +517,32 @@ def view_dataset_index_info(array_index, args):
         elif ((judgementValue <= const.LOWR_ULIM and refValue >= const.HIGHR_LLIM) or (judgementValue >= const.HIGHR_LLIM and refValue <= const.LOWR_ULIM)) and (label == 1 or label == 0):
           if args.train_long == False:
             print('\tWRONG label != NaN!')
+    for i in range(len(numpy_testset['judgementValue'][array_index])):
+        judgementValue = 0
+        refValue = 0
+        label = 0
+        context = -1
+        # turn judgementValarray position to value
+        for ind in range(len(numpy_trainset['judgementValue'][array_index][i])):
+            if numpy_trainset['judgementValue'][array_index][i][ind] == 1:
+                judgementValue = ind + 1
+        # turn refValue array position to value  
+        for ind in range(len(numpy_trainset['refValue'][array_index][i])):
+            if numpy_trainset['refValue'][array_index][i][ind] == 1:
+                refValue = ind + 1
+        # grab label value
+        label = numpy_trainset['label'][array_index][i]
+        # grab context value
+        for ind in range(len(numpy_trainset['context'][array_index][i])):
+            if numpy_trainset['context'][array_index][i][ind] == 1:
+                context = ind + 1
+        # check if the judgementValue and refValue logic is correct
+        
+        print('judgementValue:',judgementValue, '\trefValue:',refValue, '\tlabel:',label, '\tcontext:',context)
+        if (judgementValue < refValue and label == 1) or (judgementValue > refValue and label == 0):
+          print('\tWRONG label!')
+        elif ((judgementValue <= const.LOWR_ULIM and context == 2) or (judgementValue >= const.HIGHR_LLIM and context == 1)) and args.train_long == False:
+          print('\tWRONG context!')
           
 def create_dataset(args):
     datasetname, trained_modelname, analysis_name, _ = mnet.get_dataset_name(args)

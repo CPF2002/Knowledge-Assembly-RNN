@@ -125,14 +125,12 @@ def average_ref_numerosity(args, dimKeep, activations, labels_refValues, labels_
         for value in uniqueValues:
             # might need to be just for args.which_context != 0
             #print('args.which_context: ', which_context)
-            if args.train_long:
-                # not to sure
-                valueindex = value - const.LOWR_ULIM
+            
+            if value >= const.HIGHR_LLIM and value <= const.HIGHR_ULIM and which_context != 0: # CF have to shift the values to fit the indexing
+                valueindex = value - const.HIGHR_LLIM
             else:
-                if value >= const.HIGHR_LLIM and value <= const.HIGHR_ULIM and which_context != 0: # CF have to shift the values to fit the indexing # ! might not work for indexes that cross over
-                    valueindex = value - const.HIGHR_LLIM
-                else:
-                    valueindex = value
+                valueindex = value
+                
             #print('\ncontext: ', context, 'value: ', value, 'valueindex: ', valueindex)
             for i in range(labels_judgeValues.shape[0]):
                 if labels_contexts[i] == context + 1:  # remember to preserve the context structure
@@ -158,7 +156,8 @@ def average_ref_numerosity(args, dimKeep, activations, labels_refValues, labels_
     # now cast out all the null instances e.g 1-5, 10-15 in certain contexts
     flat_activations, flat_contexts, flat_values, flat_outcomes, flat_counter = [dset.flatten_first_dim(i) for i in [flat_activations, flat_contexts, flat_values, flat_outcomes, flat_counter]]
     sl_activations, sl_refValues, sl_judgeValues, sl_contexts, sl_MDSlabels, sl_counter = [[] for i in range(6)]
-
+    print('sl_activations average_ref_numerosity: ', sl_activations)
+    
     for i in range(flat_activations.shape[0]):
         checknan = np.asarray([ np.isnan(flat_activations[i][j]) for j in range(len(flat_activations[i]))])
         if (checknan).all():
@@ -603,13 +602,13 @@ def analyse_network(args):
                 test_loader = DataLoader(crossvalset, batch_size=1, shuffle=False)
 
             for whichTrialType in ['compare']: #['compare', 'fillers']:
-                activations, MDSlabels, labels_refValues, labels_judgeValues, labels_contexts, time_index, counter, drift, temporal_trialtypes = mnet.get_activations(args, np_testset, trained_model, test_loader, whichTrialType)
+                activations, MDSlabels, labels_refValues, labels_judgeValues, labels_contexts, time_index, counter, drift, temporal_trialtypes = mnet.get_activations(args, np_testset, trained_model, test_loader, whichTrialType) # SN could be a problem here (loads testset)
 
                 dimKeep = 'judgement'                      # representation of the currently presented number, averaging over previous number
                 print("labels_judgeValues: ", labels_judgeValues)
                 sl_activations, sl_contexts, sl_MDSlabels, sl_refValues, sl_judgeValues, sl_counter = average_ref_numerosity(args, dimKeep, activations, labels_refValues, labels_judgeValues, labels_contexts, MDSlabels, args.label_context, counter, args.which_context)
                 diff_sl_activations, diff_sl_contexts, diff_sl_MDSlabels, diff_sl_refValues, diff_sl_judgeValues, diff_sl_counter, sl_diffValues = diff_average_ref_numerosity(dimKeep, activations, labels_refValues, labels_judgeValues, labels_contexts, MDSlabels, args.label_context, counter)
-
+                print('sl_activations: ', sl_activations)
                 # do MDS on the activations for the test set
                 print('Performing MDS on trials of type: {} in {} set...'.format(whichTrialType, set))
                 tic = time.time()
@@ -663,6 +662,8 @@ def average_activations_across_models(args):
     allmodels = get_model_names(args)
     MDS_meandict = {}
     MDS_meandict["filler_dict"] = {}
+    print('Loading models for MDS analysis...')
+    print('len(allmodels): ', len(allmodels))
 
     # acitvations and related labels collapsed over previous target
     sl_activations = [[] for i in range(len(allmodels))]
@@ -690,6 +691,7 @@ def average_activations_across_models(args):
         # filler_sl_numberlabel[ind] = mdict["filler_dict"]["sl_judgeValues"]
 
     MDS_meandict["sl_activations"] = np.mean(sl_activations, axis=0)
+    print('MDS_meandict["sl_activations"]: ', MDS_meandict["sl_activations"])
     MDS_meandict["sl_contexts"] = np.mean(sl_contextlabel, axis=0)
     MDS_meandict["sl_judgeValues"] = np.mean(sl_numberlabel, axis=0)
     # MDS_meandict["filler_dict"]["sl_activations"] = np.mean(filler_sl_activations, axis=0)
@@ -707,6 +709,7 @@ def average_activations_across_models(args):
     # MDS_act_filler, evals = cmdscale(pairwise_data)
 
     MDS_meandict["MDS_slactivations"] = MDS_act
+    print('MDS_meandict["MDS_slactivations"]: ', MDS_meandict["MDS_slactivations"])
     # MDS_meandict["filler_dict"]["MDS_slactivations"] = MDS_act_filler
     # args.model_id = 0 # CF why hard code this number if provided at the beginning in args
 
