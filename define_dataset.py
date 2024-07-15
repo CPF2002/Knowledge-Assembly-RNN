@@ -226,7 +226,7 @@ def create_separate_input_data(filename, args):
     whichtestset = 0                         # a counter
 
     for phase in phases:   # this method should balance context instances in train and test phases
-        if phase == 'train':
+        if phase == 'train' and args.train_long == True:
             N = copy.copy(Ntrain)
             Mblocks = const.MBLOCKS_LONG
         else:
@@ -251,6 +251,8 @@ def create_separate_input_data(filename, args):
 
         fillerRange = [const.FULLR_LLIM,const.FULLR_ULIM]        # the range of numbers spanned by all filler trials
 
+        print('args.train_long: ', args.train_long, 'phase: ', phase)
+        
         for block in range(Mblocks): # Chooses context for each block
             if not (phase == 'train' and args.train_long == True):
                 if args.which_context==0: 
