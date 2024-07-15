@@ -52,13 +52,13 @@ if __name__ == '__main__':
     args.train_long = False
 
     # Train a network from scratch and save it
-    print('args.train_long = ', args.train_long)
-    print('Training network...')
+    # print('args.train_long = ', args.train_long)
+    # print('Training network...')
     # mnet.train_and_save_network(args, device, multiparams)
     # print('Training complete and network saved. main')
     
     # Check information about the dataset
-    dset.view_dataset_index_info(10, args)
+    # dset.view_dataset_index_info(10, args)
 
     # Analyse the trained network (extract and save network activations)
     print('\nAnalysing network...')

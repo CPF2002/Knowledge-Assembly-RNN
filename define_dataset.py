@@ -214,10 +214,10 @@ def create_separate_input_data(filename, args):
     else:
         Ntrain = const.NTRAIN_LONG
         Ntest = const.NTEST_LONG
-        if phase == 'train':
-            Mblocks = const.MBLOCKS_LONG
-        else:
-            Mblocks = const.MBLOCKS
+        # if phase == 'train':
+        #     Mblocks = const.MBLOCKS_LONG
+        # else:
+        #     Mblocks = const.MBLOCKS
           
     totalN = Ntrain + Mtestsets * Ntest           # how many sequences across training and test sets
     
@@ -228,8 +228,10 @@ def create_separate_input_data(filename, args):
     for phase in phases:   # this method should balance context instances in train and test phases
         if phase == 'train':
             N = copy.copy(Ntrain)
+            Mblocks = const.MBLOCKS_LONG
         else:
             N = copy.copy(Ntest)
+            Mblocks = const.MBLOCKS
 
         # perhaps set temporary N to N/24, then generate the data under each context and then shuffle order at the end?
         refValues = np.empty((Mblocks, int(N/Mblocks),args.BPTT_len, const.TOTALMAXNUM))
@@ -242,13 +244,15 @@ def create_separate_input_data(filename, args):
         blocks = np.empty((Mblocks, int(N/Mblocks),1))
         trialTypes = np.empty((Mblocks, int(N/Mblocks), args.BPTT_len), dtype='str')  # 0='filler, 1='compare'; pytorch doesnt like string numpy arrays
         trialTypeInputs = np.empty((Mblocks, int(N/Mblocks), args.BPTT_len))
-        trainindices = (np.asarray([i for i in range(Ntrain)])).reshape((Mblocks, int(Ntrain/Mblocks),1))
-        testindices = (np.asarray([i for i in range(Ntest)])).reshape((Mblocks, int(Ntest/Mblocks),1))
+        if phase == 'train':
+            trainindices = (np.asarray([i for i in range(Ntrain)])).reshape((Mblocks, int(Ntrain/Mblocks),1))
+        else:
+            testindices = (np.asarray([i for i in range(Ntest)])).reshape((Mblocks, int(Ntest/Mblocks),1))
 
         fillerRange = [const.FULLR_LLIM,const.FULLR_ULIM]        # the range of numbers spanned by all filler trials
 
         for block in range(Mblocks): # Chooses context for each block
-            if phase == 'train':
+            if not (phase == 'train' and args.train_long == True):
                 if args.which_context==0: 
                 # divide the blocks evenly across the 3 contexts
                     print('\nall contexts')
@@ -265,18 +269,20 @@ def create_separate_input_data(filename, args):
                         minNumerosity = const.HIGHR_LLIM
                         maxNumerosity = const.HIGHR_ULIM
                         print('minNumerosity: ', minNumerosity, 'maxNumerosity: ', maxNumerosity)
-            # single context options
-                    elif args.which_context==1:     # context A
-                        print('\nlow range context')
-                        context = 1
-                        minNumerosity = const.LOWR_LLIM
-                        maxNumerosity = const.LOWR_ULIM
-                    elif args.which_context==2:     # context B
-                        print('\nhigh range context')
-                        context = 2
-                        minNumerosity = const.HIGHR_LLIM
-                        maxNumerosity = const.HIGHR_ULIM
+                # single context options
+                elif args.which_context==1:     # context A
+                    print('\nlow range context')
+                    context = 1
+                    minNumerosity = const.LOWR_LLIM
+                    maxNumerosity = const.LOWR_ULIM
+                elif args.which_context==2:     # context B
+                    print('\nhigh range context')
+                    context = 2
+                    minNumerosity = const.HIGHR_LLIM
+                    maxNumerosity = const.HIGHR_ULIM
             else:
+                # sets the numerosity to the linking pair
+                print('args.train_long: ', args.train_long, 'phase: ', phase)
                 minNumerosity = const.FULLR_LLIM
                 maxNumerosity = const.FULLR_ULIM
     
@@ -336,8 +342,8 @@ def create_separate_input_data(filename, args):
                             judgementValue = randNumDistribution[randind] 
                         
                         input2 = turn_one_hot(judgementValue, const.TOTALMAXNUM)
-                        if args.all_fullrange:  # if intermingling contexts, then we need to know which context this number was sampled from
-                            context = turn_index_to_context(randNumDistribution[randind]) # SNtry feeding in randNumDistribution[randind]
+                        if args.all_fullrange or args.train_long:  # if intermingling contexts, then we need to know which context this number was sampled from
+                            context = turn_index_to_context(randNumDistribution[randind]) 
 
                     else:  # filler trial (note fillers are always from uniform 1:15 range)
                         input2 = turn_one_hot(random.randint(*fillerRange), const.TOTALMAXNUM)
@@ -356,7 +362,7 @@ def create_separate_input_data(filename, args):
 
                     # Define the context input to the network
                     if args.label_context=='true':
-                        contextinput = turn_one_hot(context, const.NCONTEXTS)  # there are 3 different contexts
+                        contextinput = turn_one_hot(context, const.NCONTEXTS)  # there are 2 different contexts
                     elif args.label_context=='random':
                         # Note that NOT changing 'context' means that we should be able to see the correct range label in the RDM
                         contextinput = turn_one_hot(random.randint(1,3), const.NCONTEXTS)  # randomly assign each example to a context, (shuffling examples across context markers in training)
@@ -444,7 +450,7 @@ def create_separate_input_data(filename, args):
         else:
 
             # now shuffle the training block order so that we temporally separate contexts a bit but still blocked
-            input, refValues, judgementValues, target, contexts, contextdigits, testindices, blocks, contextinputs, trialTypeInputs = shuffle(input, refValues, judgementValues, target, contexts, contextdigits, testindices, blocks, contextinputs, trialTypeInputs,  random_state=0)
+            # input, refValues, judgementValues, target, contexts, contextdigits, testindices, blocks, contextinputs, trialTypeInputs = shuffle(input, refValues, judgementValues, target, contexts, contextdigits, testindices, blocks, contextinputs, trialTypeInputs,  random_state=0)
 
             # now flatten across the first dim of the structure
             input = flatten_first_dim(input)
@@ -488,6 +494,7 @@ def view_dataset_index_info(array_index, args):
     # print('refValue:',numpy_trainset['refValue'][array_index])
     # print('label:',numpy_trainset['label'][array_index])
     #print('context:',numpy_trainset['context'][array_index])
+    print('Trainset...')
     for i in range(len(numpy_trainset['judgementValue'][array_index])):
         judgementValue = 0
         refValue = 0
@@ -517,24 +524,25 @@ def view_dataset_index_info(array_index, args):
         elif ((judgementValue <= const.LOWR_ULIM and refValue >= const.HIGHR_LLIM) or (judgementValue >= const.HIGHR_LLIM and refValue <= const.LOWR_ULIM)) and (label == 1 or label == 0):
           if args.train_long == False:
             print('\tWRONG label != NaN!')
+    print('Testset...')
     for i in range(len(numpy_testset['judgementValue'][array_index])):
         judgementValue = 0
         refValue = 0
         label = 0
         context = -1
         # turn judgementValarray position to value
-        for ind in range(len(numpy_trainset['judgementValue'][array_index][i])):
-            if numpy_trainset['judgementValue'][array_index][i][ind] == 1:
+        for ind in range(len(numpy_testset['judgementValue'][array_index][i])):
+            if numpy_testset['judgementValue'][array_index][i][ind] == 1:
                 judgementValue = ind + 1
         # turn refValue array position to value  
-        for ind in range(len(numpy_trainset['refValue'][array_index][i])):
-            if numpy_trainset['refValue'][array_index][i][ind] == 1:
+        for ind in range(len(numpy_testset['refValue'][array_index][i])):
+            if numpy_testset['refValue'][array_index][i][ind] == 1:
                 refValue = ind + 1
         # grab label value
-        label = numpy_trainset['label'][array_index][i]
+        label = numpy_testset['label'][array_index][i]
         # grab context value
-        for ind in range(len(numpy_trainset['context'][array_index][i])):
-            if numpy_trainset['context'][array_index][i][ind] == 1:
+        for ind in range(len(numpy_testset['context'][array_index][i])):
+            if numpy_testset['context'][array_index][i][ind] == 1:
                 context = ind + 1
         # check if the judgementValue and refValue logic is correct
         
@@ -551,4 +559,4 @@ def create_dataset(args):
         create_separate_input_data(datasetname, args)
         data = np.load(const.DATASET_DIRECTORY+datasetname+'.npy', allow_pickle=True)
         numpy_trainset = data.item().get("trainset")
-        print(numpy_trainset['judgementValue'][4])
+        #print(numpy_trainset['judgementValue'][4])

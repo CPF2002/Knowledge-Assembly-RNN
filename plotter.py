@@ -318,8 +318,8 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
 
             # Rotate the components on the 2d plot since global orientation doesnt matter (axes are arbitrary)
             rotated_act = copy.deepcopy(MDS_act)
-            # print('MDS_act', MDS_act)
-            # print('MDS_act.shape', MDS_act.shape)
+            print('MDS_act', MDS_act)
+            print('MDS_act.shape', MDS_act.shape)
             # print('rotated_act', rotated_act)
             # print('rotated_act.shape', rotated_act.shape)
 
@@ -328,7 +328,7 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
             # print('contextC:', contextC)
             # print('dimA:', dimA)
             # print('dimB:', dimB)
-            # print('MDS_act[contextA, dimA]:', MDS_act[0, 0])
+            print('MDS_act[0, 0]:', MDS_act[0, 0])
           #  rotated_act[contextA, dimA], rotated_act[contextA, dimB] = rotate_axes(MDS_act[contextA, dimA], MDS_act[contextA, dimB], theta)
             rotated_act[contextB, dimA], rotated_act[contextB, dimB] = rotate_axes(MDS_act[contextB, dimA], MDS_act[contextB, dimB], theta)
             rotated_act[contextC, dimA], rotated_act[contextC, dimB] = rotate_axes(MDS_act[contextC, dimA], MDS_act[contextC, dimB], theta)
