@@ -60,6 +60,7 @@ if __name__ == '__main__':
     # Check information about the dataset
     dset.create_dataset(args)
     dset.view_dataset_index_info(10, args)
+    mplt.dataset_range_heatmap(datasetname_short, args)
 
     # # Analyse the trained network (extract and save network activations)
     # print('\nAnalysing network...')
@@ -88,6 +89,7 @@ if __name__ == '__main__':
     # Check information about the dataset
     dset.create_dataset(args)
     dset.view_dataset_index_info(10, args)
+    mplt.dataset_range_heatmap(datasetname_long, args)
 
     # # Analyse the trained network (extract and save network activations)
     # print('\nAnalysing network...')

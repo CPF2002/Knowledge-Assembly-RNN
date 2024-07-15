@@ -1037,3 +1037,25 @@ def generate_plots(MDS_dict, args):
 
         # 3D Animations
         #animate_3d_mds(MDS_dict, args, plot_diff_code)  # plot a 3D version of the MDS constructions
+
+def dataset_range_heatmap(datasetname, args):
+    x = np.load(const.DATASET_DIRECTORY+datasetname+'.npy', allow_pickle=True)
+    numpy_trainset = x.item().get('trainset')
+    numpy_testset = x.item().get('testset')
+    
+    if args.train_long:
+        train_set = 'long_'
+    else:
+        train_set = 'short_'
+    
+    train = np.sum(numpy_trainset['judgementValue'], 1)
+    im = plt.imshow(train, cmap='hot', aspect='auto')
+    plt.colorbar(im, orientation='horizontal')
+    n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'Heatmap_train_'+train_set), args, labelNumerosity=True, plot_diff_code=False, whichTrialType='compare', saveFig=True)
+    
+    test = np.sum(numpy_testset['judgementValue'], 1)
+    im = plt.imshow(test, cmap='hot', aspect='auto')
+    plt.colorbar(im, orientation='horizontal') 
+    n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'Heatmap_test_'+train_set), args, labelNumerosity=True, plot_diff_code=False, whichTrialType='compare', saveFig=True)
+    
+    

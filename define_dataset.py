@@ -287,7 +287,7 @@ def create_separate_input_data(filename, args):
                 maxNumerosity = const.FULLR_ULIM
     
             # set the range of numerosities for the context
-            if args.train_long == True: # Train long should only be on the linking pair between contexts
+            if args.train_long == True and phase == 'train': # Train long should only be on the linking pair between contexts
                 randNumDistribution = Mtestsets = [i for i in range(const.LOWR_ULIM, const.HIGHR_LLIM+1)]
             else: # The whole range (information for linking pair is filtered out later)
                 if args.all_fullrange: # args.all_fullrange == True = interleaved 
