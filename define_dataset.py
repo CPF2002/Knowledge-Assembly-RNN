@@ -226,9 +226,13 @@ def create_separate_input_data(filename, args):
     whichtestset = 0                         # a counter
 
     for phase in phases:   # this method should balance context instances in train and test phases
-        if phase == 'train' and args.train_long == True:
+        # appropriately set Mblocks and N values for the phase and short/long set
+        if phase == 'train':
             N = copy.copy(Ntrain)
-            Mblocks = const.MBLOCKS_LONG
+            if args.train_long == True:
+                Mblocks = const.MBLOCKS_LONG
+            else:
+                Mblocks = const.MBLOCKS
         else:
             N = copy.copy(Ntest)
             Mblocks = const.MBLOCKS
