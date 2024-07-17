@@ -198,11 +198,11 @@ def create_separate_input_data(filename, args):
     elif args.label_context=='constant':
         print('- network has constant (1) context labelling')
     if args.all_fullrange:
-        print('- compare numbers are all drawn from the full 1:15 range')
+        print('- compare numbers are all drawn from the full {}:{} range'.format(const.FULLR_LLIM, const.FULLR_ULIM))
     else:
         print('- compare numbers are drawn from temporally structured ranges')
-    print('- training is blocked by context')
-    print('- training orders A and B relative to each other in trial sequence (B @ trial t+1 == A @ trial t)')
+        print('- training is blocked by context')
+        print('- training orders A and B relative to each other in trial sequence (B @ trial t+1 == A @ trial t)')
 
     # set up the dataset parameters (Train and Test short have different parameters than Train and Test long)
     Mtestsets = const.MTESTSETS             # have multiple test sets for cross-validation of activations
@@ -258,40 +258,40 @@ def create_separate_input_data(filename, args):
         # print('args.train_long: ', args.train_long, 'phase: ', phase)
         
         for block in range(Mblocks): # Chooses context for each block
-            if args.train_long == False:
-                if args.which_context==0: 
-                # divide the blocks evenly across the 3 contexts
-                    # print('\nall contexts')
-                    if block < Mblocks/const.NCONTEXTS:             # context A    # now 1-4 # ! math is just keeping in low range
-                        # print('low range context', block, Mblocks, const.NCONTEXTS)
+            if phase == 'train':
+                if args.train_long == False: # train short is within the context
+                    if args.which_context==0: 
+                    # divide the blocks evenly across the 3 contexts
+                        if block < Mblocks/const.NCONTEXTS:             # context A    # now 1-4
+                            context = 1
+                            minNumerosity = const.LOWR_LLIM
+                            maxNumerosity = const.LOWR_ULIM
+                            print('minNumerosity: ', minNumerosity, 'maxNumerosity', maxNumerosity)
+                        elif block < 2*(Mblocks/const.NCONTEXTS):     # context B    # now 5-8
+                            context = 2
+                            minNumerosity = const.HIGHR_LLIM
+                            maxNumerosity = const.HIGHR_ULIM
+                            print('minNumerosity: ', minNumerosity, 'maxNumerosity: ', maxNumerosity)
+                    # single context options
+                    elif args.which_context==1:     # context A
+                        print('\nlow range context')
                         context = 1
                         minNumerosity = const.LOWR_LLIM
                         maxNumerosity = const.LOWR_ULIM
-                        print('minNumerosity: ', minNumerosity, 'maxNumerosity', maxNumerosity)
-
-                    elif block < 2*(Mblocks/const.NCONTEXTS):     # context B    # now 5-8
-                        # print('high range context', block, Mblocks, const.NCONTEXTS)
+                    elif args.which_context==2:     # context B
+                        print('\nhigh range context')
                         context = 2
                         minNumerosity = const.HIGHR_LLIM
                         maxNumerosity = const.HIGHR_ULIM
-                        print('minNumerosity: ', minNumerosity, 'maxNumerosity: ', maxNumerosity)
-                # single context options
-                elif args.which_context==1:     # context A
-                    print('\nlow range context')
-                    context = 1
-                    minNumerosity = const.LOWR_LLIM
-                    maxNumerosity = const.LOWR_ULIM
-                elif args.which_context==2:     # context B
-                    print('\nhigh range context')
-                    context = 2
-                    minNumerosity = const.HIGHR_LLIM
-                    maxNumerosity = const.HIGHR_ULIM
+                else:   # train long is just the linking pair
+                    print('train long')
+                    minNumerosity = const.LOWR_ULIM
+                    maxNumerosity = const.HIGHR_LLIM
             else:
-                if phase == 'test':
-                    # sets the numerosity to the linking pair
-                    print('args.train_long: ', args.train_long, 'phase: ', phase)
-                    minNumerosity = const.FULLR_LLIM
-                    maxNumerosity = const.FULLR_ULIM
+                # sets the numerosity to test the whole set (both contexts) for short and long
+                print('args.train_long: ', args.train_long, 'phase: ', phase)
+                minNumerosity = const.FULLR_LLIM
+                maxNumerosity = const.FULLR_ULIM
     
             # set the range of numerosities for the context
             if args.train_long == True and phase == 'train': # Train long should only be on the linking pair between contexts
@@ -349,7 +349,7 @@ def create_separate_input_data(filename, args):
                             judgementValue = randNumDistribution[randind] 
                         
                         input2 = turn_one_hot(judgementValue, const.TOTALMAXNUM)
-                        if args.all_fullrange or args.train_long:  # if intermingling contexts, then we need to know which context this number was sampled from
+                        if args.all_fullrange or args.train_long or phase == 'test':  # if intermingling contexts, then we need to know which context this number was sampled from
                             context = turn_index_to_context(randNumDistribution[randind]) 
 
                     else:  # filler trial (note fillers are always from uniform 1:15 range)
