@@ -36,12 +36,12 @@ if __name__ == '__main__':
     # set up dataset and network hyperparams (optionally via command line)
     args, device, multiparams = mnet.define_hyperparams() # all the initial hyperparameters are defined here
     # manually set some hyperparameters
-    args.all_fullrange = True     # False = blocked; True = interleaved
+    args.all_fullrange = False     # False = blocked; True = interleaved
     args.which_context = 0          # 0 = all contexts; 1 = LOWR (low range context); 2 = HIGHR (high range context)
     args.train_lesion_freq = 0.1    # 0.0 or 0.1  (also 0.2, 0.3, 0.4 for blocked & true context case)
     args.block_int_ttsplit = False  # True: test on a different distribution (block/interleave) than training
     args.retrain_decoder = False
-    args.model_id = 13          
+    args.model_id = 20          
     #args.model_id = 9999          # for visualising or analysing a particular trained model
 
     # Grab the future/current model names for short and long
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     # Check information about the dataset
     dset.create_dataset(args)
     dset.view_dataset_index_info(10, args)
-    mplt.dataset_range_heatmap(datasetname_short, args)
+    # mplt.dataset_range_heatmap(datasetname_short, args)
 
     # # Analyse the trained network (extract and save network activations)
     # print('\nAnalysing network...')
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     # Check information about the dataset
     dset.create_dataset(args)
     dset.view_dataset_index_info(10, args)
-    mplt.dataset_range_heatmap(datasetname_long, args)
+    # mplt.dataset_range_heatmap(datasetname_long, args)
 
     # # Analyse the trained network (extract and save network activations)
     # print('\nAnalysing network...')
