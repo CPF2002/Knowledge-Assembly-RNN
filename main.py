@@ -42,6 +42,7 @@ if __name__ == '__main__':
     args.block_int_ttsplit = False  # True: test on a different distribution (block/interleave) than training
     args.retrain_decoder = False
     args.model_id = 13          
+    args.epochs = 10               # the amount of times the testset is looped over (default = 10)
     #args.model_id = 9999          # for visualising or analysing a particular trained model
 
     # Grab the future/current model names for short and long

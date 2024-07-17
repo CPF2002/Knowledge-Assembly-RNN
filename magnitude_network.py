@@ -994,7 +994,7 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
                 log_performance(writer, epoch, train_perf, test_perf)
                 print_progress(epoch, n_epochs)
         else: # train long for n epochs
-            for epoch in range(1, 3):# for epoch in range(1, n_epochs + 1):
+            for epoch in range(1, n_epochs + 1):
                 # train network
                 standard_train_loss, standard_train_accuracy = recurrent_train(args, model, device, trainloader, optimizer, criterion, epoch, printOutput)
 
