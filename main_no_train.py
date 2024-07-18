@@ -36,7 +36,7 @@ if __name__ == '__main__':
     # set up dataset and network hyperparams (optionally via command line)
     args, device, multiparams = mnet.define_hyperparams() # all the initial hyperparameters are defined here
     # manually set some hyperparameters
-    args.all_fullrange = True     # False = blocked; True = interleaved
+    args.all_fullrange = False     # False = blocked; True = interleaved
     args.which_context = 0          # 0 = all contexts; 1 = LOWR (low range context); 2 = HIGHR (high range context)
     args.train_lesion_freq = 0.1    # 0.0 or 0.1  (also 0.2, 0.3, 0.4 for blocked & true context case)
     args.block_int_ttsplit = False  # True: test on a different distribution (block/interleave) than training
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     datasetname_short, trained_modelname_short, analysis_name_short, _ = mnet.get_dataset_name(args)
     args.train_long = True
     datasetname_long, trained_modelname_long, analysis_name_long, _ = mnet.get_dataset_name(args)
-    args.original_model_name = trained_modelname_short
+    args.original_model_name = trained_modelname_short # to store the train_short model to retrain for long
     args.train_long = False
 
     # Train a network from scratch and save it
@@ -58,9 +58,10 @@ if __name__ == '__main__':
     # print('Training complete and network saved. main')
     
     # Check information about the dataset
-    dset.create_dataset(args)
+    # dset.create_dataset(args)
     dset.view_dataset_index_info(10, args)
-    # mplt.dataset_range_heatmap(datasetname_short, args)
+    mplt.dataset_histogram(datasetname_short, args)
+    mplt.dataset_range_heatmap(datasetname_short, args)
 
     # # Analyse the trained network (extract and save network activations)
     # print('\nAnalysing network...')
@@ -87,9 +88,10 @@ if __name__ == '__main__':
     # print('Training complete and network saved. main')
     
     # Check information about the dataset
-    dset.create_dataset(args)
+    # dset.create_dataset(args)
     dset.view_dataset_index_info(10, args)
-    # mplt.dataset_range_heatmap(datasetname_long, args)
+    mplt.dataset_histogram(datasetname_long, args)
+    mplt.dataset_range_heatmap(datasetname_long, args)
 
     # # Analyse the trained network (extract and save network activations)
     # print('\nAnalysing network...')

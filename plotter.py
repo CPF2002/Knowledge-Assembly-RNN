@@ -1058,4 +1058,42 @@ def dataset_range_heatmap(datasetname, args):
     plt.colorbar(im, orientation='horizontal') 
     n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'Heatmap_test_'+train_set), args, labelNumerosity=True, plot_diff_code=False, whichTrialType='compare', saveFig=True)
     
+def dataset_histogram(datasetname, args):
+    datasetname, __, _, _ = mnet.get_dataset_name(args)
+    __, __, __, numpy_trainset, numpy_testset, __ = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
+    
+    if args.train_long:
+        train_set = 'long_'
+    else:
+        train_set = 'short_'
+    
+    # for the train section of the dataset
+    values_train = [] # store the index of all judgement values
+    # iterate through all the arrays to find all activations of the one_hot
+    for array_index in range(len(numpy_trainset['judgementValue'])):
+        for i in range(len(numpy_trainset['judgementValue'][array_index])):
+            # turn judgementValarray position to value
+            for ind in range(len(numpy_trainset['judgementValue'][array_index][i])):
+                if numpy_trainset['judgementValue'][array_index][i][ind] == 1:
+                    values_train.append(ind)
+    plt.hist(values_train, edgecolor='black', bins=8)
+    plt.title('Histogram of trainset'+train_set)
+    plt.xlabel('Value')
+    plt.ylabel('Frequency')
+    n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'Histogram_train'+train_set), args, labelNumerosity=True, plot_diff_code=False, whichTrialType='compare', saveFig=True)
+    
+    # for the test section of the dataset
+    values_test = [] # store the index of all judgement values
+    # iterate through all the arrays to find all activations of the one_hot
+    for array_index in range(len(numpy_testset['judgementValue'])):
+        for i in range(len(numpy_testset['judgementValue'][array_index])):
+            # turn judgementValarray position to value
+            for ind in range(len(numpy_testset['judgementValue'][array_index][i])):
+                if numpy_testset['judgementValue'][array_index][i][ind] == 1:
+                    values_test.append(ind)
+    plt.hist(values_test, edgecolor='black', bins=8)
+    plt.title('Histogram of testset'+train_set)
+    plt.xlabel('Value')
+    plt.ylabel('Frequency')
+    n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'Histogram_test'+train_set), args, labelNumerosity=True, plot_diff_code=False, whichTrialType='compare', saveFig=True)
     
