@@ -320,6 +320,7 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
             rotated_act = copy.deepcopy(MDS_act)
             print('MDS_act', MDS_act)
             print('MDS_act.shape', MDS_act.shape)
+            print('MDS_act.flatten', MDS_act.flatten())
             # print('rotated_act', rotated_act)
             # print('rotated_act.shape', rotated_act.shape)
 
@@ -367,16 +368,28 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
                 ax[j].text(rotated_act[i, dimA], rotated_act[i, dimB], str(24+int(numberlabel[i])), color='white', size=6.5, horizontalalignment='center', verticalalignment='center')
 
         ax[j].axis('equal')
+        
+        # scales axeslimits to the 
+        flat_activations = MDS_act.flatten()
+        max = 0
+        for act in flat_activations:
+            if abs(act) > max:
+                max = abs(act)
+        max_rounded = math.ceil(max * 10) / 10 # rounds up a tenth
+        ax[j].set(xlim=(-max_rounded, max_rounded), ylim=(-max_rounded, max_rounded))
 
-        if args.network_style=='mlp':
-            ax[j].set(xlim=axislimits, ylim=axislimits)
-        else:
-            ax[j].set(xlim=axislimits, ylim=axislimits)
+        # if args.network_style=='mlp':
+        #     ax[j].set(xlim=axislimits, ylim=axislimits)
+        # else:
+        #     ax[j].set(xlim=axislimits, ylim=axislimits)
+        #     if args.train_long:
+        #         ax[j].set(xlim=(-0.2,0.2), ylim=(-0.2,0.2))
             
     if args.train_long:
         train_set = 'trainlong_'
     else:
         train_set = 'trainshort_'
+        
 
     n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'3MDS60_'+train_set+differenceCodeText+'meanJudgement_'), args, labelNumerosity, plot_diff_code, whichTrialType, saveFig)
 
