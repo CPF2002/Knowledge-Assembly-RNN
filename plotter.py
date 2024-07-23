@@ -81,7 +81,7 @@ def save_figure(basetitle, args, labelNumerosity, plot_diff_code, whichTrialType
         contextlabelledtext =  '_constcontextlabel'
 
     if saveFig:
-        plt.savefig(basetitle+networkTxt+whichcontexttext+numberrangetxt+diffcodetext+trialtypetxt+contextlabelledtext+labeltext+retainstatetext+'_n'+str(args.noise_std)+str_args+'.pdf',bbox_inches='tight')
+        plt.savefig(basetitle+networkTxt+whichcontexttext+numberrangetxt+diffcodetext+trialtypetxt+contextlabelledtext+labeltext+retainstatetext+'_n'+str(args.noise_std)+str_args+'.png',bbox_inches='tight', dpi=1600)
 
     plt.close()
     return basetitle+networkTxt+whichcontexttext+numberrangetxt+diffcodetext+trialtypetxt+contextlabelledtext+labeltext+retainstatetext+'_n'+str(args.noise_std)+str_args
@@ -120,8 +120,8 @@ def activation_rdms(MDS_dict, args, plot_diff_code, whichTrialType='compare', sa
             Dfull = act[0:const.FULLR_SPAN]
             Dlow = act[const.FULLR_SPAN:const.FULLR_SPAN+const.LOWR_SPAN]
             Dhigh = act[const.FULLR_SPAN+const.LOWR_SPAN:const.FULLR_SPAN+const.LOWR_SPAN+const.HIGHR_SPAN]
-            labelticks = ['25-35', '30-40', '25-40']
-            ticks = [0, const.LOWR_SPAN, const.HIGHR_SPAN+const.LOWR_SPAN]
+            labelticks = list(range(const.FULLR_LLIM, const.FULLR_ULIM+1))
+            ticks = list(range(const.FULLR_LLIM-1, const.FULLR_ULIM))
 
         D = np.concatenate((Dlow, Dhigh, Dfull), axis=0)
 
@@ -135,7 +135,10 @@ def activation_rdms(MDS_dict, args, plot_diff_code, whichTrialType='compare', sa
     #    cax = divider.append_axes("right", size="5%", pad=0.05)
     cbar = fig.colorbar(im)
     cbar.set_label('disimilarity')
-    ax.set_title('Averaged activations')
+    if not args.train_long:
+        ax.set_title('Averaged Neural Distance')
+    else:
+        ax.set_title('Averaged Neural Distance\nEpoc: {}'.format(str(args.epochs)))
     ax.set_xticks(ticks)
     ax.set_xticklabels(labelticks)
     ax.set_yticks(ticks)
@@ -146,7 +149,7 @@ def activation_rdms(MDS_dict, args, plot_diff_code, whichTrialType='compare', sa
     else:
         train_set = 'trainshort_'
 
-    n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'RDM_'+train_set+differenceCodeText), args, False, plot_diff_code, whichTrialType, saveFig)
+    n = save_figure(os.path.join(const.FIGURE_DIRECTORY,'RDM_'+train_set+'ep'+str(args.epochs)+'_'+differenceCodeText), args, False, plot_diff_code, whichTrialType, saveFig)
 
 
 def plot_3mds(MDS_dict, args, labelNumerosity=True, whichTrialType='compare', saveFig=True):
@@ -279,23 +282,27 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
 
     for j in range(3):  # 3 MDS dimensions
 
+        ax[j].set_title('context')
         if j==0:
             dimA = 0
             dimB = 1
             ax[j].set_xlabel('dim 1')
             ax[j].set_ylabel('dim 2')
+            ax[j].set_title('Dimension 1 and 2')
         elif j==1:
             dimA = 0
             dimB = 2
             ax[j].set_xlabel('dim 1')
             ax[j].set_ylabel('dim 3')
+            ax[j].set_title('Dimension 1 and 3')
         elif j==2:
             dimA = 1
             dimB = 2
             ax[j].set_xlabel('dim 2')
             ax[j].set_ylabel('dim 3')
+            ax[j].set_title('Dimension 2 and 3')
 
-        ax[j].set_title('context')
+        
 
         # contexts draw the lines between the nodes (yellow is A, blue is B, red is C)
         if plot_diff_code:
@@ -318,9 +325,9 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
 
             # Rotate the components on the 2d plot since global orientation doesnt matter (axes are arbitrary)
             rotated_act = copy.deepcopy(MDS_act)
-            print('MDS_act', MDS_act)
+            # print('MDS_act', MDS_act)
             print('MDS_act.shape', MDS_act.shape)
-            print('MDS_act.flatten', MDS_act.flatten())
+            # print('MDS_act.flatten', MDS_act.flatten())
             # print('rotated_act', rotated_act)
             # print('rotated_act.shape', rotated_act.shape)
 
@@ -329,7 +336,7 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
             # print('contextC:', contextC)
             # print('dimA:', dimA)
             # print('dimB:', dimB)
-            print('MDS_act[0, 0]:', MDS_act[0, 0])
+            # print('MDS_act[0, 0]:', MDS_act[0, 0])
           #  rotated_act[contextA, dimA], rotated_act[contextA, dimB] = rotate_axes(MDS_act[contextA, dimA], MDS_act[contextA, dimB], theta)
             rotated_act[contextB, dimA], rotated_act[contextB, dimB] = rotate_axes(MDS_act[contextB, dimA], MDS_act[contextB, dimB], theta)
             rotated_act[contextC, dimA], rotated_act[contextC, dimB] = rotate_axes(MDS_act[contextC, dimA], MDS_act[contextC, dimB], theta)
@@ -369,7 +376,7 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
 
         ax[j].axis('equal')
         
-        # scales axeslimits to the 
+        # scales axeslimits to fit based on largest activation number
         flat_activations = MDS_act.flatten()
         max = 0
         for act in flat_activations:

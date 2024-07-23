@@ -434,8 +434,10 @@ def average_perf_across_models(args):
     h1 = plt.errorbar(range(len(mean_train_performance)), mean_train_performance, std_train_performance, color='dodgerblue')
     h2 = plt.errorbar(range(len(mean_test_performance)), mean_test_performance, std_test_performance, color='green')
     plt.legend((h1,h2), ['train','test'])
-
-    plt.savefig(os.path.join(const.FIGURE_DIRECTORY, record_name + '.pdf'), bbox_inches='tight')
+    plt.title('Average Performance Across Models')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.savefig(os.path.join(const.FIGURE_DIRECTORY, record_name + '.png'), bbox_inches='tight', dpi=1600)
 
 
 def cmdscale(D):
@@ -663,15 +665,14 @@ def average_activations_across_models(args):
     MDS_meandict = {}
     MDS_meandict["filler_dict"] = {}
     print('Loading models for MDS analysis...')
-    print('len(allmodels): ', len(allmodels))
 
     # acitvations and related labels collapsed over previous target
     sl_activations = [[] for i in range(len(allmodels))]
     sl_contextlabel = [[] for i in range(len(allmodels))]
     sl_numberlabel = [[] for i in range(len(allmodels))]
-    filler_sl_activations = [[] for i in range(len(allmodels))]
-    filler_sl_contextlabel = [[] for i in range(len(allmodels))]
-    filler_sl_numberlabel = [[] for i in range(len(allmodels))]
+    # filler_sl_activations = [[] for i in range(len(allmodels))]
+    # filler_sl_contextlabel = [[] for i in range(len(allmodels))]
+    # filler_sl_numberlabel = [[] for i in range(len(allmodels))]
 
     if args.block_int_ttsplit:
         print('Retrieving networks analysed at test under opposite blocking/interleaving to training...')
@@ -691,7 +692,7 @@ def average_activations_across_models(args):
         # filler_sl_numberlabel[ind] = mdict["filler_dict"]["sl_judgeValues"]
 
     MDS_meandict["sl_activations"] = np.mean(sl_activations, axis=0)
-    print('MDS_meandict["sl_activations"]: ', MDS_meandict["sl_activations"])
+    # print('MDS_meandict["sl_activations"]: ', MDS_meandict["sl_activations"])
     MDS_meandict["sl_contexts"] = np.mean(sl_contextlabel, axis=0)
     MDS_meandict["sl_judgeValues"] = np.mean(sl_numberlabel, axis=0)
     # MDS_meandict["filler_dict"]["sl_activations"] = np.mean(filler_sl_activations, axis=0)
@@ -709,7 +710,7 @@ def average_activations_across_models(args):
     # MDS_act_filler, evals = cmdscale(pairwise_data)
 
     MDS_meandict["MDS_slactivations"] = MDS_act
-    print('MDS_meandict["MDS_slactivations"]: ', MDS_meandict["MDS_slactivations"])
+    # print('MDS_meandict["MDS_slactivations"]: ', MDS_meandict["MDS_slactivations"])
     # MDS_meandict["filler_dict"]["MDS_slactivations"] = MDS_act_filler
     # args.model_id = 0 # CF why hard code this number if provided at the beginning in args
 
