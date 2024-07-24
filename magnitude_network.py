@@ -259,12 +259,22 @@ def recurrent_test(args, model, device, test_loader, criterion, printOutput=True
                 if np.isnan(labels[item_idx]) ==0  and (trialtype[0,item_idx]==1):
                     test_loss += criterion(output, labels[item_idx]).item()
                     correct += answer_correct(output, labels[item_idx])
+                    # print("answer_correct: ",answer_correct(output, labels[item_idx]))
+                    
+                    # if answer_correct(output, labels[item_idx]) == 0:
+                    #     print('inputs: ', inputs[item_idx])
+
                     trials_counter += 1
+                    ## way 1. way 2 would be using append as above
+                   # cor[trials_counter] = answer_correct(output, labels[item_idx])
+                   # inDat[trials_counter,:] = inputs # may need colon, may not depending on size of inputs
+         
 
     test_loss /= trials_counter  # there are n_comparetrials-1 instances of feedback per sequence
     accuracy = 100. * correct / trials_counter
     if printOutput:
         print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(test_loss, correct, len(test_loader.dataset)*(n_comparetrials-1), accuracy))
+    # save cor and inDat to text file
     return test_loss, accuracy
 
 
