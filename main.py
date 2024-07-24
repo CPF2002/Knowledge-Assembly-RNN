@@ -41,8 +41,8 @@ if __name__ == '__main__':
     args.train_lesion_freq = 0.1    # 0.0 or 0.1  (also 0.2, 0.3, 0.4 for blocked & true context case)
     args.block_int_ttsplit = False  # True: test on a different distribution (block/interleave) than training
     args.retrain_decoder = False
-    args.model_id = 13          
-    args.epochs = 10               # the amount of times the testset is looped over (default = 10)
+    args.model_id = 23          
+    args.epochs = 1               # the amount of times the testset is looped over (default = 10)
     #args.model_id = 9999          # for visualising or analysing a particular trained model
 
     # Grab the future/current model names for short and long
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     print('Training complete and network saved. main')
     
     # Check information about the dataset
-    dset.view_dataset_index_info(10, args)
+    dset.view_dataset_index_info(1, args)
 
     # Analyse the trained network (extract and save network activations)
     print('\nAnalysing network...')
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     print('Training complete and network saved. main')
     
     # Check information about the dataset
-    dset.view_dataset_index_info(10, args)
+    dset.view_dataset_index_info(1, args)
 
     # Analyse the trained network (extract and save network activations)
     print('\nAnalysing network...')
