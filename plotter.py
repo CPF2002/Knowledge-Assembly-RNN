@@ -102,6 +102,17 @@ def activation_rdms(MDS_dict, args, plot_diff_code, whichTrialType='compare', sa
 
     fig = plt.figure(figsize=(5,3))
     ax = plt.gca()
+    
+    super_title = ''
+    if args.all_fullrange:
+        super_title += 'Intermingled '
+    else:
+        super_title += 'Blocked '
+    if args.train_long:
+        super_title += 'Long '
+    else:
+        super_title += 'Short '
+    
     if plot_diff_code:
         D = pairwise_distances(MDS_dict["diff_sl_activations"], metric='correlation')
         labelticks = ['-15:+15', '-10:+10', '-10:+10']
@@ -136,9 +147,9 @@ def activation_rdms(MDS_dict, args, plot_diff_code, whichTrialType='compare', sa
     cbar = fig.colorbar(im)
     cbar.set_label('disimilarity')
     if not args.train_long:
-        ax.set_title('Averaged Neural Distance')
+        ax.set_title(super_title+'Averaged Neural Distance')
     else:
-        ax.set_title('Averaged Neural Distance\nEpoc: {}'.format(str(args.epochs)))
+        ax.set_title(super_title+'Averaged Neural Distance\nEpoc: {}'.format(str(args.epochs)))
     ax.set_xticks(ticks)
     ax.set_xticklabels(labelticks)
     ax.set_yticks(ticks)
@@ -264,6 +275,17 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
     fig,ax = plt.subplots(1,3, figsize=(18,5))
     rbg_contextcolours = [mplcol.to_rgba(i) for i in const.CONTEXT_COLOURS]
     white = (1.0, 1.0, 1.0, 1.0)
+    
+    super_title = ''
+    if args.all_fullrange:
+        super_title += 'Intermingled '
+    else:
+        super_title += 'Blocked '
+    if args.train_long:
+        super_title += 'Long'
+    else:
+        super_title += 'Short'
+    fig.suptitle(super_title)
 
     diffcolours = get_cmap(20, 'magma')
 
