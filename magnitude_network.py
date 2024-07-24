@@ -23,6 +23,7 @@ import sys
 import random
 import json
 import math
+import os
 
 import torch
 import torch.nn as nn
@@ -155,7 +156,7 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
             # inject some noise (Note: no longer in use, set model.hidden_noise to 0.0)
             noise = torch.from_numpy(np.reshape(np.random.normal(0, model.hidden_noise, hidden.shape[0]*hidden.shape[1]), (hidden.shape)))
             #print('hidden1', hidden)
-            hidden = hidden.add(noise) # !!! .add_(noise) was there originally
+            hidden = hidden.add(noise) # ! .add_(noise) was there originally
             #print('hidden2', hidden)
             hidden = hidden.to(torch.float32) # turn into a float instead of double
             output, hidden = model(recurrentinputs[item_idx], hidden)
@@ -887,6 +888,7 @@ def get_dataset_name(args):
     else:
         train_state = '_trainshort'
 
+    # create all file names
     datasetname = 'dataset'+train_state+whichcontexttext+contextlabelledtext+rangetxt + '_bpl' + str(args.BPTT_len) + '_id'+ str(args.model_id)
     analysis_name = const.NETANALYIS_DIRECTORY +'MDSanalysis_'+networkTxt+train_state+whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+'_n'+str(args.noise_std)+str_args + ttsplit + retraindecodertxt
     trainingrecord_name = '_trainingrecord_'+ networkTxt + train_state+whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+'_n'+str(args.noise_std)+str_args+retraindecodertxt
@@ -894,7 +896,14 @@ def get_dataset_name(args):
         trained_modelname = const.MODEL_DIRECTORY + networkTxt+'_trainedmodel'+train_state+whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+'_n'+str(args.noise_std)+str_args+retraindecodertxt+'.pth'
     else:
         trained_modelname = const.MODEL_DIRECTORY + networkTxt+'_trainedmodel'+train_state+whichcontexttext+contextlabelledtext+rangetxt+hiddenstate+str_args+retraindecodertxt+'.pth'
-
+    
+    # if dataset exists, load this dataset instead of creating a new one
+    dataset_path = os.path.join(const.DATASET_DIRECTORY, datasetname+'.npy')
+    if os.path.exists(dataset_path):
+        args.create_new_dataset = False
+    else:
+        args.create_new_dataset = True
+    
     return datasetname, trained_modelname, analysis_name, trainingrecord_name
 
 
@@ -921,7 +930,7 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
             # model = OneStepRNN(const.TOTALMAXNUM + const.NCONTEXTS + const.NTYPEBITS, 1, args.noise_std, args.recurrent_size, args.hidden_size).to(device)
             # for name, param in model.named_parameters():
             #     print(f"Parameter: {name}\nShape: {param.shape}\nValues:\n{param.data}\n")
-            print('loading model from: {}'.format(args.original_model_name))
+            print('Loading Model: {}'.format(args.original_model_name))
             model = torch.load(args.original_model_name)
             for name, param in model.named_parameters():
                # if 'fc1tooutput' not in name:
@@ -935,11 +944,11 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
 
 
         else:
-            print('training a new model')
+            print('Training a New Model...')
             model = OneStepRNN(const.TOTALMAXNUM + const.NCONTEXTS + const.NTYPEBITS, 1, args.noise_std, args.recurrent_size, args.hidden_size).to(device)
 
-        for name, param in model.named_parameters():
-            print(f"Parameter: {name}\nShape: {param.shape}\nValues:\n{param.data}\n")
+        # for name, param in model.named_parameters():
+        #     print(f"Parameter: {name}\nShape: {param.shape}\nValues:\n{param.data}\n")
         
         criterion = nn.BCELoss() #nn.CrossEntropyLoss()   # binary cross entropy loss
         optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
@@ -1062,8 +1071,6 @@ def train_and_save_network(args, device, multiparams):
     else:
         print('Loading existing dataset...')
         trainset, testset, _, _, _, _ = dset.load_input_data(const.DATASET_DIRECTORY, datasetname)
-        
-    dset.view_dataset_index_info(10, args)
 
     # define and train a neural network model, log performance and output trained model
     if args.network_style == 'recurrent':
