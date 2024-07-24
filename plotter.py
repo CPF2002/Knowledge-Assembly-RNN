@@ -372,7 +372,7 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
             for i in range((MDS_act.shape[0])):
                 # SN the below line only sets the dots, still need to figure out where the lines are plotted
                 ax[j].scatter(rotated_act[i, dimA], rotated_act[i, dimB], color=const.CONTEXT_COLOURS[int(contextlabel[i])], edgecolor=const.CONTEXT_COLOURS[int(contextlabel[i])], s=80, linewidths=2)
-                ax[j].text(rotated_act[i, dimA], rotated_act[i, dimB], str(24+int(numberlabel[i])), color='white', size=6.5, horizontalalignment='center', verticalalignment='center')
+                ax[j].text(rotated_act[i, dimA], rotated_act[i, dimB], str(int(numberlabel[i])), color='white', size=6.5, horizontalalignment='center', verticalalignment='center')
 
         ax[j].axis('equal')
         
