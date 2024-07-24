@@ -73,7 +73,7 @@ NTEST = 480           # needs to be big enough to almost guarantee that we will 
 MBLOCKS = 24        # ! im concerned about this number # same as fabrices experiment - there are 24 blocks across 3 different contexts
 
 # SN Below info for test long
-NTRAIN_LONG = 20
+NTRAIN_LONG = 10
 NTEST_LONG = 480
 MBLOCKS_LONG = 1 # want to use this for train long only. SN
 # define upper and lower limits for each # range)
