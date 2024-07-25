@@ -149,7 +149,7 @@ def activation_rdms(MDS_dict, args, plot_diff_code, whichTrialType='compare', sa
     if not args.train_long:
         ax.set_title(super_title+'Averaged Neural Distance')
     else:
-        ax.set_title(super_title+'Averaged Neural Distance\nEpoc: {}'.format(str(args.epochs)))
+        ax.set_title(super_title+'Averaged Neural Distance\nEpoch: {}'.format(str(args.epochs)))
     ax.set_xticks(ticks)
     ax.set_xticklabels(labelticks)
     ax.set_yticks(ticks)
@@ -285,7 +285,13 @@ def plot_3mds_mean(MDS_dict, args, labelNumerosity=True, plot_diff_code=False, w
         super_title += 'Long'
     else:
         super_title += 'Short'
-    fig.suptitle(super_title)
+        
+    if not args.train_long:
+        fig.suptitle(super_title)
+    else:
+        fig.suptitle(super_title+' - Epoch: {}'.format(str(args.epochs)))
+    
+    
 
     diffcolours = get_cmap(20, 'magma')
 
