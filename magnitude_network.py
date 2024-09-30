@@ -64,12 +64,14 @@ def answer_correct(output, label):
     """
     output = np.squeeze(output, axis=1)
     pred = np.zeros((output.size()))
+    # print("output.size()", output.size())
     for i in range((output.size()[0])):
         if output[i]>0.5:
             pred[i] = 1
         else:
             pred[i] = 0
     tmp = np.squeeze(np.asarray(label))
+    # print('1 or 0: ',(pred==tmp).sum().item())
     return (pred==tmp).sum().item()
 
 
@@ -247,6 +249,7 @@ def recurrent_test(args, model, device, test_loader, criterion, printOutput=True
                 hidden = latentstate
 
             # perform a N-step recurrence for the whole sequence of numbers in the input
+            ref_Value = np.nan
             for item_idx in range(sequenceLength):
 
                 # inject some noise (Note: no longer in use, set model.hidden_noise to 0.0)
@@ -258,11 +261,45 @@ def recurrent_test(args, model, device, test_loader, criterion, printOutput=True
 
                 if np.isnan(labels[item_idx]) ==0  and (trialtype[0,item_idx]==1):
                     test_loss += criterion(output, labels[item_idx]).item()
-                    correct += answer_correct(output, labels[item_idx])
+                    answer = answer_correct(output, labels[item_idx])
+                    correct += answer
                     # print("answer_correct: ",answer_correct(output, labels[item_idx]))
                     
                     # if answer_correct(output, labels[item_idx]) == 0:
                     #     print('inputs: ', inputs[item_idx])
+                    # print("recurrentinputs: ", recurrentinputs[item_idx])
+                    first_eight = recurrentinputs[item_idx][0, :const.TOTALMAXNUM] # gets the first set of elements which is the range
+                    #Find indices where values are 1
+                    indices_of_ones = (first_eight == 1).nonzero(as_tuple=True)[0]
+                    # Convert indices to a list for easier viewing
+                    indices_list = indices_of_ones.tolist()
+                    if len(indices_list) > 1:
+                        print("Warning: more than one chosen judgement value")
+                    judge_value = indices_list[0] + 1 # add 1 to get the actual value instead of index
+                    
+                    if np.squeeze(output) > 0.5:
+                        model_guess = 1
+                    else:
+                        model_guess = 0
+                    
+                    label = np.squeeze(labels[item_idx])
+
+                    # print(f"judge_value: {judge_value}")
+                    # print(f"ref_Value: {ref_Value}")
+                    # print(f"answer_correct: {answer}")
+                    # # print(f"output: {output}") 
+                    # print(f"output: {np.squeeze(output)}") # output is a tensor so need to convert to higher or lower (1 or 0)
+                    # # print(f"label: {labels[item_idx]}")
+                    # print(f"guess: {model_guess}")
+                    # print(f"label: {np.squeeze(labels[item_idx])}\n")
+                    
+                    # format in a single line
+                    print(f"judge_value: {judge_value}\t ref_Value: {ref_Value}\t model_guess: {model_guess}\t dataset_label: {label}\t answer_correct: {answer}")
+                    if (model_guess != label and answer == 1) or (model_guess == label and answer == 0):
+                        print("Misclassified")
+                        
+                    
+                    ref_Value = judge_value
 
                     trials_counter += 1
                     ## way 1. way 2 would be using append as above
