@@ -214,7 +214,7 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
     return train_loss, accuracy
 
 
-def recurrent_test(args, model, device, test_loader, criterion, printOutput=True):
+def recurrent_test(args, model, device, test_loader, criterion, trials_file_path, printOutput=True, ):
     """Test a recurrent neural network on the test set (without lesions)."""
     model.eval()
     test_loss = 0
@@ -294,9 +294,17 @@ def recurrent_test(args, model, device, test_loader, criterion, printOutput=True
                     # print(f"label: {np.squeeze(labels[item_idx])}\n")
                     
                     # format in a single line
-                    print(f"judge_value: {judge_value}\t ref_Value: {ref_Value}\t model_guess: {model_guess}\t dataset_label: {label}\t answer_correct: {answer}")
+                    trial = f"judge_value: {judge_value}\t ref_Value: {ref_Value}\t model_guess: {model_guess}\t dataset_label: {label}\t answer_correct: {answer}\n"
+                    print(trial)
                     if (model_guess != label and answer == 1) or (model_guess == label and answer == 0):
                         print("Misclassified")
+                        
+                    # append info to txt file
+                    with open(trials_file_path, 'a') as file:
+                        file.write(trial)
+                        if (model_guess != label and answer == 1) or (model_guess == label and answer == 0):
+                            file.write("Misclassified\n")
+
                         
                     
                     ref_Value = judge_value
@@ -820,7 +828,7 @@ def define_hyperparams():
     command_line = True  # if running from jupyter notebook, set this to false and adjust argsparser() instead
     if command_line:
         parser = argparse.ArgumentParser(description='PyTorch network settings')
-
+        
         # dataset hyperparameters
         parser.add_argument('--network-style', default="recurrent", help='which network we want, "recurrent" or "mlp" (default: "recurrent")')
         parser.add_argument('--new-dataset', dest='create_new_dataset', action='store_true', help='create a new dataset for this condition? (default: False)')   # re-generate the random train/test dataset each time?
@@ -969,6 +977,14 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
         args.batch_size = batch_size
         args.test_batch_size = batch_size
         args.lr = lr
+        randnum = str(random.randint(0,10000))
+        
+        # Check if file exists to avoid overwriting
+        if not os.path.exists(const.TRIALS_DIRECTORY+randnum + trainingrecord_name+".txt"):
+            # create empty file
+            with open(const.TRIALS_DIRECTORY+randnum + trainingrecord_name+".txt", 'w') as file:
+                pass
+        trials_file_path = const.TRIALS_DIRECTORY + randnum + trainingrecord_name+".txt"
 
         # Define a model for training
         #torch.manual_seed(1)         # if we want the same default weight initialisation every time
@@ -1020,8 +1036,8 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
 
         # Take baseline performance measures
         optimizer.zero_grad()
-        _, base_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, printOutput)
-        _, base_test_accuracy = recurrent_test(args, model, device, testloader, criterion, printOutput)
+        _, base_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, trials_file_path, printOutput)
+        _, base_test_accuracy = recurrent_test(args, model, device, testloader, criterion, trials_file_path, printOutput)
         print('Baseline train: {:.2f}%, Baseline test: {:.2f}%'.format(base_train_accuracy, base_test_accuracy))
         trainingPerformance.append(base_train_accuracy)
         testPerformance.append(base_test_accuracy)
@@ -1037,8 +1053,8 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
                 standard_train_loss, standard_train_accuracy = recurrent_train(args, model, device, trainloader, optimizer, criterion, epoch, printOutput)
 
                 # assess network
-                fair_train_loss, fair_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, printOutput)
-                test_loss, test_accuracy = recurrent_test(args, model, device, testloader, criterion, printOutput)
+                fair_train_loss, fair_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, trials_file_path, printOutput)
+                test_loss, test_accuracy = recurrent_test(args, model, device, testloader, criterion, trials_file_path, printOutput)
 
                 # log performance
                 train_perf = [standard_train_loss, standard_train_accuracy, fair_train_loss, fair_train_accuracy]
@@ -1055,8 +1071,8 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
                 standard_train_loss, standard_train_accuracy = recurrent_train(args, model, device, trainloader, optimizer, criterion, epoch, printOutput)
 
                 # assess network
-                fair_train_loss, fair_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, printOutput)
-                test_loss, test_accuracy = recurrent_test(args, model, device, testloader, criterion, printOutput)
+                fair_train_loss, fair_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, trials_file_path, printOutput)
+                test_loss, test_accuracy = recurrent_test(args, model, device, testloader, criterion, trials_file_path, printOutput)
 
                 # log performance
                 train_perf = [standard_train_loss, standard_train_accuracy, fair_train_loss, fair_train_accuracy]
@@ -1090,7 +1106,7 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
         print("Training complete.")
         # save this training curve
         record = {"trainingPerformance":trainingPerformance, "testPerformance":testPerformance, "args":vars(args) }
-        randnum = str(random.randint(0,10000))
+        
         dat = json.dumps(record)
         f = open(const.TRAININGRECORDS_DIRECTORY+randnum + trainingrecord_name+".json","w")
         f.write(dat)
