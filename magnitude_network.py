@@ -1047,6 +1047,8 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
         epoch = 0
         #SN:  if statement here with args.train_long. 20 trials of train long
         if args.train_long == False: # train short up to 90 percent accuracy
+            with open(trials_file_path, 'a') as file:
+                file.write('\nTraining short...')
             while standard_train_accuracy < 90.0: # trains until the network is performing well on the training set
 
                 # train network
@@ -1066,7 +1068,11 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
                 log_performance(writer, epoch, train_perf, test_perf)
                 print_progress(epoch, n_epochs)
         else: # train long for n epochs
+            with open(trials_file_path, 'a') as file:
+                file.write('\nTraining long...')
             for epoch in range(1, n_epochs + 1):
+                with open(trials_file_path, 'a') as file:
+                    file.write('\nEpoch {}\n'.format(epoch))
                 # train network
                 standard_train_loss, standard_train_accuracy = recurrent_train(args, model, device, trainloader, optimizer, criterion, epoch, printOutput)
 
