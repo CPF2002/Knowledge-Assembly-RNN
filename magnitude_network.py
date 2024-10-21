@@ -214,7 +214,7 @@ def recurrent_train(args, model, device, train_loader, optimizer, criterion, epo
     return train_loss, accuracy
 
 
-def recurrent_test(args, model, device, test_loader, criterion, trials_file_path, printOutput=True, ):
+def recurrent_test(args, model, device, test_loader, criterion, trials_file_path, testing_set, printOutput=True, ):
     """Test a recurrent neural network on the test set (without lesions)."""
     model.eval()
     test_loss = 0
@@ -224,6 +224,10 @@ def recurrent_test(args, model, device, test_loader, criterion, trials_file_path
     # reset hidden recurrent weights on the very first trial
     hidden = torch.zeros(args.batch_size, model.recurrent_size)
     latentstate = torch.zeros(args.batch_size, model.recurrent_size)
+    
+    # testing_set determines the text file the trails will be written to
+    # testing_set = 'test' or 'train'
+    trials_file_path = const.TRIALS_DIRECTORY + testing_set + "_" + trials_file_path
 
     with torch.no_grad():  # dont track the gradients
         for batch_idx, data in enumerate(test_loader):
@@ -983,11 +987,17 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
         randnum = str(random.randint(0,10000))
         
         # Check if file exists to avoid overwriting
-        if not os.path.exists(const.TRIALS_DIRECTORY+randnum + trainingrecord_name+".txt"):
-            # create empty file
-            with open(const.TRIALS_DIRECTORY+randnum + trainingrecord_name+".txt", 'w') as file:
-                pass
-        trials_file_path = const.TRIALS_DIRECTORY + randnum + trainingrecord_name+".txt"
+        trials_file_path = randnum + trainingrecord_name+".txt"
+        for set in ('train_', 'test_'):
+            if not os.path.exists(const.TRIALS_DIRECTORY + set + trials_file_path):
+                # create empty file
+                with open(const.TRIALS_DIRECTORY + set + trials_file_path, 'w') as file:
+                    pass
+        
+        # if not os.path.exists(const.TRIALS_DIRECTORY+randnum + trainingrecord_name+".txt"):
+        #     # create empty file
+        #     with open(const.TRIALS_DIRECTORY + randnum + trainingrecord_name+".txt", 'w') as file:
+        #         pass
 
         # Define a model for training
         #torch.manual_seed(1)         # if we want the same default weight initialisation every time
@@ -1036,11 +1046,15 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
         trainingPerformance, testPerformance = [[] for i in range(2)]
 
         print("Training network...")
+        
+        # for the text file to seperate the trials when recurrent_test is called between testing the trainloader or testloader sets
+        testing_set = 'train' # set as either 'train' or 'test' to indicate which set is being tested (trainloader or testloader respectively)
 
         # Take baseline performance measures
         optimizer.zero_grad()
-        _, base_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, trials_file_path, printOutput)
-        _, base_test_accuracy = recurrent_test(args, model, device, testloader, criterion, trials_file_path, printOutput)
+        _, base_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, trials_file_path, testing_set, printOutput)
+        testing_set = 'test'
+        _, base_test_accuracy = recurrent_test(args, model, device, testloader, criterion, trials_file_path, testing_set, printOutput)
         print('Baseline train: {:.2f}%, Baseline test: {:.2f}%'.format(base_train_accuracy, base_test_accuracy))
         trainingPerformance.append(base_train_accuracy)
         testPerformance.append(base_test_accuracy)
@@ -1050,7 +1064,9 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
         epoch = 0
         #SN:  if statement here with args.train_long. 20 trials of train long
         if args.train_long == False: # train short up to 90 percent accuracy
-            with open(trials_file_path, 'a') as file:
+            with open(const.TRIALS_DIRECTORY+"train_"+trials_file_path, 'a') as file:
+                file.write('\nTraining short...')
+            with open(const.TRIALS_DIRECTORY+"test_"+trials_file_path, 'a') as file:
                 file.write('\nTraining short...')
             while standard_train_accuracy < 90.0: # trains until the network is performing well on the training set
 
@@ -1058,8 +1074,10 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
                 standard_train_loss, standard_train_accuracy = recurrent_train(args, model, device, trainloader, optimizer, criterion, epoch, printOutput)
 
                 # assess network
-                fair_train_loss, fair_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, trials_file_path, printOutput)
-                test_loss, test_accuracy = recurrent_test(args, model, device, testloader, criterion, trials_file_path, printOutput)
+                testing_set = 'train'
+                fair_train_loss, fair_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, trials_file_path, testing_set, printOutput)
+                testing_set = 'test'
+                test_loss, test_accuracy = recurrent_test(args, model, device, testloader, criterion, trials_file_path, testing_set, printOutput)
 
                 # log performance
                 train_perf = [standard_train_loss, standard_train_accuracy, fair_train_loss, fair_train_accuracy]
@@ -1071,17 +1089,23 @@ def train_recurrent_network(args, device, multiparams, trainset, testset):
                 log_performance(writer, epoch, train_perf, test_perf)
                 print_progress(epoch, n_epochs)
         else: # train long for n epochs
-            with open(trials_file_path, 'a') as file:
+            with open(const.TRIALS_DIRECTORY+"train_"+trials_file_path, 'a') as file:
+                file.write('\nTraining long...')
+            with open(const.TRIALS_DIRECTORY+"test_"+trials_file_path, 'a') as file:
                 file.write('\nTraining long...')
             for epoch in range(1, n_epochs + 1):
-                with open(trials_file_path, 'a') as file:
+                with open(const.TRIALS_DIRECTORY+"train_"+trials_file_path, 'a') as file:
+                    file.write('\nEpoch {}\n'.format(epoch))
+                with open(const.TRIALS_DIRECTORY+"test_"+trials_file_path, 'a') as file:
                     file.write('\nEpoch {}\n'.format(epoch))
                 # train network
                 standard_train_loss, standard_train_accuracy = recurrent_train(args, model, device, trainloader, optimizer, criterion, epoch, printOutput)
 
                 # assess network
-                fair_train_loss, fair_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, trials_file_path, printOutput)
-                test_loss, test_accuracy = recurrent_test(args, model, device, testloader, criterion, trials_file_path, printOutput)
+                testing_set = 'train'
+                fair_train_loss, fair_train_accuracy = recurrent_test(args, model, device, trainloader, criterion, trials_file_path, testing_set, printOutput)
+                testing_set = 'test'
+                test_loss, test_accuracy = recurrent_test(args, model, device, testloader, criterion, trials_file_path, testing_set, printOutput)
 
                 # log performance
                 train_perf = [standard_train_loss, standard_train_accuracy, fair_train_loss, fair_train_accuracy]
