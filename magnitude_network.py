@@ -317,6 +317,9 @@ def recurrent_test(args, model, device, test_loader, criterion, trials_file_path
 
     test_loss /= trials_counter  # there are n_comparetrials-1 instances of feedback per sequence
     accuracy = 100. * correct / trials_counter
+    with open(trials_file_path, 'a') as file:
+        file.write(f"Accuracy: {accuracy}\n")
+    
     if printOutput:
         print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(test_loss, correct, len(test_loader.dataset)*(n_comparetrials-1), accuracy))
     # save cor and inDat to text file
