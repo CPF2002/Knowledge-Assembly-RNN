@@ -1,14 +1,43 @@
-# Knowledge-Assembly-RNN
+# Knowledge Assembly RNN
+
 Stephanie Nelli and Compton French
 
 Continuing on the ideas presented in Sheahan et al. 2021 and Nelli et al. 2023. Building a Recurrent Neural Network that will conduct Knowledge Assembly in various training curriculum such as blocked, baseline, and interleaved. The full context range is 1-8 objects, divided into two seperate contexts, 1-4 and 5-8.
 
+## Table of Contents
 
-## Python Project Dependencies
+- [Knowledge Assembly RNN](#knowledge-assembly-rnn)
+  - [Table of Contents](#table-of-contents)
+  - [Installation](#installation)
+    - [Cloning the Repository](#cloning-the-repository)
+    - [Installing Python Project Dependencies](#installing-python-project-dependencies)
+      - [Installed Packages](#installed-packages)
+  - [Usage](#usage)
 
-This repository uses several Python packages to support its functionality. Below is a list of all dependencies with their respective versions.
+## Installation
 
-### Installed Packages
+### Cloning the Repository
+
+### Installing Python Project Dependencies
+
+This repository uses several Python packages to support its functionality. 
+
+Ensure Python and pip installed. You can check by running:
+
+```bash
+# Update package list
+sudo apt update
+
+# Install Git
+sudo apt install -y git
+
+# Verify installation
+git --version
+```
+
+Below is a list of all dependencies with their respective versions.
+
+#### Installed Packages
 
 | Package                   | Version    |
 |---------------------------|------------|
@@ -50,3 +79,5 @@ This repository uses several Python packages to support its functionality. Below
 | `typing_extensions`       | 4.12.2     |
 | `tzdata`                  | 2024.1     |
 | `Werkzeug`                | 3.0.3      |
+
+## Usage
