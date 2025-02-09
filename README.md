@@ -31,7 +31,7 @@ This will create a directory named `Knowledge-Assembly-RNN` in your current work
 To set up the repository, create the following folders in the project directory:
 
 ```bash
-mkdir datasets models animations network_analysis network_analysis/lesion_tests network_analysis/RDMs results results/runs trainingrecords trials
+mkdir animations datasets figures models network_analysis network_analysis/lesion_tests network_analysis/RDMs results results/runs trainingrecords trials
 ```
 
 ### Installing Python Project Dependencies
