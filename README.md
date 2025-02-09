@@ -10,13 +10,29 @@ Continuing on the ideas presented in Sheahan et al. 2021 and Nelli et al. 2023. 
   - [Table of Contents](#table-of-contents)
   - [Installation](#installation)
     - [Cloning the Repository](#cloning-the-repository)
+    - [Setup the Repository](#setup-the-repository)
     - [Installing Python Project Dependencies](#installing-python-project-dependencies)
-      - [Installed Packages](#installed-packages)
   - [Usage](#usage)
 
 ## Installation
 
 ### Cloning the Repository
+
+To clone the repository, run the following command:
+
+```bash
+git clone https://github.com/s-cogsci-nelli/Knowledge-Assembly-RNN.git
+```
+
+This will create a directory named `Knowledge-Assembly-RNN` in your current working directory containing all the files from the repository.
+
+### Setup the Repository
+
+To set up the repository, create the following folders in the project directory:
+
+```bash
+mkdir datasets models animations network_analysis network_analysis/lesion_tests network_analysis/RDMs results results/runs trainingrecords trials
+```
 
 ### Installing Python Project Dependencies
 
@@ -34,7 +50,7 @@ This repository uses several Python packages to support its functionality.
     pip3 --version
     ```
 
-    If Python or pip are not installed, follow the instructions for your operating system to install them. Developed on Python v3.12.8.
+    If Python or pip are not installed, follow the instructions for your operating system to install them. The repository is developed on Python v3.12.8. Using a different version of Python may result in some issues.
 
 2. Create a virtual environment:
 
@@ -109,3 +125,23 @@ This repository uses several Python packages to support its functionality.
     | `Werkzeug`                | 3.0.3      |
 
 ## Usage
+
+To run the main script from the project directiory, use the following command with your Python version:
+
+```bash
+python main.py
+```
+
+If you are using Python 3, you may need to use:
+
+```bash
+python3 main.py
+```
+
+To ensure using Python 3.12, you may need to use:
+
+```bash
+python3.12 main.py
+```
+
+Ensure that you have activated your virtual environment before running the script.
