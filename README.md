@@ -21,7 +21,7 @@ Continuing on the ideas presented in Sheahan et al. 2021 and Nelli et al. 2023. 
 To clone the repository, run the following command:
 
 ```bash
-git clone https://github.com/s-cogsci-nelli/Knowledge-Assembly-RNN.git
+git clone https://github.com/CPF2002/Knowledge-Assembly-RNN.git
 ```
 
 This will create a directory named `Knowledge-Assembly-RNN` in your current working directory containing all the files from the repository.
