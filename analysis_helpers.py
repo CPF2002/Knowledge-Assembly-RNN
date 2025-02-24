@@ -1242,34 +1242,52 @@ def analyse_retrained_nets(args, retrain_args):
     print('Tstat: {}  p-value: {}'.format(Tstat, pvalue))
 
 def parse_comparisons_to_json(input_file, output_file):
-    comparison_stats = {}  # dictionary
-    
+    """
+    Reads a text file, extracts judge and ref values along with answer correctness, 
+    compiles statistics, sorts the results, and saves them to a JSON file.
+
+    :param input_file: Path to the input text file.
+    :param output_file: Path to the output JSON file.
+    """
+    comparison_stats = {}  # Dictionary to store statistics
+
+    # Read file and extract data
     with open(input_file, 'r') as file:
         for line in file:
             match = re.search(r'judge_value:\s*(\d+)\s*ref_Value:\s*(\d+).*answer_correct:\s*(\d+)', line)
             if match:
                 judge_value, ref_value, answer_correct = map(int, match.groups())
                 key = f"judge_{judge_value}_vs_ref_{ref_value}"  # Maintain order
-                
+
                 if key not in comparison_stats:
                     comparison_stats[key] = {"total": 0, "correct": 0}  # Initialize entry
-                
-                # add to total counts
+
+                # Add to total counts
                 comparison_stats[key]["total"] += 1
-                
-                # add to correct counts
+
+                # Add to correct counts
                 if answer_correct == 1:
                     comparison_stats[key]["correct"] += 1
-                    
+
                 # Calculate accuracy as a percentage
                 total = comparison_stats[key]["total"]
                 correct = comparison_stats[key]["correct"]
                 comparison_stats[key]["accuracy"] = round((correct / total) * 100, 2) if total > 0 else 0.0
 
-    
-    # dump dictionary to json
+    # Sorting function
+    def extract_keys(key):
+        parts = key.split("_vs_ref_")
+        judge = int(parts[0].replace("judge_", ""))
+        ref = int(parts[1])
+        return (judge, ref)
+
+    # Sort the dictionary based on judge and ref values
+    sorted_comparison_stats = {k: comparison_stats[k] for k in sorted(comparison_stats.keys(), key=extract_keys)}
+
+    # Save sorted data to JSON file
     with open(output_file, 'w') as json_file:
-        json.dump(comparison_stats, json_file, indent=4)
+        json.dump(sorted_comparison_stats, json_file, indent=4)
+
 
     print(f"Comparison frequencies saved to {output_file}")
     
