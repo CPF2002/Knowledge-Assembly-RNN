@@ -1241,7 +1241,7 @@ def analyse_retrained_nets(args, retrain_args):
     Tstat, pvalue = scipy.stats.ttest_ind(SSE_local[0], SSE_local[1])
     print('Tstat: {}  p-value: {}'.format(Tstat, pvalue))
 
-def parse_comparisons_to_json(input_file, output_file):
+def parse_comparisons_to_json(input_file, output_file, args):
     """
     Reads a text file, extracts judge and ref values along with answer correctness, 
     compiles statistics, sorts the results, and saves them to a JSON file.
@@ -1250,12 +1250,17 @@ def parse_comparisons_to_json(input_file, output_file):
     :param output_file: Path to the output JSON file.
     """
     comparison_stats = {}  # Dictionary to store statistics
+    
+    final_epoch = False # update to true after reading the last epoch
 
     # Read file and extract data
     with open(input_file, 'r') as file:
         for line in file:
+            if "Epoch "+ str(args.epochs) in line: # only want to count comparisons of final epoch
+                final_epoch = True
+                
             match = re.search(r'judge_value:\s*(\d+)\s*ref_Value:\s*(\d+).*answer_correct:\s*(\d+)', line)
-            if match:
+            if match and final_epoch: # only want to count comparisons of final epoch
                 judge_value, ref_value, answer_correct = map(int, match.groups())
                 key = f"judge_{judge_value}_vs_ref_{ref_value}"  # Maintain order
 
@@ -1316,11 +1321,13 @@ def create_accuracy_bar_chart(json_file, output_image):
     ax.set_yticklabels(comparisons, fontsize=10)  # Adjust font size for readability
     ax.set_xlabel("Accuracy (%)")
     ax.set_ylabel("Comparison Pairs")
-    ax.set_title("Accuracy of Judge-Reference Comparisons (Unsorted)")
+    ax.set_title("Accuracy of Judge-Reference Comparisons in Final Epoch")
     ax.invert_yaxis()  # Invert y-axis for better readability
 
     plt.tight_layout()
-
+    # Make tick lines on the x-axis go all the way up
+    ax.xaxis.grid(True, linestyle='--', which='both', color='gray', alpha=0.7)
+    ax.set_axisbelow(True)
     # Save the figure as a PNG file
     plt.savefig(output_image, dpi=300)
     plt.close()
