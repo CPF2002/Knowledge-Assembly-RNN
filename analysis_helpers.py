@@ -29,6 +29,7 @@ import torch
 from sklearn.linear_model import LogisticRegression
 from scipy.io import loadmat
 import random
+import re
 
 import torch
 import torch.nn as nn
@@ -1239,3 +1240,36 @@ def analyse_retrained_nets(args, retrain_args):
     # compare interleaved vs blocked local context use (unpaired)
     Tstat, pvalue = scipy.stats.ttest_ind(SSE_local[0], SSE_local[1])
     print('Tstat: {}  p-value: {}'.format(Tstat, pvalue))
+
+def parse_comparisons_to_json(input_file, output_file):
+    comparison_stats = {}  # dictionary
+    
+    with open(input_file, 'r') as file:
+        for line in file:
+            match = re.search(r'judge_value:\s*(\d+)\s*ref_Value:\s*(\d+).*answer_correct:\s*(\d+)', line)
+            if match:
+                judge_value, ref_value, answer_correct = map(int, match.groups())
+                key = f"judge_{judge_value}_vs_ref_{ref_value}"  # Maintain order
+                
+                if key not in comparison_stats:
+                    comparison_stats[key] = {"total": 0, "correct": 0}  # Initialize entry
+                
+                # add to total counts
+                comparison_stats[key]["total"] += 1
+                
+                # add to correct counts
+                if answer_correct == 1:
+                    comparison_stats[key]["correct"] += 1
+                    
+                # Calculate accuracy as a percentage
+                total = comparison_stats[key]["total"]
+                correct = comparison_stats[key]["correct"]
+                comparison_stats[key]["accuracy"] = round((correct / total) * 100, 2) if total > 0 else 0.0
+
+    
+    # dump dictionary to json
+    with open(output_file, 'w') as json_file:
+        json.dump(comparison_stats, json_file, indent=4)
+
+    print(f"Comparison frequencies saved to {output_file}")
+    
