@@ -299,7 +299,7 @@ def recurrent_test(args, model, device, test_loader, criterion, trials_file_path
                     
                     # format in a single line
                     trial = f"judge_value: {judge_value}\t ref_Value: {ref_Value}\t model_guess: {model_guess}\t dataset_label: {label}\t answer_correct: {answer}\n"
-                    print(trial)
+                    #print(trial)
                     if (model_guess != label and answer == 1) or (model_guess == label and answer == 0):
                         print("Misclassified")
                         

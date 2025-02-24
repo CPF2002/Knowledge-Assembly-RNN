@@ -266,12 +266,12 @@ def create_separate_input_data(filename, args):
                             context = 1
                             minNumerosity = const.LOWR_LLIM
                             maxNumerosity = const.LOWR_ULIM
-                            print('minNumerosity: ', minNumerosity, 'maxNumerosity', maxNumerosity)
+                            #print('minNumerosity: ', minNumerosity, 'maxNumerosity', maxNumerosity)
                         elif block < 2*(Mblocks/const.NCONTEXTS):     # context B    # now 5-8
                             context = 2
                             minNumerosity = const.HIGHR_LLIM
                             maxNumerosity = const.HIGHR_ULIM
-                            print('minNumerosity: ', minNumerosity, 'maxNumerosity: ', maxNumerosity)
+                            #print('minNumerosity: ', minNumerosity, 'maxNumerosity: ', maxNumerosity)
                     # single context options
                     elif args.which_context==1:     # context A
                         print('\nlow range context')
@@ -289,7 +289,7 @@ def create_separate_input_data(filename, args):
                     maxNumerosity = const.HIGHR_LLIM
             else:
                 # sets the numerosity to test the whole set (both contexts) for short and long
-                print('args.train_long: ', args.train_long, 'phase: ', phase)
+                #print('args.train_long: ', args.train_long, 'phase: ', phase)
                 minNumerosity = const.FULLR_LLIM
                 maxNumerosity = const.FULLR_ULIM
     
@@ -306,8 +306,8 @@ def create_separate_input_data(filename, args):
                     randNumDistribution = [i for i in range(minNumerosity, maxNumerosity+1)]  # uniform between min and max
             
             indexDistribution = [i for i in range(len(randNumDistribution))]  # this is going to allow us to know which context a sample which have been drawn from if intermingled
-            print('randNumDistribution: ', randNumDistribution)
-            print('indexDistribution: ', indexDistribution)
+            #print('randNumDistribution: ', randNumDistribution)
+            #print('indexDistribution: ', indexDistribution)
             
             # generate some random numerosity data and label whether the random judgement integers are larger than the refValue
             firstTrialInContext = True              # reset the sequentialAB structure for each new context
