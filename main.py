@@ -107,6 +107,8 @@ if __name__ == '__main__':
     input_file = 'trials/test_1948_trainingrecord_RNN_trainlong_truecontextlabel_numrangeblocked_retainstate_n0.0_bs1_lr0.0001_ep10_r200_h200_bpl120_trlf0.1_id1.txt'
     output_file = 'trials/comparisons_test_1948_trainingrecord_RNN_trainlong_truecontextlabel_numrangeblocked_retainstate_n0.0_bs1_lr0.0001_ep10_r200_h200_bpl120_trlf0.1_id1.json'
     anh.parse_comparisons_to_json(input_file, output_file)
+    output_image = 'figures/comparisons_test_1948_trainingrecord_RNN_trainlong_truecontextlabel_numrangeblocked_retainstate_n0.0_bs1_lr0.0001_ep10_r200_h200_bpl120_trlf0.1_id1.png'
+    anh.create_accuracy_bar_chart(output_file, output_image)
       
       
       

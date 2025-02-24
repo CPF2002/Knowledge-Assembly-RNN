@@ -1273,3 +1273,37 @@ def parse_comparisons_to_json(input_file, output_file):
 
     print(f"Comparison frequencies saved to {output_file}")
     
+    
+def create_accuracy_bar_chart(json_file, output_image):
+    """Creates and saves a bar chart of accuracy percentages from a JSON file."""
+    import json
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    # Load the JSON data
+    with open(json_file, "r") as f:
+        data = json.load(f)
+
+    # Extract keys and accuracy values without sorting
+    comparisons = list(data.keys())
+    accuracies = [entry["accuracy"] for entry in data.values()]
+
+    # Create the bar chart with increased spacing
+    fig, ax = plt.subplots(figsize=(12, 12))  # Increase figure height for spacing
+    y_positions = np.arange(len(comparisons))  # Y positions for bars
+    bar_width = 0.6  # Reduce bar width for more spacing
+
+    ax.barh(y_positions, accuracies, color='blue', alpha=0.7, height=bar_width)
+    ax.set_yticks(y_positions)
+    ax.set_yticklabels(comparisons, fontsize=10)  # Adjust font size for readability
+    ax.set_xlabel("Accuracy (%)")
+    ax.set_ylabel("Comparison Pairs")
+    ax.set_title("Accuracy of Judge-Reference Comparisons (Unsorted)")
+    ax.invert_yaxis()  # Invert y-axis for better readability
+
+    plt.tight_layout()
+
+    # Save the figure as a PNG file
+    plt.savefig(output_image, dpi=300)
+    plt.close()
+    print(f"Bar chart saved as {output_image}")
