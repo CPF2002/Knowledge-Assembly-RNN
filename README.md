@@ -12,6 +12,7 @@ Continuing on the ideas presented in Sheahan et al. 2021 and Nelli et al. 2023. 
     - [Cloning the Repository](#cloning-the-repository)
     - [Setup the Repository](#setup-the-repository)
     - [Installing Python Project Dependencies](#installing-python-project-dependencies)
+    - [Making Necessary Directories](#making-necessary-directories)
   - [Usage](#usage)
 
 ## Installation
@@ -123,6 +124,16 @@ This repository uses several Python packages to support its functionality.
     | `typing_extensions`       | 4.12.2     |
     | `tzdata`                  | 2024.1     |
     | `Werkzeug`                | 3.0.3      |
+
+### Making Necessary Directories
+
+The code places files into specific directories. Run the command below to create all the necessary directories.
+
+```bash
+# Create all the directories
+mkdir datasets, figures, models, network_analysis, results/runs, trainingrecords, trials
+mkdir network_analysis/lesion_tests, network_analysis/RDMs
+```
 
 ## Usage
 
