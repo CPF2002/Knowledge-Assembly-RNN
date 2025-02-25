@@ -116,11 +116,16 @@ if __name__ == '__main__':
         filename = "comparisons_" + filename.replace('trainingrecord_', '')
         output_file = os.path.join('trials/comparisons', filename.replace('.txt', '.json'))
         anh.parse_comparisons_to_json(input_file, output_file, args)
+        filename = filename.replace('comparisons_', 'accuracy_bar_')
         output_image = os.path.join('figures', filename.replace('.txt', '.png'))
         anh.create_accuracy_bar_chart(output_file, output_image)
-      
-      
-      
+        output_image = output_image.replace('bar', 'matrix')
+        anh.create_accuracy_matrix_chart(output_file, output_image)
+    
+    
+    
+    
+
       
       
       

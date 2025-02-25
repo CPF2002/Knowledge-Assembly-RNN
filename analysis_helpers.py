@@ -1331,3 +1331,62 @@ def create_accuracy_bar_chart(json_file, output_image):
     plt.savefig(output_image, dpi=300)
     plt.close()
     print(f"Bar chart saved as: {output_image}")
+    
+def create_accuracy_matrix_chart(json_file, output_image):
+    """
+    Creates a matrix chart from accuracy data in a JSON file and saves it as an image.
+
+    Parameters:
+    json_file (str): Path to the JSON file containing accuracy data.
+    output_image (str): Path to save the output matrix chart image.
+    """
+    import pandas as pd
+    
+    # Load JSON data
+    with open(json_file, "r") as file:
+        data = json.load(file)
+
+    # Extract judges and references from the keys
+    judges = set()
+    references = set()
+    accuracy_data = {}
+
+    for key, value in data.items():
+        judge, ref = key.split("_vs_")
+        judges.add(judge)
+        references.add(ref)
+        accuracy_data[(judge, ref)] = value["accuracy"]
+
+    # Sort judges and references for matrix alignment
+    judges = sorted(judges, key=lambda x: int(x.split("_")[1]))
+    references = sorted(references, key=lambda x: int(x.split("_")[1]))
+
+    # Create a matrix of accuracy values
+    accuracy_matrix = np.zeros((len(judges), len(references)))
+
+    for i, judge in enumerate(judges):
+        for j, ref in enumerate(references):
+            accuracy_matrix[i, j] = accuracy_data.get((judge, ref), np.nan)
+            
+    # print the matrix
+    print("Accuracy Matrix:")
+    print(accuracy_matrix)
+
+    # Convert to DataFrame for visualization
+    accuracy_df = pd.DataFrame(accuracy_matrix, index=judges, columns=references)
+
+    # Plot the heatmap matrix
+    plt.figure(figsize=(10, 8))
+    plt.imshow(accuracy_matrix, cmap="coolwarm", aspect="auto")
+    plt.colorbar(label="Accuracy (%)")
+    plt.xticks(ticks=np.arange(len(references)), labels=references, rotation=45, ha="right")
+    plt.yticks(ticks=np.arange(len(judges)), labels=judges)
+    plt.xlabel("References")
+    plt.ylabel("Judges")
+    plt.title("Accuracy Matrix of Judges vs References")
+
+    # Save the plot
+    plt.savefig(output_image, bbox_inches="tight")
+    # plt.show()
+    plt.close()
+    
