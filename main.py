@@ -109,6 +109,15 @@ if __name__ == '__main__':
     anh.parse_comparisons_to_json(input_file, output_file, args)
     output_image = 'figures/comparisons_test_1948_trainingrecord_RNN_trainlong_truecontextlabel_numrangeblocked_retainstate_n0.0_bs1_lr0.0001_ep10_r200_h200_bpl120_trlf0.1_id1.png'
     anh.create_accuracy_bar_chart(output_file, output_image)
+    for filename in os.listdir('trials'):
+      if filename.endswith('.txt') and 'trainlong' in filename and 'test' in filename:
+        #print(filename)
+        input_file = os.path.join('trials', filename)
+        filename = "comparisons_" + filename.replace('trainingrecord_', '')
+        output_file = os.path.join('trials/comparisons', filename.replace('.txt', '.json'))
+        anh.parse_comparisons_to_json(input_file, output_file, args)
+        output_image = os.path.join('figures', filename.replace('.txt', '.png'))
+        anh.create_accuracy_bar_chart(output_file, output_image)
       
       
       

@@ -1294,7 +1294,7 @@ def parse_comparisons_to_json(input_file, output_file, args):
         json.dump(sorted_comparison_stats, json_file, indent=4)
 
 
-    print(f"Comparison frequencies saved to {output_file}")
+    print(f"Comparison frequencies saved to: {output_file}")
     
     
 def create_accuracy_bar_chart(json_file, output_image):
@@ -1312,23 +1312,22 @@ def create_accuracy_bar_chart(json_file, output_image):
     accuracies = [entry["accuracy"] for entry in data.values()]
 
     # Create the bar chart with increased spacing
-    fig, ax = plt.subplots(figsize=(12, 12))  # Increase figure height for spacing
-    y_positions = np.arange(len(comparisons))  # Y positions for bars
+    fig, ax = plt.subplots(figsize=(12, 6))  # Increase figure width for spacing
+    x_positions = np.arange(len(comparisons))  # X positions for bars
     bar_width = 0.6  # Reduce bar width for more spacing
 
-    ax.barh(y_positions, accuracies, color='blue', alpha=0.7, height=bar_width)
-    ax.set_yticks(y_positions)
-    ax.set_yticklabels(comparisons, fontsize=10)  # Adjust font size for readability
-    ax.set_xlabel("Accuracy (%)")
-    ax.set_ylabel("Comparison Pairs")
+    ax.bar(x_positions, accuracies, color='blue', alpha=0.7, width=bar_width)
+    ax.set_xticks(x_positions)
+    ax.set_xticklabels(comparisons, fontsize=10, rotation=90)  # Adjust font size and rotate for readability
+    ax.set_ylabel("Accuracy (%)")
+    ax.set_xlabel("Comparison Pairs")
     ax.set_title("Accuracy of Judge-Reference Comparisons in Final Epoch")
-    ax.invert_yaxis()  # Invert y-axis for better readability
 
     plt.tight_layout()
-    # Make tick lines on the x-axis go all the way up
-    ax.xaxis.grid(True, linestyle='--', which='both', color='gray', alpha=0.7)
+    # Make tick lines on the y-axis go all the way across
+    ax.yaxis.grid(True, linestyle='--', which='both', color='gray', alpha=0.7)
     ax.set_axisbelow(True)
     # Save the figure as a PNG file
     plt.savefig(output_image, dpi=300)
     plt.close()
-    print(f"Bar chart saved as {output_image}")
+    print(f"Bar chart saved as: {output_image}")
